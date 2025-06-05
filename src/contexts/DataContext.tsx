@@ -78,15 +78,14 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       initialData[product] = {};
       quarters.forEach(quarter => {
         initialData[product][quarter] = {
-          ...defaultDashboardData,
           metricSummary: {
-            ...defaultDashboardData.metricSummary,
+            responsiveness: defaultDashboardData.metricSummary.responsiveness,
+            responsivenessTrend: defaultDashboardData.metricSummary.responsivenessTrend,
             roadmapAlignment: { ...defaultDashboardData.metricSummary.roadmapAlignment },
+            collaborationTrends: [...defaultDashboardData.metricSummary.collaborationTrends],
             ideaVolume: { ...defaultDashboardData.metricSummary.ideaVolume },
-            agingIdeas: { 
-              ...defaultDashboardData.metricSummary.agingIdeas,
-              trend: [...(defaultDashboardData.metricSummary.agingIdeas.trend || [])]
-            }
+            agingIdeas: { ...defaultDashboardData.metricSummary.agingIdeas },
+            crossClientCollaboration: defaultDashboardData.metricSummary.crossClientCollaboration
           },
           stackedBarData: [...defaultDashboardData.stackedBarData],
           lineChartData: [...defaultDashboardData.lineChartData],
