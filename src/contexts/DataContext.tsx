@@ -343,10 +343,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 ...(fetchedData.metricSummary?.agingIdeas || {})
               }
             },
-            stackedBarData: fetchedData.stackedBarData || [...defaultDashboardData.stackedBarData],
             lineChartData: fetchedData.lineChartData || [...defaultDashboardData.lineChartData],
             topFeatures: fetchedData.topFeatures || [...defaultDashboardData.topFeatures],
-            data_socialization_forums: fetchedData.data_socialization_forums || []
+            data_socialization_forums: fetchedData.data_socialization_forums || [
+              { name: 'CSC' },
+              { name: 'Sprint Reviews' },
+              { name: 'Customer Advisory Board (CAB)' },
+              { name: 'CWG' },
+              { name: 'Quarterly Product Reviews (QBRs)' }
+            ]
           };
 
           setAllProductsData(prevData => ({
@@ -362,7 +367,16 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             ...prevData,
             [currentProduct]: {
               ...prevData[currentProduct],
-              [currentQuarter]: defaultDashboardData
+              [currentQuarter]: {
+                ...defaultDashboardData,
+                data_socialization_forums: [
+                  { name: 'CSC' },
+                  { name: 'Sprint Reviews' },
+                  { name: 'Customer Advisory Board (CAB)' },
+                  { name: 'CWG' },
+                  { name: 'Quarterly Product Reviews (QBRs)' }
+                ]
+              }
             }
           }));
         }

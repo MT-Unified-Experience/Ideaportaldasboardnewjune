@@ -608,7 +608,13 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                           type="text"
                           value={forum.name}
                           onChange={(e) => {
-                            const newForums = [...(formData.data_socialization_forums || [])];
+                            const newForums = [...(formData.data_socialization_forums || [
+                              { name: 'CSC' },
+                              { name: 'Sprint Reviews' },
+                              { name: 'Customer Advisory Board (CAB)' },
+                              { name: 'CWG' },
+                              { name: 'Quarterly Product Reviews (QBRs)' }
+                            ])];
                             newForums[index] = { 
                               name: e.target.value 
                             };
@@ -622,7 +628,13 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                   <button
                     type="button"
                     onClick={() => {
-                      const newForums = [...(formData.data_socialization_forums || [])];
+                      const newForums = [...(formData.data_socialization_forums || [
+                        { name: 'CSC' },
+                        { name: 'Sprint Reviews' },
+                        { name: 'Customer Advisory Board (CAB)' },
+                        { name: 'CWG' },
+                        { name: 'Quarterly Product Reviews (QBRs)' }
+                      ])];
                       newForums.push({ name: '' });
                       setFormData({ ...formData, data_socialization_forums: newForums });
                     }}
