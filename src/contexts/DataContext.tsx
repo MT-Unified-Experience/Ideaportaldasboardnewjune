@@ -28,7 +28,6 @@ export const DataContext = createContext<DataContextType | undefined>(undefined)
 const defaultDashboardData: DashboardData = {
   metricSummary: {
     responsiveness: 0,
-    responsivenessTrend: 0,
     roadmapAlignment: {
       committed: 0,
       total: 0

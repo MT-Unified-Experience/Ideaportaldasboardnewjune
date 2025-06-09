@@ -205,7 +205,6 @@ const transformCSVData = (data: CSVRow[]): DashboardData => {
   // Safely extract metric summary from first row
   const metricSummary = {
     responsiveness: safeNumberConversion(firstRow.responsiveness),
-    responsivenessTrend: safeNumberConversion(firstRow.responsiveness_trend),
     roadmapAlignment: {
       committed: safeNumberConversion(firstRow.roadmap_alignment_committed),
       total: safeNumberConversion(firstRow.roadmap_alignment_total),

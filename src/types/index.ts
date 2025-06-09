@@ -5,7 +5,6 @@ export interface CollaborationTrend {
 
 export interface MetricSummary {
   responsiveness: number;
-  responsivenessTrend?: number;
   roadmapAlignment: {
     committed: number;
     total: number;
