@@ -15,6 +15,8 @@ interface DataContextType {
   setCurrentProduct: (product: Product) => void;
   setCurrentQuarter: (quarter: Quarter) => void;
   uploadCSV: (file: File) => Promise<void>;
+  uploadProductQuarterlyCSV: (file: File) => Promise<void>;
+  fetchProductQuarterlyData: (filters?: { product_id?: string; product_name?: string; quarter?: string; year?: string; page?: number; limit?: number; orderBy?: string; orderDirection?: 'asc' | 'desc'; }) => Promise<ProductQuarterlyData[]>;
   updateDashboardData: (data: DashboardData) => Promise<void>;
   isLoading: boolean;
   error: Error | null;
