@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import { useData } from '../contexts/DataContext';
 import ProductTabs from '../components/navigation/ProductTabs';
 import ActionItemsPanel from '../components/dashboard/ActionItemsPanel';
@@ -22,12 +23,20 @@ interface WidgetSettings {
   dataSocialization: boolean;
 }
 
-const DashboardLayout: React.FC = () => {
-  const { currentProduct, currentQuarter, dashboardData } = useData();
-  const [isManagementOpen, setIsManagementOpen] = useState(false);
-  const [isActionItemsOpen, setIsActionItemsOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [widgetSettings, setWidgetSettings] = useState<WidgetSettings>({
+const SETTINGS_STORAGE_KEY = 'dashboard-widget-settings';
+
+const getStoredSettings = (): WidgetSettings => {
+  try {
+    const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error('Error loading stored settings:', error);
+  }
+  
+  // Return default settings if nothing stored or error occurred
+  return {
     responsiveness: true,
     commitment: true,
     collaboration: true,
@@ -37,7 +46,35 @@ const DashboardLayout: React.FC = () => {
     clientSubmissions: true,
     topFeatures: true,
     dataSocialization: true,
-  });
+  };
+};
+
+const saveSettings = (settings: WidgetSettings): void => {
+  try {
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+  } catch (error) {
+    console.error('Error saving settings:', error);
+  }
+};
+
+const DashboardLayout: React.FC = () => {
+  const { currentProduct, currentQuarter, dashboardData } = useData();
+  const [isManagementOpen, setIsManagementOpen] = useState(false);
+  const [isActionItemsOpen, setIsActionItemsOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [widgetSettings, setWidgetSettings] = useState<WidgetSettings>(getStoredSettings);
+
+  // Load settings from localStorage on component mount
+  useEffect(() => {
+    const storedSettings = getStoredSettings();
+    setWidgetSettings(storedSettings);
+  }, []);
+
+  // Handle settings change and save to localStorage
+  const handleSettingsChange = (newSettings: WidgetSettings) => {
+    setWidgetSettings(newSettings);
+    saveSettings(newSettings);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -129,7 +166,7 @@ const DashboardLayout: React.FC = () => {
           isOpen={isSettingsOpen}
           onClose={() => setIsSettingsOpen(false)}
           widgetSettings={widgetSettings}
-          onSettingsChange={setWidgetSettings}
+          onSettingsChange={handleSettingsChange}
         />
 
       </main>
