@@ -34,6 +34,12 @@ const defaultDashboardData: DashboardData = {
       total: 0
     },
     collaborationTrends: [],
+    continuedEngagement: {
+      rate: 0,
+      numerator: 0,
+      denominator: 0,
+      ideas: []
+    },
     ideaVolume: { 
       quarterly: 0,
       total: 0
