@@ -9,8 +9,6 @@ interface MetricSummaryCardProps {
   tooltip?: string;
   trendData?: Array<{ quarter: string; count: number; }>;
   description: string;
-  trend?: number;
-  chip?: string;
   subLabel?: string;
   onCardClick?: () => void;
 }
@@ -23,8 +21,6 @@ const MetricSummaryCard: React.FC<MetricSummaryCardProps> = ({
   tooltip,
   trendData,
   description,
-  trend,
-  chip,
   subLabel,
   onCardClick,
 }) => {
@@ -100,25 +96,6 @@ const MetricSummaryCard: React.FC<MetricSummaryCardProps> = ({
                 </div>
               )}
             </div>
-            {chip && (
-              <span 
-                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#E0F0FF] text-[#007BFF]"
-              >
-                {chip}
-              </span>
-            )}
-            {trend !== undefined && (
-              <span 
-                className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                  trend >= 0 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}
-                title="Improvement from last quarter"
-              >
-                {trend >= 0 ? `+${trend}` : trend}%
-              </span>
-            )}
           </div>
           <div className="mt-1 flex items-baseline">
             <p className="text-2xl font-semibold text-gray-900">
