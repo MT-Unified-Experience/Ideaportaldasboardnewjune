@@ -310,7 +310,7 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                       </p>
                       <p>
                         <strong>Follow-up criteria:</strong> Ideas that received at least one additional status update 
-                        within 90 days after being moved out of "Needs Review" status.
+                        within 90 days after being moved out of "Needs Review\" status.
                       </p>
                       <p>
                         <strong>Purpose:</strong> This metric helps track whether ideas continue progressing through the pipeline 
