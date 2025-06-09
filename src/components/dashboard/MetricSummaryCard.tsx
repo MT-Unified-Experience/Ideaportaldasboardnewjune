@@ -145,26 +145,3 @@ const MetricSummaryCard: React.FC<MetricSummaryCardProps> = ({
 };
 
 export default MetricSummaryCard;
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="mt-1 flex items-baseline">
-            <p className="text-2xl font-semibold text-gray-900">
-              {renderValue()}
-            </p>
-          </div>
-          <p className="mt-1 text-xs text-gray-500">{description}</p>
-          {subLabel && (
-            <p className="mt-2 text-xs text-gray-400">{subLabel}</p>
-          )}
-        </div>
-        <div className={`p-2 rounded-full ${getIconBackground()}`}>
-          {getIcon()}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default MetricSummaryCard;
