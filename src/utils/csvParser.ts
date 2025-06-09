@@ -33,7 +33,7 @@ export const validateCSVData = async (csvData: string, currentProduct: string): 
           
           // Check if data matches current product (case-insensitive)
           const hasMatchingProduct = rows.some(row => 
-            row.product.toLowerCase() === currentProduct.toLowerCase()
+            row.product?.trim().toLowerCase() === currentProduct.toLowerCase()
           );
           if (!hasMatchingProduct) {
             throw new CSVError(
@@ -102,7 +102,7 @@ export const parseCSV = (csvData: string, currentProduct: string): Promise<Dashb
 
           // Filter data for current product (case-insensitive)
           const productData = (results.data as CSVRow[]).filter(row => 
-            row.product.toLowerCase() === currentProduct.toLowerCase()
+            row.product?.trim().toLowerCase() === currentProduct.toLowerCase()
           );
           
           if (productData.length === 0) {
