@@ -503,24 +503,24 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
 
           {/* Success Metrics */}
           <div className="bg-yellow-50 rounded-lg p-6 border border-yellow-200">
-            <h4 className="text-lg font-medium text-gray-900 mb-4">Success Metrics & KPIs</h4>
+            <h4 className="text-lg font-medium text-gray-900 mb-4">Success Metrics &amp; KPIs</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h5 className="font-medium text-gray-900 mb-2">Primary Metrics</h5>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Feature adoption rate > 70% within 6 months</li>
-                  <li>• Client satisfaction score increase > 15%</li>
-                  <li>• Request volume growth > 25% quarter-over-quarter</li>
-                  <li>• Implementation timeline adherence > 90%</li>
+                  <li>• Feature adoption rate &gt; 70% within 6 months</li>
+                  <li>• Client satisfaction score increase &gt; 15%</li>
+                  <li>• Request volume growth &gt; 25% quarter-over-quarter</li>
+                  <li>• Implementation timeline adherence &gt; 90%</li>
                 </ul>
               </div>
               <div>
                 <h5 className="font-medium text-gray-900 mb-2">Secondary Metrics</h5>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Cross-client collaboration increase > 20%</li>
-                  <li>• Support ticket reduction > 30%</li>
-                  <li>• Revenue impact > $500K annually</li>
-                  <li>• Market share improvement > 5%</li>
+                  <li>• Cross-client collaboration increase &gt; 20%</li>
+                  <li>• Support ticket reduction &gt; 30%</li>
+                  <li>• Revenue impact &gt; $500K annually</li>
+                  <li>• Market share improvement &gt; 5%</li>
                 </ul>
               </div>
             </div>
