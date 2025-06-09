@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Users, X, HelpCircle } from 'lucide-react';
+import CrossClientCollaborationTrend from './CrossClientCollaborationTrend';
 import {
   LineChart,
   Line,
@@ -21,6 +22,7 @@ interface CollaborationCardProps {
 
 const CollaborationCard: React.FC<CollaborationCardProps> = ({ value, collaborationTrends, tooltip }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showTrendChart, setShowTrendChart] = useState(false);
   const [selectedQuarter, setSelectedQuarter] = useState<string | null>(null);
   const [showClientList, setShowClientList] = useState(false);
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
@@ -96,15 +98,23 @@ const CollaborationCard: React.FC<CollaborationCardProps> = ({ value, collaborat
                   Cross-Client Collaboration
                 </h2>
               </div>
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  setSelectedQuarter(null);
-                }}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="h-6 w-6 text-gray-500" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowTrendChart(true)}
+                  className="px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                >
+                  View Trend Analysis
+                </button>
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    setSelectedQuarter(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="h-6 w-6 text-gray-500" />
+                </button>
+              </div>
             </div>
 
             <div className="space-y-6">
@@ -225,6 +235,11 @@ const CollaborationCard: React.FC<CollaborationCardProps> = ({ value, collaborat
           </div>
         </div>
       )}
+
+      <CrossClientCollaborationTrend
+        isOpen={showTrendChart}
+        onClose={() => setShowTrendChart(false)}
+      />
     </>
   );
 };
