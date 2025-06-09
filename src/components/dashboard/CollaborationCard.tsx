@@ -56,6 +56,9 @@ const CollaborationCard: React.FC<CollaborationCardProps> = ({ value, collaborat
     setShowClientList(false);
   };
 
+  const handleCloseTrendChart = () => {
+    setShowTrendChart(false);
+  };
   return (
     <>
       <div
@@ -101,6 +104,10 @@ const CollaborationCard: React.FC<CollaborationCardProps> = ({ value, collaborat
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowTrendChart(true)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowTrendChart(true);
+                  }}
                   className="px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                 >
                   View Trend Analysis
@@ -109,6 +116,7 @@ const CollaborationCard: React.FC<CollaborationCardProps> = ({ value, collaborat
                   onClick={() => {
                     setIsOpen(false);
                     setSelectedQuarter(null);
+                    setShowTrendChart(false);
                   }}
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                 >
@@ -238,7 +246,7 @@ const CollaborationCard: React.FC<CollaborationCardProps> = ({ value, collaborat
 
       <CrossClientCollaborationTrend
         isOpen={showTrendChart}
-        onClose={() => setShowTrendChart(false)}
+        onClose={handleCloseTrendChart}
       />
     </>
   );
