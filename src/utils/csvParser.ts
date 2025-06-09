@@ -205,6 +205,32 @@ const transformCSVData = (data: CSVRow[]): DashboardData => {
   // Safely extract metric summary from first row
   const metricSummary = {
     responsiveness: safeNumberConversion(firstRow.responsiveness),
+    responsivenessTrend: [
+      { 
+        quarter: 'FY24 Q4', 
+        percentage: safeNumberConversion(firstRow.responsiveness_trend_q4) || 82, 
+        responded: safeNumberConversion(firstRow.responsiveness_responded_q4) || 16, 
+        total: safeNumberConversion(firstRow.responsiveness_total_q4) || 20 
+      },
+      { 
+        quarter: 'FY25 Q1', 
+        percentage: safeNumberConversion(firstRow.responsiveness_trend_q1) || 85, 
+        responded: safeNumberConversion(firstRow.responsiveness_responded_q1) || 17, 
+        total: safeNumberConversion(firstRow.responsiveness_total_q1) || 20 
+      },
+      { 
+        quarter: 'FY25 Q2', 
+        percentage: safeNumberConversion(firstRow.responsiveness_trend_q2) || 88, 
+        responded: safeNumberConversion(firstRow.responsiveness_responded_q2) || 22, 
+        total: safeNumberConversion(firstRow.responsiveness_total_q2) || 25 
+      },
+      { 
+        quarter: 'FY25 Q3', 
+        percentage: safeNumberConversion(firstRow.responsiveness_trend_q3) || 91, 
+        responded: safeNumberConversion(firstRow.responsiveness_responded_q3) || 20, 
+        total: safeNumberConversion(firstRow.responsiveness_total_q3) || 22 
+      }
+    ],
     roadmapAlignment: {
       committed: safeNumberConversion(firstRow.roadmap_alignment_committed),
       total: safeNumberConversion(firstRow.roadmap_alignment_total),

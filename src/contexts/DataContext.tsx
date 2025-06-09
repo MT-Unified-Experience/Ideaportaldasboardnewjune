@@ -28,6 +28,12 @@ export const DataContext = createContext<DataContextType | undefined>(undefined)
 const defaultDashboardData: DashboardData = {
   metricSummary: {
     responsiveness: 0,
+    responsivenessTrend: [
+      { quarter: 'FY24 Q4', percentage: 82, responded: 16, total: 20 },
+      { quarter: 'FY25 Q1', percentage: 85, responded: 17, total: 20 },
+      { quarter: 'FY25 Q2', percentage: 88, responded: 22, total: 25 },
+      { quarter: 'FY25 Q3', percentage: 91, responded: 20, total: 22 }
+    ],
     roadmapAlignment: {
       committed: 0,
       total: 0

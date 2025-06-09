@@ -153,6 +153,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
               tooltip={tooltips.responsiveness}
               icon="responsiveness"
               description="Ideas responded to with a status update after client submissions"
+              responsivenessTrendData={metricSummary.responsivenessTrend}
             />
           )}
           {widgetSettings.commitment && (
