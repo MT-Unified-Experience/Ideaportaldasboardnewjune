@@ -5,6 +5,12 @@ export interface CollaborationTrend {
 
 export interface MetricSummary {
   responsiveness: number;
+  responsivenessTrend?: number;
+  responsivenessQuarterlyData?: Array<{
+    quarter: string;
+    percentage: number;
+    totalIdeas: number;
+  }>;
   roadmapAlignment: {
     committed: number;
     total: number;

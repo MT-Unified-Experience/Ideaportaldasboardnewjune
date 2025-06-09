@@ -1,5 +1,6 @@
 import React from 'react';
 import { DashboardData } from '../../types';
+import ResponsivenessCard from './ResponsivenessCard';
 import MetricSummaryCard from './MetricSummaryCard';
 import { TopFeaturesChart } from './TopFeaturesChart';
 import DataSocializationCard from './DataSocializationCard';
@@ -146,13 +147,10 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
       {visibleMetricCards > 0 && (
         <div className={`grid ${getMetricGridCols()} gap-6`}>
           {widgetSettings.responsiveness && (
-            <MetricSummaryCard
-              title="Responsiveness"
+            <ResponsivenessCard
               value={metricSummary.responsiveness}
-              type="percentage"
               tooltip={tooltips.responsiveness}
-              icon="responsiveness"
-              description="Ideas responded to with a status update after client submissions"
+              quarterlyData={metricSummary.responsivenessQuarterlyData}
             />
           )}
           {widgetSettings.commitment && (
