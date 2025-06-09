@@ -315,55 +315,6 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                   </div>
                 </div>
 
-                {/* Continued Engagement */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-4">
-                    <h3 className="text-sm font-medium text-gray-700">
-                      Continued Engagement Rate
-                    </h3>
-                    <div className="relative group">
-                      <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
-                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                        Percentage of ideas that received at least one additional status update within 90 days after being moved out of 'Needs Review'
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 mt-2">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Rate (%)
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.metricSummary?.continuedEngagement?.rate || 0}
-                        onChange={(e) => handleMetricChange('continuedEngagement', { rate: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Ideas with Follow-up
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.metricSummary?.continuedEngagement?.numerator || 0}
-                        onChange={(e) => handleMetricChange('continuedEngagement', { numerator: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Total Reviewed Ideas
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.metricSummary?.continuedEngagement?.denominator || 0}
-                        onChange={(e) => handleMetricChange('continuedEngagement', { denominator: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-                </div>
 
                 {/* Aging Ideas */}
                 <div>

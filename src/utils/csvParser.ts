@@ -211,12 +211,6 @@ const transformCSVData = (data: CSVRow[]): DashboardData => {
       total: safeNumberConversion(firstRow.roadmap_alignment_total),
     },
     crossClientCollaboration: safeNumberConversion(firstRow.cross_client_collaboration),
-    continuedEngagement: {
-      rate: safeNumberConversion(firstRow.continued_engagement_rate),
-      numerator: safeNumberConversion(firstRow.continued_engagement_numerator),
-      denominator: safeNumberConversion(firstRow.continued_engagement_denominator),
-      ideas: []
-    },
     ideaVolume: {
       quarterly: safeNumberConversion(firstRow.quarterly_ideas),
       total: safeNumberConversion(firstRow.total_ideas),

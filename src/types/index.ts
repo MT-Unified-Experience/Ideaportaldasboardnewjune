@@ -12,22 +12,6 @@ export interface MetricSummary {
   };
   crossClientCollaboration: number;
   collaborationTrends?: CollaborationTrend[];
-  continuedEngagement: {
-    rate: number;
-    numerator: number;
-    denominator: number;
-    ideas?: Array<{
-      id: string;
-      name: string;
-      initialStatusChange: string;
-      subsequentChanges: Array<{
-        date: string;
-        status: string;
-      }>;
-      daysBetween: number;
-      included: boolean;
-    }>;
-  };
   ideaVolume: {
     quarterly: number;
     total: number;
