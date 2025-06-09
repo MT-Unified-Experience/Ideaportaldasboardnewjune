@@ -85,7 +85,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
     if (widgetSettings.ideaDistribution && widgetSettings.clientSubmissions) {
       // Both charts visible - side by side
       charts.push(
-        <div key="distribution\" className="lg:col-span-2">
+        <div key="distribution\" className=\"lg:col-span-2">
           <HorizontalStackedBarChart data={stackedBarData} />
         </div>,
         <div key="submissions" className="lg:col-span-3">
@@ -191,7 +191,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
         </div>
       )}
       {/* Cross-Client Collaboration Trend Chart */}
-      {widgetSettings.collaboration && (
+      <div className="grid grid-cols-1 gap-6">
         <div className="grid grid-cols-1 gap-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
             <CrossClientCollaborationTrend
@@ -201,7 +201,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
             />
           </div>
         </div>
-      )}
+      </div>
 
       {/* Charts Row */}
       {(widgetSettings.ideaDistribution || widgetSettings.clientSubmissions) && (

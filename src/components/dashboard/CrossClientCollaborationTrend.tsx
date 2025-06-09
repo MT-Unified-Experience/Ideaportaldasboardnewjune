@@ -48,18 +48,14 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
 
   // Generate comprehensive monthly data for the past 12 months
   const generateMonthlyData = (): MonthlyCollaborationData[] => {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
+    const quarters = ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'];
     
     const currentDate = new Date();
     const data: MonthlyCollaborationData[] = [];
     
-    for (let i = 11; i >= 0; i--) {
-      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-      const monthIndex = date.getMonth();
-      const year = date.getFullYear();
+    for (let i = 0; i < 4; i++) {
+      const quarter = quarters[i];
+      const year = 2025;
       
       // Generate realistic collaboration data with trends
       const baseCollaborativeIdeas = 8 + Math.floor(Math.random() * 12);
@@ -67,7 +63,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
       const collaborationRate = Math.round((baseCollaborativeIdeas / totalIdeas) * 100);
       
       // Determine if this is a significant change
-      const prevRate = data.length > 0 ? data[data.length - 1].collaborationRate : collaborationRate;
+      const prevRate = i > 0 ? data[i - 1].collaborationRate : collaborationRate;
       const changePercentage = data.length > 0 ? collaborationRate - prevRate : 0;
       const significantChange = Math.abs(changePercentage) >= 5;
       
@@ -76,8 +72,8 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
       else if (changePercentage < -2) changeDirection = 'down';
 
       // Generate sample collaborative ideas
-      const topCollaborativeIdeas: CollaborativeIdea[] = Array.from({ length: Math.min(5, baseCollaborativeIdeas) }, (_, index) => ({
-        id: `idea-${year}-${monthIndex}-${index}`,
+      const topCollaborativeIdeas: CollaborativeIdea[] = Array.from({ length: Math.min(8, baseCollaborativeIdeas) }, (_, index) => ({
+        id: `idea-${year}-${i}-${index}`,
         name: [
           'AI-Powered Document Analysis',
           'Multi-Client Workflow Integration',
@@ -92,13 +88,13 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
         contributors: [
           'Client A', 'Client B', 'Client C', 'Client D', 'Client E', 'Client F'
         ].slice(0, 2 + Math.floor(Math.random() * 3)),
-        submissionDate: date.toISOString(),
+        submissionDate: new Date(year, i * 3, 1).toISOString(),
         collaborationScore: 60 + Math.floor(Math.random() * 40),
         status: ['Active', 'Delivered', 'In Development'][Math.floor(Math.random() * 3)] as any
       }));
 
       data.push({
-        month: months[monthIndex],
+        month: quarter,
         year,
         collaborativeIdeas: baseCollaborativeIdeas,
         totalIdeas,
@@ -113,7 +109,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
     return data;
   };
 
-  const monthlyData = generateMonthlyData();
+  const quarterlyData = generateMonthlyData();
 
   // Custom tooltip for the chart
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -121,7 +117,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
       const data = payload[0].payload as MonthlyCollaborationData;
       return (
         <div className="bg-white p-4 shadow-lg rounded-lg border border-gray-200 min-w-[250px]">
-          <p className="font-medium text-gray-900 mb-3">{`${data.month} ${data.year}`}</p>
+          <p className="font-medium text-gray-900 mb-3">{data.month}</p>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Collaborative Ideas:</span>
@@ -174,7 +170,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
 
   // Format month labels for display
   const formatMonthLabel = (month: string, year: number) => {
-    return `${month} '${year.toString().slice(-2)}`;
+    return month;
   };
 
   // If embedded, render simplified version
@@ -193,7 +189,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
             <div className="flex items-center mt-1">
               <HelpCircle className="h-4 w-4 text-gray-400 mr-2" />
               <p className="text-sm text-gray-600">
-                Shows ideas that received contributions from multiple clients over time
+                Shows quarterly trends of ideas that received contributions from multiple clients
               </p>
             </div>
           </div>
@@ -203,25 +199,25 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
         <div className="grid grid-cols-4 gap-4">
           <div className="bg-amber-50 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-amber-600">
-              {Math.round(monthlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / monthlyData.length)}%
+              {Math.round(quarterlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / quarterlyData.length)}%
             </div>
             <div className="text-sm text-gray-600">Avg Collaboration Rate</div>
           </div>
           <div className="bg-blue-50 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-blue-600">
-              {monthlyData.reduce((sum, item) => sum + item.collaborativeIdeas, 0)}
+              {quarterlyData.reduce((sum, item) => sum + item.collaborativeIdeas, 0)}
             </div>
             <div className="text-sm text-gray-600">Total Collaborative Ideas</div>
           </div>
           <div className="bg-green-50 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-green-600">
-              {monthlyData.filter(item => item.changeDirection === 'up').length}
+              {quarterlyData.filter(item => item.changeDirection === 'up').length}
             </div>
-            <div className="text-sm text-gray-600">Months with Growth</div>
+            <div className="text-sm text-gray-600">Quarters with Growth</div>
           </div>
           <div className="bg-purple-50 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-purple-600">
-              {Math.max(...monthlyData.map(item => item.collaborationRate))}%
+              {Math.max(...quarterlyData.map(item => item.collaborationRate))}%
             </div>
             <div className="text-sm text-gray-600">Peak Collaboration Rate</div>
           </div>
@@ -230,25 +226,19 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
         {/* Main Chart */}
         <div className="bg-gray-50 rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Monthly Collaboration Trends (Past 12 Months)
+            Quarterly Collaboration Trends (FY25)
           </h3>
           <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={monthlyData}
+                data={quarterlyData}
                 onClick={handleDataPointClick}
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis 
                   dataKey="month"
-                  tickFormatter={(value, index) => {
-                    const item = monthlyData[index];
-                    return formatMonthLabel(value, item?.year || new Date().getFullYear());
-                  }}
-                  angle={-45}
-                  textAnchor="end"
-                  height={60}
+                  tickFormatter={formatMonthLabel}
                 />
                 <YAxis 
                   domain={[0, 100]}
@@ -258,7 +248,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                 
                 {/* Reference line for average */}
                 <ReferenceLine 
-                  y={Math.round(monthlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / monthlyData.length)}
+                  y={Math.round(quarterlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / quarterlyData.length)}
                   stroke="#6b7280"
                   strokeDasharray="5 5"
                   label={{ value: "Average", position: "topRight" }}
@@ -306,7 +296,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium text-gray-900">
-                {selectedDataPoint.month} {selectedDataPoint.year} - Detailed Metrics
+                {selectedDataPoint.month} - Detailed Metrics
               </h3>
               <button
                 onClick={() => setSelectedDataPoint(null)}
@@ -382,6 +372,31 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
             </div>
           </div>
         )}
+
+        {/* Insights and Analysis */}
+        <div className="bg-gray-50 rounded-lg p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Key Insights</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">Trend Analysis</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• Collaboration rates show quarterly patterns with varying engagement levels</li>
+                <li>• Significant changes (±5%) occurred in {quarterlyData.filter(item => item.significantChange).length} quarters</li>
+                <li>• Peak collaboration quarter: {quarterlyData.reduce((max, item) => item.collaborationRate > max.collaborationRate ? item : max).month}</li>
+                <li>• Average quarterly collaborative ideas: {Math.round(quarterlyData.reduce((sum, item) => sum + item.collaborativeIdeas, 0) / quarterlyData.length)}</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">Collaboration Benefits</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• Multi-client ideas typically have 40% higher implementation success rates</li>
+                <li>• Collaborative features reduce individual client development costs by 25-35%</li>
+                <li>• Cross-client feedback improves feature quality and adoption rates</li>
+                <li>• Shared solutions create stronger client community engagement</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -404,7 +419,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                   <div className="flex items-center mt-1">
                     <HelpCircle className="h-4 w-4 text-gray-400 mr-2" />
                     <p className="text-sm text-gray-600">
-                      Shows ideas that received contributions from multiple clients over time
+                      Shows quarterly trends of ideas that received contributions from multiple clients
                     </p>
                   </div>
                 </div>
@@ -422,25 +437,25 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
               <div className="grid grid-cols-4 gap-4">
                 <div className="bg-amber-50 rounded-lg p-4 text-center">
                   <div className="text-2xl font-bold text-amber-600">
-                    {Math.round(monthlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / monthlyData.length)}%
+                    {Math.round(quarterlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / quarterlyData.length)}%
                   </div>
                   <div className="text-sm text-gray-600">Avg Collaboration Rate</div>
                 </div>
                 <div className="bg-blue-50 rounded-lg p-4 text-center">
                   <div className="text-2xl font-bold text-blue-600">
-                    {monthlyData.reduce((sum, item) => sum + item.collaborativeIdeas, 0)}
+                    {quarterlyData.reduce((sum, item) => sum + item.collaborativeIdeas, 0)}
                   </div>
                   <div className="text-sm text-gray-600">Total Collaborative Ideas</div>
                 </div>
                 <div className="bg-green-50 rounded-lg p-4 text-center">
                   <div className="text-2xl font-bold text-green-600">
-                    {monthlyData.filter(item => item.changeDirection === 'up').length}
+                    {quarterlyData.filter(item => item.changeDirection === 'up').length}
                   </div>
-                  <div className="text-sm text-gray-600">Months with Growth</div>
+                  <div className="text-sm text-gray-600">Quarters with Growth</div>
                 </div>
                 <div className="bg-purple-50 rounded-lg p-4 text-center">
                   <div className="text-2xl font-bold text-purple-600">
-                    {Math.max(...monthlyData.map(item => item.collaborationRate))}%
+                    {Math.max(...quarterlyData.map(item => item.collaborationRate))}%
                   </div>
                   <div className="text-sm text-gray-600">Peak Collaboration Rate</div>
                 </div>
@@ -449,25 +464,19 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
               {/* Main Chart */}
               <div className="bg-gray-50 rounded-lg p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Monthly Collaboration Trends (Past 12 Months)
+                  Quarterly Collaboration Trends (FY25)
                 </h3>
                 <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
-                      data={monthlyData}
+                      data={quarterlyData}
                       onClick={handleDataPointClick}
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="month"
-                        tickFormatter={(value, index) => {
-                          const item = monthlyData[index];
-                          return formatMonthLabel(value, item?.year || new Date().getFullYear());
-                        }}
-                        angle={-45}
-                        textAnchor="end"
-                        height={60}
+                        tickFormatter={formatMonthLabel}
                       />
                       <YAxis 
                         domain={[0, 100]}
@@ -477,7 +486,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                       
                       {/* Reference line for average */}
                       <ReferenceLine 
-                        y={Math.round(monthlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / monthlyData.length)}
+                        y={Math.round(quarterlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / quarterlyData.length)}
                         stroke="#6b7280"
                         strokeDasharray="5 5"
                         label={{ value: "Average", position: "topRight" }}
@@ -525,7 +534,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-medium text-gray-900">
-                      {selectedDataPoint.month} {selectedDataPoint.year} - Detailed Metrics
+                      {selectedDataPoint.month} - Detailed Metrics
                     </h3>
                     <button
                       onClick={() => setSelectedDataPoint(null)}
@@ -607,40 +616,4 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Key Insights</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Trend Analysis</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>• Collaboration rates show seasonal patterns with higher engagement in Q2 and Q4</li>
-                      <li>• Significant changes (±5%) occurred in {monthlyData.filter(item => item.significantChange).length} months</li>
-                      <li>• Peak collaboration month: {monthlyData.reduce((max, item) => item.collaborationRate > max.collaborationRate ? item : max).month}</li>
-                      <li>• Average monthly collaborative ideas: {Math.round(monthlyData.reduce((sum, item) => sum + item.collaborativeIdeas, 0) / monthlyData.length)}</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Collaboration Benefits</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>• Multi-client ideas typically have 40% higher implementation success rates</li>
-                      <li>• Collaborative features reduce individual client development costs by 25-35%</li>
-                      <li>• Cross-client feedback improves feature quality and adoption rates</li>
-                      <li>• Shared solutions create stronger client community engagement</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 px-6 py-4 flex justify-end">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default CrossClientCollaborationTrend;
+                    <h4 className="font-medium text-gray-
