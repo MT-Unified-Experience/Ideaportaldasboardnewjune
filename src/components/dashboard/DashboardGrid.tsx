@@ -36,7 +36,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
     responsiveness: "(Ideas moved out of the \"Need Review\" stage / Total ideas submitted in the quarter) × 100",
     commitment: "This shows the number of client-prioritized ideas that have been delivered so far this fiscal year, compared to the total number of ideas committed for delivery",
     collaboration: "Indicates the percentage of ideas that benefit multiple clients, highlighting opportunities for shared solutions.",
-    continuedEngagement: "Percentage of ideas that received at least one additional status update within 90 days after being moved out of 'Needs Review'. Helps track whether ideas continue progressing after initial review.",
+    continuedEngagement: "(Number of ideas that received another status update within 90 days after leaving \"Needs Review\") ÷ (Total number of ideas that moved out of \"Needs Review\" in the selected quarter) × 100",
     aging: "Tracks ideas that have been in Candidate status for over 90 days, helping identify potential bottlenecks in the review process.",
     distribution: "Visualizes the status breakdown of ideas across fiscal years, showing progression from candidate to delivery.",
     submissions: "Tracks the number of unique clients submitting ideas each quarter, measuring engagement trends.",
