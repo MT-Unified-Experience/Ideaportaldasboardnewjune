@@ -33,7 +33,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
   const [isAgingIdeasModalOpen, setIsAgingIdeasModalOpen] = useState(false);
   
   const tooltips = {
-    responsiveness: "Measures how quickly Mitratech responds to client ideas. A higher percentage indicates better engagement and faster feedback loops with clients.",
+    responsiveness: "(Ideas moved out of the \"Need Review\" stage / Total ideas submitted in the quarter) × 100",
     commitment: "Shows cumulative progress towards the yearly planning goal by tracking the total number of ideas committed versus the annual target.",
     collaboration: "Indicates the percentage of ideas that benefit multiple clients, highlighting opportunities for shared solutions.",
     continuedEngagement: "Percentage of ideas that received at least one additional status update within 90 days after being moved out of 'Needs Review'. Helps track whether ideas continue progressing after initial review.",
