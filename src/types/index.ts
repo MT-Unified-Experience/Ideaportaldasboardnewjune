@@ -14,6 +14,16 @@ export interface MetricSummary {
   roadmapAlignment: {
     committed: number;
     total: number;
+    commitmentTrends?: Array<{
+      year: string;
+      committed: number;
+      delivered: number;
+    }>;
+    quarterlyDeliveries?: Array<{
+      quarter: string;
+      year: string;
+      delivered: number;
+    }>;
   };
   crossClientCollaboration: number;
   collaborationTrends?: CollaborationTrend[];

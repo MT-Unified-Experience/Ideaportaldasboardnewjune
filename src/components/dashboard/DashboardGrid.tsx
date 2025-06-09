@@ -1,7 +1,7 @@
 import React from 'react';
 import { DashboardData } from '../../types';
 import ResponsivenessCard from './ResponsivenessCard';
-import MetricSummaryCard from './MetricSummaryCard';
+import CommitmentTrendsCard from './CommitmentTrendsCard';
 import { TopFeaturesChart } from './TopFeaturesChart';
 import DataSocializationCard from './DataSocializationCard';
 import CollaborationCard from './CollaborationCard';
@@ -9,6 +9,7 @@ import ContinuedEngagementCard from './ContinuedEngagementCard';
 import HorizontalStackedBarChart from './HorizontalStackedBarChart';
 import LineChart from './LineChart';
 import AgingIdeasModal from './AgingIdeasModal';
+import MetricSummaryCard from './MetricSummaryCard';
 import { useState } from 'react';
 
 interface WidgetSettings {
@@ -154,13 +155,11 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
             />
           )}
           {widgetSettings.commitment && (
-            <MetricSummaryCard
-              title="Idea Portal Commitment"
+            <CommitmentTrendsCard
               value={metricSummary.roadmapAlignment}
-              type="number"
               tooltip={tooltips.commitment}
-              icon="roadmap"
-              description="Total Planned Ideas Delivered to Date vs Annual Commitment"
+              commitmentTrends={metricSummary.roadmapAlignment.commitmentTrends}
+              quarterlyDeliveries={metricSummary.roadmapAlignment.quarterlyDeliveries}
             />
           )}
           {widgetSettings.collaboration && (
