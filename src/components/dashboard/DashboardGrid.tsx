@@ -152,7 +152,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
               type="percentage"
               tooltip={tooltips.responsiveness}
               icon="responsiveness"
-              description="of the time ideas were responded within 2 weeks"
+              description="Ideas responded to with a status update after client submissions"
             />
           )}
           {widgetSettings.commitment && (
