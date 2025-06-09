@@ -84,7 +84,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
     if (widgetSettings.ideaDistribution && widgetSettings.clientSubmissions) {
       // Both charts visible - side by side
       charts.push(
-        <div key="distribution\" className=\"lg:col-span-2">
+        <div key="distribution" className="lg:col-span-2">
           <HorizontalStackedBarChart data={stackedBarData} />
         </div>,
         <div key="submissions" className="lg:col-span-3">
@@ -179,13 +179,12 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
             />
           )}
           {widgetSettings.agingIdeas && (
+            <MetricSummaryCard
               title="Aging Candidate Ideas"
               value={metricSummary.agingIdeas.count}
-            <CommitmentTrendsCard
-              value={metricSummary.roadmapAlignment}
-              tooltip={tooltips.commitment}
-              commitmentTrends={metricSummary.roadmapAlignment.commitmentTrends}
-              quarterlyDeliveries={metricSummary.roadmapAlignment.quarterlyDeliveries}
+              tooltip={tooltips.aging}
+              onClick={toggleAgingIdeasModal}
+              clickable={true}
             />
           )}
         </div>
