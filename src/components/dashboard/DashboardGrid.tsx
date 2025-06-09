@@ -162,7 +162,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
               type="number"
               tooltip={tooltips.commitment}
               icon="roadmap"
-              description="Total ideas committed this fiscal year vs annual target"
+              description="Total Planned Ideas Delivered to Date vs Annual Commitment"
             />
           )}
           {widgetSettings.collaboration && (
