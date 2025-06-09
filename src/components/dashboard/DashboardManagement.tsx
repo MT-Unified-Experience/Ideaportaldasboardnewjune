@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, HelpCircle, BarChart2, Users, Clock, LineChart as LineChartIcon } from 'lucide-react';
+import { X, HelpCircle, BarChart2, Users, Clock, LineChart as LineChartIcon, Eye, EyeOff } from 'lucide-react';
 import { DashboardData } from '../../types';
 import { useData } from '../../contexts/DataContext';
 
@@ -27,6 +27,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
 
   const tabs = [
     { id: 'metrics', name: 'Key Metrics', icon: BarChart2 },
+    { id: 'widgets', name: 'Widget Visibility', icon: Eye },
     { id: 'distribution', name: 'Idea Status Distribution by Year', icon: Users },
     { id: 'submissions', name: 'Client Submissions by Quarter', icon: LineChartIcon },
     { id: 'features', name: 'Top 10 Requested Features', icon: Clock },
@@ -53,6 +54,16 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
       });
     }
   }, [dashboardData]);
+
+  const handleWidgetVisibilityChange = (widget: string, visible: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      widgetVisibility: {
+        ...prev.widgetVisibility,
+        [widget]: visible
+      }
+    }));
+  };
 
   const handleStackedBarDataChange = (index: number, field: string, value: number) => {
     setFormData(prev => ({
