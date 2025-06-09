@@ -83,6 +83,10 @@ const MetricSummaryCard: React.FC<MetricSummaryCardProps> = ({
     }
     
     if (typeof value === 'number') {
+      // For percentage type, don't show 0% if it represents no data
+      if (type === 'percentage' && value === 0 && title === 'Continued Engagement Rate') {
+        return 'N/A';
+      }
       return type === 'percentage' ? `${value}%` : value;
     }
     

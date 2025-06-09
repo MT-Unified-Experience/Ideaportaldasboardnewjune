@@ -56,10 +56,14 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
               )}
             </div>
             <div className="mt-1 flex items-baseline">
-              <p className="text-2xl font-semibold text-gray-900">{value}%</p>
+              <p className="text-2xl font-semibold text-gray-900">
+                {value === 0 && numerator === 0 && denominator === 0 ? 'N/A' : `${value}%`}
+              </p>
             </div>
             <p className="mt-1 text-xs text-gray-500">% of reviewed ideas updated again within 90 days</p>
-            <p className="mt-2 text-xs text-gray-400">{numerator} of {denominator} ideas</p>
+            <p className="mt-2 text-xs text-gray-400">
+              {numerator === 0 && denominator === 0 ? 'No data available' : `${numerator} of ${denominator} ideas`}
+            </p>
           </div>
           <div className="p-2 rounded-full bg-green-100">
             <RefreshCw className="h-5 w-5 text-green-600" />
