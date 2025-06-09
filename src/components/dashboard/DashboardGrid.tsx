@@ -179,15 +179,13 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
             />
           )}
           {widgetSettings.agingIdeas && (
-            <MetricSummaryCard
               title="Aging Candidate Ideas"
               value={metricSummary.agingIdeas.count}
-              type="number"
-              tooltip={tooltips.aging}
-              icon="aging"
-              trendData={metricSummary.agingIdeas.trend}
-              description="Items in Candidate status > 90 days"
-              onCardClick={toggleAgingIdeasModal}
+            <CommitmentTrendsCard
+              value={metricSummary.roadmapAlignment}
+              tooltip={tooltips.commitment}
+              commitmentTrends={metricSummary.roadmapAlignment.commitmentTrends}
+              quarterlyDeliveries={metricSummary.roadmapAlignment.quarterlyDeliveries}
             />
           )}
         </div>
