@@ -48,82 +48,166 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
     setIsAgingIdeasModalOpen(!isAgingIdeasModalOpen);
   };
 
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-      {/* Metric Summary Cards - Row 1 */}
-      {widgetSettings.responsiveness && (
-        <MetricSummaryCard
-          title="Responsiveness"
-          value={metricSummary.responsiveness}
-          type="percentage"
-          tooltip={tooltips.responsiveness}
-          icon="responsiveness"
-          description="of the time ideas were responded within 2 weeks"
-          trend={metricSummary.responsivenessTrend}
-        />
-      )}
-      {widgetSettings.commitment && (
-        <MetricSummaryCard
-          title="Idea Portal Commitment"
-          value={metricSummary.roadmapAlignment}
-          type="number"
-          tooltip={tooltips.commitment}
-          icon="roadmap"
-          description="Total ideas committed this fiscal year vs annual target"
-        />
-      )}
-      {widgetSettings.collaboration && (
-        <CollaborationCard
-          value={metricSummary.crossClientCollaboration}
-          tooltip={tooltips.collaboration}
-          collaborationTrends={metricSummary.collaborationTrends}
-        />
-      )}
-      {widgetSettings.continuedEngagement && (
-        <ContinuedEngagementCard
-          value={metricSummary.continuedEngagement?.rate || 0}
-          numerator={metricSummary.continuedEngagement?.numerator || 0}
-          denominator={metricSummary.continuedEngagement?.denominator || 0}
-          tooltip={tooltips.continuedEngagement}
-          ideas={metricSummary.continuedEngagement?.ideas || []}
-        />
-      )}
-      {widgetSettings.agingIdeas && (
-        <MetricSummaryCard
-          title="Aging Candidate Ideas"
-          value={metricSummary.agingIdeas.count}
-          type="number"
-          tooltip={tooltips.aging}
-          icon="aging"
-          trendData={metricSummary.agingIdeas.trend}
-          description="Items in Candidate status > 90 days"
-          onCardClick={toggleAgingIdeasModal}
-        />
-      )}
+  // Count visible metric cards to determine grid layout
+  const visibleMetricCards = [
+    widgetSettings.responsiveness,
+    widgetSettings.commitment,
+    widgetSettings.collaboration,
+    widgetSettings.continuedEngagement,
+    widgetSettings.agingIdeas
+  ].filter(Boolean).length;
 
-      {/* Charts - Row 2 & 3 */}
-      {widgetSettings.ideaDistribution && (
-        <div className="md:col-span-2 lg:col-span-2">
+  // Count visible chart widgets
+  const visibleChartWidgets = [
+    widgetSettings.ideaDistribution,
+    widgetSettings.clientSubmissions,
+    widgetSettings.topFeatures,
+    widgetSettings.dataSocialization
+  ].filter(Boolean).length;
+
+  // Determine grid columns based on visible widgets
+  const getMetricGridCols = () => {
+    if (visibleMetricCards === 0) return '';
+    if (visibleMetricCards === 1) return 'grid-cols-1';
+    if (visibleMetricCards === 2) return 'grid-cols-1 md:grid-cols-2';
+    if (visibleMetricCards === 3) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+    if (visibleMetricCards === 4) return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4';
+    return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-5';
+  };
+
+  // Determine chart layout based on visible charts
+  const getChartLayout = () => {
+    const charts = [];
+    
+    if (widgetSettings.ideaDistribution && widgetSettings.clientSubmissions) {
+      // Both charts visible - side by side
+      charts.push(
+        <div key="distribution" className="lg:col-span-2">
           <HorizontalStackedBarChart data={stackedBarData} />
-        </div>
-      )}
-      {widgetSettings.clientSubmissions && (
-        <div className="md:col-span-2 lg:col-span-3">
+        </div>,
+        <div key="submissions" className="lg:col-span-3">
           <LineChart data={lineChartData} />
         </div>
-      )}
-      
-      {/* Top Features Chart */}
-      {widgetSettings.topFeatures && (
-        <div className="md:col-span-2 lg:col-span-3">
+      );
+    } else if (widgetSettings.ideaDistribution) {
+      // Only distribution chart
+      charts.push(
+        <div key="distribution" className="col-span-full">
+          <HorizontalStackedBarChart data={stackedBarData} />
+        </div>
+      );
+    } else if (widgetSettings.clientSubmissions) {
+      // Only submissions chart
+      charts.push(
+        <div key="submissions" className="col-span-full">
+          <LineChart data={lineChartData} />
+        </div>
+      );
+    }
+    
+    return charts;
+  };
+
+  // Get bottom row layout
+  const getBottomRowLayout = () => {
+    const bottomWidgets = [];
+    
+    if (widgetSettings.topFeatures && widgetSettings.dataSocialization) {
+      // Both widgets visible
+      bottomWidgets.push(
+        <div key="features" className="lg:col-span-3">
           <TopFeaturesChart features={topFeatures} />
+        </div>,
+        <div key="forums" className="lg:col-span-2">
+          <DataSocializationCard />
+        </div>
+      );
+    } else if (widgetSettings.topFeatures) {
+      // Only top features
+      bottomWidgets.push(
+        <div key="features" className="col-span-full">
+          <TopFeaturesChart features={topFeatures} />
+        </div>
+      );
+    } else if (widgetSettings.dataSocialization) {
+      // Only data socialization
+      bottomWidgets.push(
+        <div key="forums" className="col-span-full">
+          <DataSocializationCard />
+        </div>
+      );
+    }
+    
+    return bottomWidgets;
+  };
+  return (
+    <div className="space-y-6">
+      {/* Metric Summary Cards Row */}
+      {visibleMetricCards > 0 && (
+        <div className={`grid ${getMetricGridCols()} gap-6`}>
+          {widgetSettings.responsiveness && (
+            <MetricSummaryCard
+              title="Responsiveness"
+              value={metricSummary.responsiveness}
+              type="percentage"
+              tooltip={tooltips.responsiveness}
+              icon="responsiveness"
+              description="of the time ideas were responded within 2 weeks"
+              trend={metricSummary.responsivenessTrend}
+            />
+          )}
+          {widgetSettings.commitment && (
+            <MetricSummaryCard
+              title="Idea Portal Commitment"
+              value={metricSummary.roadmapAlignment}
+              type="number"
+              tooltip={tooltips.commitment}
+              icon="roadmap"
+              description="Total ideas committed this fiscal year vs annual target"
+            />
+          )}
+          {widgetSettings.collaboration && (
+            <CollaborationCard
+              value={metricSummary.crossClientCollaboration}
+              tooltip={tooltips.collaboration}
+              collaborationTrends={metricSummary.collaborationTrends}
+            />
+          )}
+          {widgetSettings.continuedEngagement && (
+            <ContinuedEngagementCard
+              value={metricSummary.continuedEngagement?.rate || 0}
+              numerator={metricSummary.continuedEngagement?.numerator || 0}
+              denominator={metricSummary.continuedEngagement?.denominator || 0}
+              tooltip={tooltips.continuedEngagement}
+              ideas={metricSummary.continuedEngagement?.ideas || []}
+            />
+          )}
+          {widgetSettings.agingIdeas && (
+            <MetricSummaryCard
+              title="Aging Candidate Ideas"
+              value={metricSummary.agingIdeas.count}
+              type="number"
+              tooltip={tooltips.aging}
+              icon="aging"
+              trendData={metricSummary.agingIdeas.trend}
+              description="Items in Candidate status > 90 days"
+              onCardClick={toggleAgingIdeasModal}
+            />
+          )}
+        </div>
+      )}
+
+      {/* Charts Row */}
+      {(widgetSettings.ideaDistribution || widgetSettings.clientSubmissions) && (
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {getChartLayout()}
         </div>
       )}
       
-      {/* Data Socialization Forums Card */}
-      {widgetSettings.dataSocialization && (
-        <div className="md:col-span-2 lg:col-span-2">
-          <DataSocializationCard />
+      {/* Bottom Row - Features and Forums */}
+      {(widgetSettings.topFeatures || widgetSettings.dataSocialization) && (
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {getBottomRowLayout()}
         </div>
       )}
 
