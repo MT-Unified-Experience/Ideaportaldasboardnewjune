@@ -36,11 +36,13 @@ interface MonthlyCollaborationData {
 interface CrossClientCollaborationTrendProps {
   isOpen: boolean;
   onClose: () => void;
+  embedded?: boolean;
 }
 
 const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps> = ({
   isOpen,
   onClose,
+  embedded = false,
 }) => {
   const [selectedDataPoint, setSelectedDataPoint] = useState<MonthlyCollaborationData | null>(null);
 
@@ -151,9 +153,11 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                 </div>
               </div>
             )}
+            {!embedded && (
             <div className="pt-2 border-t border-gray-100">
               <p className="text-xs text-gray-500">Click to view detailed metrics</p>
             </div>
+            )}
           </div>
         </div>
       );
@@ -173,6 +177,214 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
     return `${month} '${year.toString().slice(-2)}`;
   };
 
+  // If embedded, render simplified version
+  if (embedded) {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
+            <Users className="h-6 w-6 text-amber-600" />
+          </div>
+          <div className="ml-4">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Cross-Client Collaboration Trend
+            </h2>
+            <div className="flex items-center mt-1">
+              <HelpCircle className="h-4 w-4 text-gray-400 mr-2" />
+              <p className="text-sm text-gray-600">
+                Shows ideas that received contributions from multiple clients over time
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Summary Statistics */}
+        <div className="grid grid-cols-4 gap-4">
+          <div className="bg-amber-50 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-amber-600">
+              {Math.round(monthlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / monthlyData.length)}%
+            </div>
+            <div className="text-sm text-gray-600">Avg Collaboration Rate</div>
+          </div>
+          <div className="bg-blue-50 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-blue-600">
+              {monthlyData.reduce((sum, item) => sum + item.collaborativeIdeas, 0)}
+            </div>
+            <div className="text-sm text-gray-600">Total Collaborative Ideas</div>
+          </div>
+          <div className="bg-green-50 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-green-600">
+              {monthlyData.filter(item => item.changeDirection === 'up').length}
+            </div>
+            <div className="text-sm text-gray-600">Months with Growth</div>
+          </div>
+          <div className="bg-purple-50 rounded-lg p-4 text-center">
+            <div className="text-2xl font-bold text-purple-600">
+              {Math.max(...monthlyData.map(item => item.collaborationRate))}%
+            </div>
+            <div className="text-sm text-gray-600">Peak Collaboration Rate</div>
+          </div>
+        </div>
+
+        {/* Main Chart */}
+        <div className="bg-gray-50 rounded-lg p-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">
+            Monthly Collaboration Trends (Past 12 Months)
+          </h3>
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={monthlyData}
+                onClick={handleDataPointClick}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="month"
+                  tickFormatter={(value, index) => {
+                    const item = monthlyData[index];
+                    return formatMonthLabel(value, item?.year || new Date().getFullYear());
+                  }}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis 
+                  domain={[0, 100]}
+                  label={{ value: 'Collaboration Rate (%)', angle: -90, position: 'insideLeft' }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                
+                {/* Reference line for average */}
+                <ReferenceLine 
+                  y={Math.round(monthlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / monthlyData.length)}
+                  stroke="#6b7280"
+                  strokeDasharray="5 5"
+                  label={{ value: "Average", position: "topRight" }}
+                />
+                
+                <Line
+                  type="monotone"
+                  dataKey="collaborationRate"
+                  stroke="#f59e0b"
+                  strokeWidth={3}
+                  dot={(props: any) => {
+                    const { cx, cy, payload } = props;
+                    const isSignificant = payload.significantChange;
+                    return (
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r={isSignificant ? 8 : 5}
+                        fill={isSignificant ? "#dc2626" : "#f59e0b"}
+                        stroke={isSignificant ? "#fef2f2" : "#fff"}
+                        strokeWidth={2}
+                        className="cursor-pointer"
+                      />
+                    );
+                  }}
+                  activeDot={{ r: 10, stroke: '#f59e0b', strokeWidth: 2 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 flex items-center justify-center space-x-6 text-sm text-gray-600">
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
+              <span>Regular Data Point</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 rounded-full bg-red-600 mr-2"></div>
+              <span>Significant Change (±5%)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Selected Data Point Details */}
+        {selectedDataPoint && (
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium text-gray-900">
+                {selectedDataPoint.month} {selectedDataPoint.year} - Detailed Metrics
+              </h3>
+              <button
+                onClick={() => setSelectedDataPoint(null)}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Metrics Summary */}
+              <div className="space-y-4">
+                <h4 className="font-medium text-gray-900">Collaboration Metrics</h4>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span className="text-sm text-gray-600">Collaborative Ideas</span>
+                    <span className="font-medium text-amber-600">{selectedDataPoint.collaborativeIdeas}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span className="text-sm text-gray-600">Total Ideas</span>
+                    <span className="font-medium text-gray-900">{selectedDataPoint.totalIdeas}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span className="text-sm text-gray-600">Collaboration Rate</span>
+                    <span className="font-medium text-blue-600">{selectedDataPoint.collaborationRate}%</span>
+                  </div>
+                  {selectedDataPoint.significantChange && (
+                    <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                      <span className="text-sm text-gray-600">Month-over-Month Change</span>
+                      <div className="flex items-center">
+                        {selectedDataPoint.changeDirection === 'up' ? (
+                          <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                        ) : selectedDataPoint.changeDirection === 'down' ? (
+                          <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+                        ) : null}
+                        <span className={`font-medium ${
+                          selectedDataPoint.changeDirection === 'up' ? 'text-green-600' : 
+                          selectedDataPoint.changeDirection === 'down' ? 'text-red-600' : 'text-gray-600'
+                        }`}>
+                          {selectedDataPoint.changePercentage > 0 ? '+' : ''}{selectedDataPoint.changePercentage}%
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Top Collaborative Ideas */}
+              <div className="space-y-4">
+                <h4 className="font-medium text-gray-900">Top Collaborative Ideas</h4>
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                  {selectedDataPoint.topCollaborativeIdeas.map((idea, index) => (
+                    <div key={idea.id} className="p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-start justify-between mb-2">
+                        <h5 className="font-medium text-sm text-gray-900">{idea.name}</h5>
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          idea.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                          idea.status === 'In Development' ? 'bg-blue-100 text-blue-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {idea.status}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-600 space-y-1">
+                        <p><strong>Original Submitter:</strong> {idea.originalSubmitter}</p>
+                        <p><strong>Contributors:</strong> {idea.contributors.join(', ')}</p>
+                        <p><strong>Collaboration Score:</strong> {idea.collaborationScore}%</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
   if (!isOpen) return null;
 
   return (
