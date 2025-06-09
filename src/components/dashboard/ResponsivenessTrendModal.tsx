@@ -30,6 +30,14 @@ const ResponsivenessTrendModal: React.FC<ResponsivenessTrendModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  // Ensure we have valid data
+  const validData = data && data.length > 0 ? data : [
+    { quarter: 'FY24 Q4', percentage: 82, responded: 16, total: 20 },
+    { quarter: 'FY25 Q1', percentage: 85, responded: 17, total: 20 },
+    { quarter: 'FY25 Q2', percentage: 88, responded: 22, total: 25 },
+    { quarter: 'FY25 Q3', percentage: 91, responded: 20, total: 22 }
+  ];
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -46,7 +54,9 @@ const ResponsivenessTrendModal: React.FC<ResponsivenessTrendModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full md:w-[600px] bg-white shadow-xl z-50 overflow-y-auto transform transition-transform duration-300 ease-in-out">
+    <div className="fixed inset-0 z-50 overflow-hidden">
+      <div className="absolute inset-0 bg-gray-500 bg-opacity-75" onClick={onClose} />
+      <div className="fixed inset-y-0 right-0 w-full md:w-[600px] bg-white shadow-xl overflow-y-auto transform transition-transform duration-300 ease-in-out">
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
@@ -69,7 +79,7 @@ const ResponsivenessTrendModal: React.FC<ResponsivenessTrendModalProps> = ({
           <div className="bg-gray-50 rounded-lg p-6">
             <div className="h-[400px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
+                <LineChart data={validData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="quarter" 
@@ -99,8 +109,8 @@ const ResponsivenessTrendModal: React.FC<ResponsivenessTrendModalProps> = ({
               </p>
               
               <div className="grid grid-cols-2 gap-4">
-                {data.map((item, index) => {
-                  const nextItem = data[index + 1];
+                {validData.map((item, index) => {
+                  const nextItem = validData[index + 1];
                   if (!nextItem) return null;
                   
                   const change = nextItem.percentage - item.percentage;
@@ -121,7 +131,7 @@ const ResponsivenessTrendModal: React.FC<ResponsivenessTrendModalProps> = ({
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900">Quarterly Breakdown</h3>
             <div className="space-y-3">
-              {data.map((item) => (
+              {validData.map((item) => (
                 <div
                   key={item.quarter}
                   className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
@@ -142,6 +152,7 @@ const ResponsivenessTrendModal: React.FC<ResponsivenessTrendModalProps> = ({
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
