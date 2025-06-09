@@ -387,6 +387,67 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                 </div>
               )}
 
+              {/* Widget Visibility Tab */}
+              {activeTab === 'widgets' && (
+                <div className="space-y-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <div className="flex items-center">
+                      <Eye className="h-5 w-5 text-blue-600 mr-2" />
+                      <h3 className="text-sm font-medium text-blue-900">Widget Visibility Controls</h3>
+                    </div>
+                    <p className="text-sm text-blue-700 mt-1">
+                      Toggle the visibility of dashboard widgets. Hidden widgets will not appear on the dashboard but their data will be preserved.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      { key: 'responsiveness', label: 'Responsiveness Card', description: 'Shows response time metrics' },
+                      { key: 'commitment', label: 'Idea Portal Commitment Card', description: 'Displays commitment progress' },
+                      { key: 'collaboration', label: 'Cross-Client Collaboration Card', description: 'Shows collaboration metrics' },
+                      { key: 'agingIdeas', label: 'Aging Ideas Card', description: 'Displays aging ideas count and trends' },
+                      { key: 'ideaDistribution', label: 'Idea Status Distribution Chart', description: 'Horizontal stacked bar chart by year' },
+                      { key: 'clientSubmissions', label: 'Client Submissions Chart', description: 'Line chart showing quarterly submissions' },
+                      { key: 'topFeatures', label: 'Top Features Chart', description: 'Bar chart of most requested features' },
+                      { key: 'forums', label: 'Data Socialization Forums', description: 'List of discussion forums' }
+                    ].map((widget) => (
+                      <div key={widget.key} className="bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center">
+                              <h4 className="text-sm font-medium text-gray-900 truncate">
+                                {widget.label}
+                              </h4>
+                              <div className="ml-2 flex-shrink-0">
+                                {(formData.widgetVisibility?.[widget.key] ?? true) ? (
+                                  <Eye className="h-4 w-4 text-green-500" />
+                                ) : (
+                                  <EyeOff className="h-4 w-4 text-gray-400" />
+                                )}
+                              </div>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {widget.description}
+                            </p>
+                          </div>
+                          <div className="ml-4 flex-shrink-0">
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={formData.widgetVisibility?.[widget.key] ?? true}
+                                onChange={(e) => handleWidgetVisibilityChange(widget.key, e.target.checked)}
+                                className="sr-only peer"
+                              />
+                              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Distribution Tab */}
               {activeTab === 'distribution' && (
                 <div className="space-y-6">
@@ -537,149 +598,4 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Vote Count
-                            </label>
-                            <input
-                              type="number"
-                              value={feature.vote_count}
-                              onChange={(e) => {
-                                const newFeatures = [...formData.topFeatures];
-                                newFeatures[index] = { ...feature, vote_count: Number(e.target.value) };
-                                setFormData({ ...formData, topFeatures: newFeatures });
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Status
-                            </label>
-                            <select
-                              value={feature.status}
-                              onChange={(e) => {
-                                const newFeatures = [...formData.topFeatures];
-                                newFeatures[index] = { 
-                                  ...feature, 
-                                  status: e.target.value as 'Delivered' | 'Under Review' | 'Committed'
-                                };
-                                setFormData({ ...formData, topFeatures: newFeatures });
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            >
-                              <option value="Under Review">Under Review</option>
-                              <option value="Committed">Committed</option>
-                              <option value="Delivered">Delivered</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Contributing Clients (separate with semicolon)
-                          </label>
-                          <input
-                            type="text"
-                            value={feature.client_voters.join('; ')}
-                            onChange={(e) => {
-                              const newFeatures = [...formData.topFeatures];
-                              newFeatures[index] = {
-                                ...feature,
-                                client_voters: e.target.value.split(';').map(s => s.trim()).filter(Boolean)
-                              };
-                              setFormData({ ...formData, topFeatures: newFeatures });
-                            }}
-                            placeholder="Client A; Client B; Client C"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Forums Tab */}
-              {activeTab === 'forums' && (
-                <div className="space-y-6">
-                  {(formData.data_socialization_forums || [
-                    { name: 'CSC' },
-                    { name: 'Sprint Reviews' },
-                    { name: 'Customer Advisory Board (CAB)' },
-                    { name: 'CWG' },
-                    { name: 'Quarterly Product Reviews (QBRs)' }
-                  ]).map((forum, index) => (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Forum Name
-                        </label>
-                        <input
-                          type="text"
-                          value={forum.name}
-                          onChange={(e) => {
-                            const newForums = [...(formData.data_socialization_forums || [
-                              { name: 'CSC' },
-                              { name: 'Sprint Reviews' },
-                              { name: 'Customer Advisory Board (CAB)' },
-                              { name: 'CWG' },
-                              { name: 'Quarterly Product Reviews (QBRs)' }
-                            ])];
-                            newForums[index] = { 
-                              name: e.target.value 
-                            };
-                            setFormData({ ...formData, data_socialization_forums: newForums });
-                          }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newForums = [...(formData.data_socialization_forums || [
-                        { name: 'CSC' },
-                        { name: 'Sprint Reviews' },
-                        { name: 'Customer Advisory Board (CAB)' },
-                        { name: 'CWG' },
-                        { name: 'Quarterly Product Reviews (QBRs)' }
-                      ])];
-                      newForums.push({ name: '' });
-                      setFormData({ ...formData, data_socialization_forums: newForums });
-                    }}
-                    className="w-full px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    Add Forum
-                  </button>
-                </div>
-              )}
-
-            </div>
-
-            <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
-          </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default DashboardManagement;
+                
