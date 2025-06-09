@@ -536,11 +536,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         stackedBarData: [...(data.stackedBarData || defaultDashboardData.stackedBarData)],
         lineChartData: [...(data.lineChartData || defaultDashboardData.lineChartData)],
         topFeatures: [...(data.topFeatures || defaultDashboardData.topFeatures)],
-        data_socialization_forums: data.data_socialization_forums || [],
-        widgetVisibility: {
-          ...defaultDashboardData.widgetVisibility,
-          ...(data.widgetVisibility || {})
-        }
+        data_socialization_forums: data.data_socialization_forums || []
       };
 
       // Store data in Supabase

@@ -68,16 +68,6 @@ export interface DashboardData {
   lineChartData: LineChartData[];
   topFeatures: Feature[];
   data_socialization_forums?: Forum[];
-  widgetVisibility?: {
-    responsiveness?: boolean;
-    commitment?: boolean;
-    collaboration?: boolean;
-    agingIdeas?: boolean;
-    ideaDistribution?: boolean;
-    clientSubmissions?: boolean;
-    topFeatures?: boolean;
-    forums?: boolean;
-  };
 }
 
 export interface ProductData {
