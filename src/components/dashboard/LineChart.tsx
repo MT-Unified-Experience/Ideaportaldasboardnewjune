@@ -167,8 +167,8 @@ const ClientList: React.FC<ClientListProps> = ({ quarter, clients, onClose }) =>
         <div className="mt-6 bg-blue-50 rounded-lg p-4 border border-blue-200">
           <h4 className="text-md font-medium text-gray-900 mb-2">Quarter Insights</h4>
           <div className="text-sm text-gray-600 space-y-1">
-            <p>• Average of {Math.round(ideas.length / clients.length * 10) / 10} ideas per contributing client</p>
-            <p>• Most active client contributed {Math.max(...clients.map(client => ideas.filter(idea => idea.clientName === client).length))} ideas</p>
+            <p>• Average of {clients.length > 0 ? Math.round(ideas.length / clients.length * 10) / 10 : 0} ideas per contributing client</p>
+            <p>• Most active client contributed {clients.length > 0 ? Math.max(...clients.map(client => ideas.filter(idea => idea.clientName === client).length)) : 0} ideas</p>
             <p>• Ideas span across multiple functional areas including AI, mobile, reporting, and workflow automation</p>
           </div>
         </div>
