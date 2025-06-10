@@ -44,6 +44,8 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'trend' | 'included' | 'excluded'>('trend');
+  const [selectedQuarterIdeas, setSelectedQuarterIdeas] = useState<Array<{ id: string; summary: string }> | null>(null);
+  const [selectedQuarterName, setSelectedQuarterName] = useState<string | null>(null);
 
   // Generate default quarterly trends if none provided
   const defaultQuarterlyTrends = [
@@ -57,6 +59,55 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
 
   const includedIdeas = ideas.filter(idea => idea.included);
   const excludedIdeas = ideas.filter(idea => !idea.included);
+
+  // Generate sample ideas for each quarter
+  const generateIdeasForQuarter = (quarter: string, count: number) => {
+    const ideaTemplates = [
+      'AI-Powered Document Analysis',
+      'Mobile App Enhancement',
+      'Reporting Dashboard Improvements',
+      'API Integration Updates',
+      'Custom Workflow Builder',
+      'Document Management System',
+      'Search Functionality Enhancement',
+      'Bulk Actions Feature',
+      'Dashboard Customization',
+      'Email Integration',
+      'Advanced Analytics Dashboard',
+      'Multi-language Support',
+      'Real-time Notifications',
+      'Data Export Enhancements',
+      'User Permission Management',
+      'Automated Workflow Templates',
+      'Integration with Third-party Tools',
+      'Mobile Responsive Design',
+      'Advanced Search Filters',
+      'Audit Trail Improvements'
+    ];
+
+    return Array.from({ length: count }, (_, index) => ({
+      id: `ENG-${quarter.replace(/\s+/g, '')}-${String(index + 1).padStart(3, '0')}`,
+      summary: ideaTemplates[index % ideaTemplates.length]
+    }));
+  };
+
+  // Handle chart data point click
+  const handleChartClick = (data: any) => {
+    if (data && data.activePayload && data.activePayload[0]) {
+      const quarterData = data.activePayload[0].payload;
+      const quarter = quarterData.quarter;
+      const numerator = quarterData.numerator;
+      
+      setSelectedQuarterIdeas(generateIdeasForQuarter(quarter, numerator));
+      setSelectedQuarterName(quarter);
+    }
+  };
+
+  // Handle quarterly breakdown box click
+  const handleQuarterBoxClick = (quarter: string, numerator: number) => {
+    setSelectedQuarterIdeas(generateIdeasForQuarter(quarter, numerator));
+    setSelectedQuarterName(quarter);
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
@@ -89,6 +140,9 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Total Reviewed:</span>
               <span className="font-medium text-gray-900">{data.denominator}</span>
+            </div>
+            <div className="pt-2 border-t border-gray-100">
+              <p className="text-xs text-gray-500">Click to view ideas with follow-up</p>
             </div>
           </div>
         </div>
@@ -222,7 +276,7 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                     </h3>
                     <div className="h-[300px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData}>
+                        <LineChart data={chartData} onClick={handleChartClick}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis 
                             dataKey="quarter" 
@@ -239,7 +293,13 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                             stroke="#22c55e"
                             strokeWidth={3}
                             dot={{ fill: '#22c55e', r: 6 }}
-                            activeDot={{ r: 8, stroke: '#22c55e', strokeWidth: 2 }}
+                            activeDot={{ 
+                              r: 8, 
+                              stroke: '#22c55e', 
+                              strokeWidth: 2,
+                              onClick: handleChartClick,
+                              style: { cursor: 'pointer' }
+                            }}
                           />
                         </LineChart>
                       </ResponsiveContainer>
@@ -260,11 +320,12 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                         return (
                           <div
                             key={item.quarter}
+                            onClick={() => handleQuarterBoxClick(item.quarter, item.numerator)}
                             className={`p-4 rounded-lg border ${
                               isCurrentQuarter 
                                 ? 'bg-green-50 border-green-200' 
                                 : 'bg-white border-gray-200'
-                            }`}
+                            } cursor-pointer hover:shadow-md transition-all duration-200`}
                           >
                             <div className="flex items-center justify-between">
                               <div>
@@ -278,6 +339,9 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                                 </h4>
                                 <p className="text-sm text-gray-600 mt-1">
                                   {item.numerator} of {item.denominator} ideas had follow-up
+                                </p>
+                                <p className="text-xs text-blue-600 font-medium mt-1">
+                                  Click to view ideas with follow-up
                                 </p>
                               </div>
                               <div className="text-right">
@@ -299,6 +363,54 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                     </div>
                   </div>
 
+                  {/* Ideas Data Table */}
+                  {selectedQuarterIdeas && selectedQuarterIdeas.length > 0 && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-medium text-gray-900">
+                          {selectedQuarterName} - Ideas with Follow-up
+                        </h3>
+                        <button
+                          onClick={() => {
+                            setSelectedQuarterIdeas(null);
+                            setSelectedQuarterName(null);
+                          }}
+                          className="text-gray-400 hover:text-gray-500"
+                        >
+                          <X className="h-5 w-5" />
+                        </button>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                            <thead className="bg-gray-100">
+                              <tr>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
+                                  Idea ID
+                                </th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
+                                  Idea Summary Title
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                              {selectedQuarterIdeas.map((idea, index) => (
+                                <tr key={index} className="hover:bg-gray-50">
+                                  <td className="px-4 py-3 text-sm font-medium text-blue-600 border-r border-gray-200">
+                                    {idea.id}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">
+                                    {idea.summary}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Calculation Details */}
                   <div className="bg-gray-50 rounded-lg p-6">
                     <h3 className="text-lg font-medium text-gray-900 mb-3">
@@ -315,6 +427,10 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                       <p>
                         <strong>Purpose:</strong> This metric helps track whether ideas continue progressing through the pipeline 
                         after initial review, indicating sustained engagement and follow-through.
+                      </p>
+                      <p>
+                        <strong>Interaction:</strong> Click on any data point in the chart or quarterly breakdown boxes 
+                        to view the specific ideas that had follow-up for that quarter.
                       </p>
                     </div>
                   </div>
