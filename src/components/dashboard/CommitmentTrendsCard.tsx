@@ -335,6 +335,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
               </div>
             </div>
           </div>
+        </div>
           </div>
         </div>
       )}
