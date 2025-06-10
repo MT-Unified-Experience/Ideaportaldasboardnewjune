@@ -6,14 +6,19 @@ const DataSocializationCard: React.FC = () => {
   const { dashboardData } = useData();
   const forums = dashboardData?.data_socialization_forums || [];
 
-  // Define all possible forums with their details
-  const allForums = [
+  // Define forums organized by rows
+  const firstRowForums = [
     { name: 'CSC', icon: Users },
     { name: 'Sprint Reviews', icon: Calendar },
+    { name: 'CWG', icon: Users }
+  ];
+  
+  const secondRowForums = [
     { name: 'Customer Advisory Board (CAB)', icon: Presentation },
-    { name: 'CWG', icon: Users },
     { name: 'Quarterly Product Reviews (QBRs)', icon: LineChart }
   ];
+  
+  const allForums = [...firstRowForums, ...secondRowForums];
 
   // Check if a forum is used by the current product
   const isForumUsed = (forumName: string) => {
@@ -49,38 +54,67 @@ const DataSocializationCard: React.FC = () => {
         </div>
       </div>
       
-      {/* Compact forum list */}
+      {/* Forum list with custom layout */}
       <div className="mt-4 space-y-2">
-        {Array.from({ length: Math.ceil(allForums.length / 2) }, (_, rowIndex) => (
-          <div key={rowIndex} className="grid grid-cols-2 gap-2">
-            {allForums.slice(rowIndex * 2, rowIndex * 2 + 2).map((forum, index) => {
-              const Icon = forum.icon;
-              const isUsed = isForumUsed(forum.name);
-              
-              return (
-                <div
-                  key={rowIndex * 2 + index}
-                  className="flex items-center p-2 rounded-md bg-gray-50"
-                >
-                  <div className={`p-0.5 rounded-full ${
-                    isUsed ? 'bg-green-500' : 'bg-red-500'
-                  }`}>
-                    {isUsed ? (
-                      <Check className="h-2.5 w-2.5 text-white" />
-                    ) : (
-                      <X className="h-2.5 w-2.5 text-white" />
-                    )}
-                  </div>
-                  <div className="flex-1 ml-2">
-                    <span className="text-xs font-medium text-gray-700 text-left break-words">
-                      {forum.name}
-                    </span>
-                  </div>
+        {/* First row: CSC, Sprint Reviews, CWG with smaller font */}
+        <div className="grid grid-cols-3 gap-1">
+          {firstRowForums.map((forum, index) => {
+            const Icon = forum.icon;
+            const isUsed = isForumUsed(forum.name);
+            
+            return (
+              <div
+                key={index}
+                className="flex items-center p-1.5 rounded-md bg-gray-50"
+              >
+                <div className={`p-0.5 rounded-full ${
+                  isUsed ? 'bg-green-500' : 'bg-red-500'
+                }`}>
+                  {isUsed ? (
+                    <Check className="h-2 w-2 text-white" />
+                  ) : (
+                    <X className="h-2 w-2 text-white" />
+                  )}
                 </div>
-              );
-            })}
-          </div>
-        ))}
+                <div className="flex-1 ml-1.5">
+                  <span className="text-[10px] font-medium text-gray-700 text-left break-words leading-tight">
+                    {forum.name}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Second row: Customer Advisory Board and Quarterly Product Reviews with regular text */}
+        <div className="grid grid-cols-2 gap-2">
+          {secondRowForums.map((forum, index) => {
+            const Icon = forum.icon;
+            const isUsed = isForumUsed(forum.name);
+            
+            return (
+              <div
+                key={index}
+                className="flex items-center p-2 rounded-md bg-gray-50"
+              >
+                <div className={`p-0.5 rounded-full ${
+                  isUsed ? 'bg-green-500' : 'bg-red-500'
+                }`}>
+                  {isUsed ? (
+                    <Check className="h-2.5 w-2.5 text-white" />
+                  ) : (
+                    <X className="h-2.5 w-2.5 text-white" />
+                  )}
+                </div>
+                <div className="flex-1 ml-2">
+                  <span className="text-xs font-medium text-gray-700 text-left break-words">
+                    {forum.name}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
