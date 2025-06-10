@@ -11,36 +11,26 @@ const DataSocializationCard: React.FC = () => {
     {
       name: 'CSC',
       fullName: 'Client Success Committee',
-      description: 'Product Managers, Leadership, Client Success',
-      purpose: 'Review client feedback and prioritize feature requests',
       icon: Users
     },
     {
       name: 'Sprint Reviews',
       fullName: 'Sprint Reviews',
-      description: 'Product, Engineering, Design Teams',
-      purpose: 'Share progress on idea implementation and gather feedback',
       icon: Calendar
     },
     {
       name: 'Customer Advisory Board (CAB)',
       fullName: 'Customer Advisory Board',
-      description: 'Strategic Clients, Product Leadership',
-      purpose: 'Validate roadmap decisions and gather strategic input',
       icon: Presentation
     },
     {
       name: 'CWG',
       fullName: 'Client Working Group',
-      description: 'Client Working Group Members',
-      purpose: 'Deep dive into specific feature requirements and use cases',
       icon: Users
     },
     {
       name: 'Quarterly Product Reviews (QBRs)',
       fullName: 'Quarterly Business Reviews',
-      description: 'Executive Leadership, Product Strategy',
-      purpose: 'Strategic planning and quarterly goal alignment',
       icon: LineChart
     }
   ];
@@ -81,12 +71,12 @@ const DataSocializationCard: React.FC = () => {
                   : 'border-red-200 bg-red-50 hover:bg-red-100'
               }`}
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center space-x-2">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-3">
                   <div className={`p-2 rounded-lg ${
                     isUsed ? 'bg-green-100' : 'bg-red-100'
                   }`}>
-                    <Icon className={`h-4 w-4 ${
+                    <Icon className={`h-5 w-5 ${
                       isUsed ? 'text-green-600' : 'text-red-600'
                     }`} />
                   </div>
@@ -94,9 +84,9 @@ const DataSocializationCard: React.FC = () => {
                     isUsed ? 'bg-green-500' : 'bg-red-500'
                   }`}>
                     {isUsed ? (
-                      <Check className="h-3 w-3 text-white" />
+                      <Check className="h-4 w-4 text-white" />
                     ) : (
-                      <X className="h-3 w-3 text-white" />
+                      <X className="h-4 w-4 text-white" />
                     )}
                   </div>
                 </div>
@@ -109,23 +99,14 @@ const DataSocializationCard: React.FC = () => {
                 </span>
               </div>
               
-              <div className="space-y-2">
-                <h4 className="font-semibold text-sm text-gray-900">
+              <div className="text-center">
+                <h4 className="font-semibold text-sm text-gray-900 mb-3">
                   {forum.fullName}
                 </h4>
-                <p className="text-xs text-gray-600 leading-relaxed">
-                  <span className="font-medium">Audience:</span> {forum.description}
-                </p>
-                <p className="text-xs text-gray-600 leading-relaxed">
-                  <span className="font-medium">Purpose:</span> {forum.purpose}
-                </p>
-              </div>
-              
-              {/* Usage indicator bar */}
-              <div className="mt-3 pt-3 border-t border-gray-200">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-500">Usage Status</span>
-                  <div className={`w-16 h-2 rounded-full ${
+                
+                {/* Usage indicator bar */}
+                <div className="flex items-center justify-center">
+                  <div className={`w-20 h-3 rounded-full ${
                     isUsed ? 'bg-green-200' : 'bg-red-200'
                   }`}>
                     <div className={`h-full rounded-full transition-all duration-300 ${
