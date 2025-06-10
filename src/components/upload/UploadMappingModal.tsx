@@ -35,7 +35,7 @@ const UploadMappingModal: React.FC<UploadMappingModalProps> = ({
   const dashboardFields = [
     { key: 'feature_name', label: 'Feature Name', required: true, description: 'Name of the feature or idea' },
     { key: 'idea_id', label: 'Idea ID', required: false, description: 'Unique identifier for the idea' },
-    { key: 'idea_summary', label: 'Idea Summary', required: false, description: 'Brief summary or description of the idea' },
+    { key: 'idea_summary', label: 'Idea Summary Title', required: false, description: 'Brief summary or description of the idea' },
     { key: 'idea_description', label: 'Idea Description', required: false, description: 'Detailed description of the idea' },
     { key: 'idea_title', label: 'Idea Title', required: false, description: 'Title of the idea' },
     { key: 'idea_name', label: 'Idea Name', required: false, description: 'Name of the idea' },
