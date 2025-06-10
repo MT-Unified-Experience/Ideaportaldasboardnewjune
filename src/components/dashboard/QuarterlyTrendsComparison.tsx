@@ -193,40 +193,74 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
       {/* Q3 vs Q4 Comparison View */}
       {activeView === 'comparison' && (
         <div className="space-y-6">
-          {/* Horizontal bar chart for better label readability */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="text-md font-medium text-gray-900 mb-4">Q3 vs Q4 Request Volume</h4>
-            <div className="h-[500px]">
-              <ResponsiveContainer width="100%" height="100%" key={JSON.stringify(trendData)}>
-                <BarChart
-                  data={trendData.slice(0, 10)} 
-                  margin={{ top: 20, right: 30, left: 20, bottom: 120 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="name" 
-                    angle={-45}
-                    textAnchor="end"
-                    height={100}
-                    tick={{ fontSize: 10 }}
-                    interval={0}
-                  />
-                  <YAxis />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar 
-                    dataKey="q3_requests" 
-                    name="Q3 Requests" 
-                    fill="#8b5cf6" 
-                    minPointSize={5}
-                  />
-                  <Bar 
-                    dataKey="q4_requests" 
-                    name="Q4 Requests" 
-                    fill="#3b82f6" 
-                    minPointSize={5}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+          {/* Split Q3 and Q4 Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Q3 Chart */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="text-md font-medium text-gray-900 mb-4">Q3 Request Volume</h4>
+              <div className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={trendData.slice(0, 10)} 
+                    margin={{ top: 20, right: 30, left: 20, bottom: 120 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
+                      tick={{ fontSize: 10 }}
+                      interval={0}
+                    />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value: number, name: string) => [value, 'Q3 Requests']}
+                      labelFormatter={(label: string) => `Feature: ${label}`}
+                    />
+                    <Bar 
+                      dataKey="q3_requests" 
+                      name="Q3 Requests" 
+                      fill="#8b5cf6" 
+                      minPointSize={5}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Q4 Chart */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="text-md font-medium text-gray-900 mb-4">Q4 Request Volume</h4>
+              <div className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={trendData.slice(0, 10)} 
+                    margin={{ top: 20, right: 30, left: 20, bottom: 120 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
+                      tick={{ fontSize: 10 }}
+                      interval={0}
+                    />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value: number, name: string) => [value, 'Q4 Requests']}
+                      labelFormatter={(label: string) => `Feature: ${label}`}
+                    />
+                    <Bar 
+                      dataKey="q4_requests" 
+                      name="Q4 Requests" 
+                      fill="#3b82f6" 
+                      minPointSize={5}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
 
