@@ -452,6 +452,74 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                         />
                       </div>
                     </div>
+
+                    {/* Continued Engagement Quarterly Trends */}
+                    <div className="mt-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-3">Quarterly Continued Engagement Trends</h4>
+                      <div className="space-y-3">
+                        {['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'].map((quarter, index) => (
+                          <div key={quarter} className="bg-white p-3 rounded border">
+                            <h5 className="text-sm font-medium text-gray-700 mb-2">{quarter}</h5>
+                            <div className="grid grid-cols-3 gap-3">
+                              <div>
+                                <label className="block text-xs text-gray-600 mb-1">Rate (%)</label>
+                                <input
+                                  type="number"
+                                  value={(formData.metricSummary?.continuedEngagement?.quarterlyTrends || [])[index]?.rate || 0}
+                                  onChange={(e) => {
+                                    const newTrends = [...(formData.metricSummary?.continuedEngagement?.quarterlyTrends || [])];
+                                    newTrends[index] = {
+                                      quarter,
+                                      rate: Number(e.target.value),
+                                      numerator: newTrends[index]?.numerator || 0,
+                                      denominator: newTrends[index]?.denominator || 0
+                                    };
+                                    handleMetricChange('continuedEngagement', { quarterlyTrends: newTrends });
+                                  }}
+                                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-600 mb-1">Ideas with Follow-up</label>
+                                <input
+                                  type="number"
+                                  value={(formData.metricSummary?.continuedEngagement?.quarterlyTrends || [])[index]?.numerator || 0}
+                                  onChange={(e) => {
+                                    const newTrends = [...(formData.metricSummary?.continuedEngagement?.quarterlyTrends || [])];
+                                    newTrends[index] = {
+                                      quarter,
+                                      rate: newTrends[index]?.rate || 0,
+                                      numerator: Number(e.target.value),
+                                      denominator: newTrends[index]?.denominator || 0
+                                    };
+                                    handleMetricChange('continuedEngagement', { quarterlyTrends: newTrends });
+                                  }}
+                                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-600 mb-1">Total Reviewed</label>
+                                <input
+                                  type="number"
+                                  value={(formData.metricSummary?.continuedEngagement?.quarterlyTrends || [])[index]?.denominator || 0}
+                                  onChange={(e) => {
+                                    const newTrends = [...(formData.metricSummary?.continuedEngagement?.quarterlyTrends || [])];
+                                    newTrends[index] = {
+                                      quarter,
+                                      rate: newTrends[index]?.rate || 0,
+                                      numerator: newTrends[index]?.numerator || 0,
+                                      denominator: Number(e.target.value)
+                                    };
+                                    handleMetricChange('continuedEngagement', { quarterlyTrends: newTrends });
+                                  }}
+                                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Idea Volume */}
@@ -510,274 +578,4 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            In Development
-                          </label>
-                          <input
-                            type="number"
-                            value={item.inDevelopment}
-                            onChange={(e) => handleStackedBarDataChange(index, 'inDevelopment', Number(e.target.value))}
-                            className="w-32 px-3 py-2 border border-gray-300 rounded-md"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Archived
-                          </label>
-                          <input
-                            type="number"
-                            value={item.archivedIdeas}
-                            onChange={(e) => handleStackedBarDataChange(index, 'archivedIdeas', Number(e.target.value))}
-                            className="w-32 px-3 py-2 border border-gray-300 rounded-md"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Flagged for Future
-                          </label>
-                          <input
-                            type="number"
-                            value={item.flaggedForFuture}
-                            onChange={(e) => handleStackedBarDataChange(index, 'flaggedForFuture', Number(e.target.value))}
-                            className="w-32 px-3 py-2 border border-gray-300 rounded-md"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Submissions Tab */}
-              {activeTab === 'submissions' && (
-                <div className="space-y-6">
-                  <div className="space-y-4">
-                    {['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'].map((quarter, index) => {
-                      const item = formData.lineChartData.find(d => d.quarter === quarter) || {
-                        quarter,
-                        clientsRepresenting: 0,
-                        clients: []
-                      };
-                      return (
-                      <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                        <h4 className="text-sm font-medium text-gray-700 mb-4">{item.quarter}</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Number of Clients
-                            </label>
-                            <input
-                              type="number"
-                              value={item.clientsRepresenting}
-                              onChange={(e) => handleLineChartDataChange(index, Number(e.target.value))}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Client Names (separate with semicolon)
-                            </label>
-                            <input
-                              type="text"
-                              value={(item.clients || []).join('; ')}
-                              onChange={(e) => {
-                                const newLineChartData = [...formData.lineChartData];
-                                const itemIndex = newLineChartData.findIndex(d => d.quarter === quarter);
-                                const clients = e.target.value.split(';').map(s => s.trim()).filter(Boolean);
-                                if (itemIndex >= 0) {
-                                  newLineChartData[itemIndex] = { ...item, clients };
-                                } else {
-                                  newLineChartData.push({ ...item, clients });
-                                }
-                                setFormData({ ...formData, lineChartData: newLineChartData });
-                              }}
-                              placeholder="Client A; Client B; Client C"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )})}
-                  </div>
-                </div>
-              )}
-
-              {/* Features Tab */}
-              {activeTab === 'features' && (
-                <div className="space-y-6">
-                  {Array.from({ length: 10 }).map((_, index) => {
-                    const feature = formData.topFeatures[index] || {
-                      feature_name: '',
-                      vote_count: 0,
-                      status: 'Under Review' as const,
-                      status_updated_at: new Date().toISOString(),
-                      client_voters: []
-                    };
-                    return (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="text-sm font-medium text-gray-700 mb-4">
-                        Feature #{index + 1}
-                      </h4>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Feature Name
-                          </label>
-                          <input
-                            type="text"
-                            value={feature.feature_name}
-                            onChange={(e) => {
-                              const newFeatures = [...formData.topFeatures];
-                              newFeatures[index] = { ...feature, feature_name: e.target.value };
-                              setFormData({ ...formData, topFeatures: newFeatures });
-                            }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Vote Count
-                            </label>
-                            <input
-                              type="number"
-                              value={feature.vote_count}
-                              onChange={(e) => {
-                                const newFeatures = [...formData.topFeatures];
-                                newFeatures[index] = { ...feature, vote_count: Number(e.target.value) };
-                                setFormData({ ...formData, topFeatures: newFeatures });
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Status
-                            </label>
-                            <select
-                              value={feature.status}
-                              onChange={(e) => {
-                                const newFeatures = [...formData.topFeatures];
-                                newFeatures[index] = { 
-                                  ...feature, 
-                                  status: e.target.value as 'Delivered' | 'Under Review' | 'Committed'
-                                };
-                                setFormData({ ...formData, topFeatures: newFeatures });
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            >
-                              <option value="Under Review">Under Review</option>
-                              <option value="Committed">Committed</option>
-                              <option value="Delivered">Delivered</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Contributing Clients (separate with semicolon)
-                          </label>
-                          <input
-                            type="text"
-                            value={feature.client_voters.join('; ')}
-                            onChange={(e) => {
-                              const newFeatures = [...formData.topFeatures];
-                              newFeatures[index] = {
-                                ...feature,
-                                client_voters: e.target.value.split(';').map(s => s.trim()).filter(Boolean)
-                              };
-                              setFormData({ ...formData, topFeatures: newFeatures });
-                            }}
-                            placeholder="Client A; Client B; Client C"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Forums Tab */}
-              {activeTab === 'forums' && (
-                <div className="space-y-6">
-                  {(formData.data_socialization_forums || [
-                    { name: 'CSC' },
-                    { name: 'Sprint Reviews' },
-                    { name: 'Customer Advisory Board (CAB)' },
-                    { name: 'CWG' },
-                    { name: 'Quarterly Product Reviews (QBRs)' }
-                  ]).map((forum, index) => (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Forum Name
-                        </label>
-                        <input
-                          type="text"
-                          value={forum.name}
-                          onChange={(e) => {
-                            const newForums = [...(formData.data_socialization_forums || [
-                              { name: 'CSC' },
-                              { name: 'Sprint Reviews' },
-                              { name: 'Customer Advisory Board (CAB)' },
-                              { name: 'CWG' },
-                              { name: 'Quarterly Product Reviews (QBRs)' }
-                            ])];
-                            newForums[index] = { 
-                              name: e.target.value 
-                            };
-                            setFormData({ ...formData, data_socialization_forums: newForums });
-                          }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newForums = [...(formData.data_socialization_forums || [
-                        { name: 'CSC' },
-                        { name: 'Sprint Reviews' },
-                        { name: 'Customer Advisory Board (CAB)' },
-                        { name: 'CWG' },
-                        { name: 'Quarterly Product Reviews (QBRs)' }
-                      ])];
-                      newForums.push({ name: '' });
-                      setFormData({ ...formData, data_socialization_forums: newForums });
-                    }}
-                    className="w-full px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    Add Forum
-                  </button>
-                </div>
-              )}
-
-            </div>
-
-            <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
-          </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default DashboardManagement;
+                          <label className
