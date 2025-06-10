@@ -70,7 +70,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
     if (widgetSettings.ideaDistribution && widgetSettings.clientSubmissions) {
       // Both charts visible - side by side
       charts.push(
-        <div key="distribution" className="lg:col-span-2">
+        <div key="distribution\" className="lg:col-span-2">
           <HorizontalStackedBarChart data={stackedBarData} />
         </div>,
         <div key="submissions" className="lg:col-span-3">
@@ -185,6 +185,62 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
           </div>
         </div>
       )}
+    </div>
+  );
+};  </div>
+      )}
+
+      {/* Bottom Row - Features and Forums */}
+      {(widgetSettings.dataSocialization || widgetSettings.clientSubmissions || widgetSettings.topFeatures) && (
+        <div className="space-y-4 lg:space-y-6 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-6 w-full">
+            {getBottomRowLayout()}
+          </div>
+        </div>
+      )}
+
+      <AgingIdeasModal
+        isOpen={isAgingIdeasModalOpen}
+        onClose={toggleAgingIdeasModal}
+        data={metricSummary.agingIdeas.trend || []}
+      />
+    </div>
+  );
+};}
+          />
+        </div>
+      )}
+
+      {/* Bottom Row - Features and Forums */}
+      {(widgetSettings.dataSocialization || widgetSettings.clientSubmissions || widgetSettings.topFeatures) && (
+        <div className="space-y-4 lg:space-y-6 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-6 w-full">
+            {getBottomRowLayout()}
+          </div>
+        </div>
+      )}
+
+      <AgingIdeasModal
+        isOpen={isAgingIdeasModalOpen}
+        onClose={toggleAgingIdeasModal}
+        data={metricSummary.agingIdeas.trend || []}
+      />
+    </div>
+  );
+};rums */}
+      {(widgetSettings.dataSocialization || widgetSettings.clientSubmissions || widgetSettings.topFeatures) && (
+        <div className="space-y-4 lg:space-y-6 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-6 w-full">
+            {getBottomRowLayout()}
+          </div>
+        </div>
+      )}
+
+      <AgingIdeasModal
+        isOpen={isAgingIdeasModalOpen}
+        onClose={toggleAgingIdeasModal}
+        data={metricSummary.agingIdeas.trend || []}
+      />
     </div>
   );
 };
