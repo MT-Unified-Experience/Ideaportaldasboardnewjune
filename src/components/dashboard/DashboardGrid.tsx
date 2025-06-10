@@ -118,10 +118,10 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
     if (widgetSettings.topFeatures && widgetSettings.dataSocialization) {
       // Both widgets visible
       bottomWidgets.push(
-        <div key="features" className="lg:col-span-3">
+        <div key="features" className="col-span-full">
           <TopFeaturesChart features={topFeatures} />
         </div>,
-        <div key="forums" className="lg:col-span-2">
+        <div key="forums" className="col-span-full mt-6">
           <DataSocializationCard />
         </div>
       );
@@ -220,7 +220,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
 
       {/* Bottom Row - Features and Forums */}
       {(widgetSettings.topFeatures || widgetSettings.dataSocialization) && (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="space-y-6">
           {getBottomRowLayout()}
         </div>
       )}
