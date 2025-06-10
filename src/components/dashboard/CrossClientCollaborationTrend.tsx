@@ -199,9 +199,6 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
 
         {/* Main Chart */}
         <div className="bg-gray-50 rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Quarterly Collaboration Trends (Past 8 Quarters)
-          </h3>
           <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
@@ -391,9 +388,6 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
             <div className="space-y-6 max-h-[70vh] overflow-y-auto">
               {/* Main Chart */}
               <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Quarterly Collaboration Trends (Past 8 Quarters)
-                </h3>
                 <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
