@@ -5,6 +5,7 @@ import CommitmentTrendsCard from './CommitmentTrendsCard';
 import { TopFeaturesChart } from './TopFeaturesChart';
 import DataSocializationCard from './DataSocializationCard';
 import ContinuedEngagementCard from './ContinuedEngagementCard';
+import CrossClientCollaborationTrend from './CrossClientCollaborationTrend';
 import HorizontalStackedBarChart from './HorizontalStackedBarChart';
 import LineChart from './LineChart';
 
@@ -168,6 +169,15 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
           )}
         </div>
       )}
+
+      {/* Cross-Client Collaboration Trend Chart */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <CrossClientCollaborationTrend
+          isOpen={true}
+          onClose={() => {}}
+          embedded={true}
+        />
+      </div>
 
       {/* Charts Row */}
       {widgetSettings.ideaDistribution && (
