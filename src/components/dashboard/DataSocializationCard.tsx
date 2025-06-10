@@ -60,12 +60,6 @@ const DataSocializationCard: React.FC = () => {
               key={index}
               className="flex items-center justify-between p-2 rounded-md bg-gray-50"
             >
-              <div className="flex items-center space-x-2">
-                <Icon className="h-3 w-3 text-gray-500" />
-                <span className="text-xs font-medium text-gray-700 truncate">
-                  {forum.name}
-                </span>
-              </div>
               <div className={`p-0.5 rounded-full ${
                 isUsed ? 'bg-green-500' : 'bg-red-500'
               }`}>
@@ -74,6 +68,12 @@ const DataSocializationCard: React.FC = () => {
                 ) : (
                   <X className="h-2.5 w-2.5 text-white" />
                 )}
+              </div>
+              <div className="flex items-center space-x-2">
+                <Icon className="h-3 w-3 text-gray-500" />
+                <span className="text-xs font-medium text-gray-700 truncate">
+                  {forum.name}
+                </span>
               </div>
             </div>
           );
