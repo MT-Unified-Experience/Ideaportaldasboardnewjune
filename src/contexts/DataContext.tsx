@@ -32,7 +32,6 @@ const defaultDashboardData: DashboardData = {
       committed: 0,
       total: 0
     },
-    collaborationTrends: [],
     continuedEngagement: {
       rate: 0,
       numerator: 0,
@@ -43,11 +42,6 @@ const defaultDashboardData: DashboardData = {
       quarterly: 0,
       total: 0
     },
-    agingIdeas: {
-      count: 0,
-      trend: []
-    },
-    crossClientCollaboration: 0
   },
   stackedBarData: EXPECTED_YEARS.map(year => ({
     year,
@@ -58,7 +52,6 @@ const defaultDashboardData: DashboardData = {
   })),
   lineChartData: [],
   topFeatures: [],
-  collaborationTrendData: []
 };
 
 // Helper function to create a default error object
@@ -140,10 +133,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             ...defaultDashboardData.metricSummary,
             roadmapAlignment: { ...defaultDashboardData.metricSummary.roadmapAlignment },
             ideaVolume: { ...defaultDashboardData.metricSummary.ideaVolume },
-            agingIdeas: { 
-              ...defaultDashboardData.metricSummary.agingIdeas,
-              trend: [...(defaultDashboardData.metricSummary.agingIdeas.trend || [])]
-            }
           },
           stackedBarData: [...defaultDashboardData.stackedBarData],
           lineChartData: [...defaultDashboardData.lineChartData],
@@ -353,7 +342,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             },
             lineChartData: fetchedData.lineChartData || [...defaultDashboardData.lineChartData],
             topFeatures: fetchedData.topFeatures || [...defaultDashboardData.topFeatures],
-            collaborationTrendData: fetchedData.collaborationTrendData || [...defaultDashboardData.collaborationTrendData],
             data_socialization_forums: fetchedData.data_socialization_forums || [
               { name: 'CSC' },
               { name: 'Sprint Reviews' },
@@ -406,7 +394,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Required headers for CSV validation
   const requiredHeaders = [
     'product', 'quarter', 'responsiveness', 'responsiveness_trend', 'roadmap_alignment_committed', 'roadmap_alignment_total',
-    'cross_client_collaboration', 'aging_ideas_count', 'year', 'candidate_ideas', 'in_development', 'archived_ideas', 'flagged_for_future',
+    'year', 'candidate_ideas', 'in_development', 'archived_ideas', 'flagged_for_future',
     'active_quarter', 'active_clients_representing', 'feature_name', 'vote_count', 'status',
     'status_updated_at', 'client_voters'
   ];
@@ -459,7 +447,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         ),
         lineChartData: parsedData.lineChartData || defaultDashboardData.lineChartData,
         topFeatures: parsedData.topFeatures || defaultDashboardData.topFeatures,
-        collaborationTrendData: parsedData.collaborationTrendData || defaultDashboardData.collaborationTrendData
       };
 
       // Log the merged data for debugging
@@ -535,16 +522,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             ...defaultDashboardData.metricSummary.ideaVolume,
             ...(data.metricSummary?.ideaVolume || {})
           },
-          agingIdeas: {
-            ...defaultDashboardData.metricSummary.agingIdeas,
-            ...(data.metricSummary?.agingIdeas || {}),
-            trend: [...(data.metricSummary?.agingIdeas?.trend || [])]
-          }
         },
         stackedBarData: [...(data.stackedBarData || defaultDashboardData.stackedBarData)],
         lineChartData: [...(data.lineChartData || defaultDashboardData.lineChartData)],
         topFeatures: [...(data.topFeatures || defaultDashboardData.topFeatures)],
-        collaborationTrendData: [...(data.collaborationTrendData || defaultDashboardData.collaborationTrendData)],
         data_socialization_forums: data.data_socialization_forums || []
       };
 

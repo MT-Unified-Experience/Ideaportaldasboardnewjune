@@ -4,22 +4,14 @@ import ResponsivenessCard from './ResponsivenessCard';
 import CommitmentTrendsCard from './CommitmentTrendsCard';
 import { TopFeaturesChart } from './TopFeaturesChart';
 import DataSocializationCard from './DataSocializationCard';
-import CollaborationCard from './CollaborationCard';
-import CrossClientCollaborationTrend from './CrossClientCollaborationTrend';
 import ContinuedEngagementCard from './ContinuedEngagementCard';
 import HorizontalStackedBarChart from './HorizontalStackedBarChart';
 import LineChart from './LineChart';
-import AgingIdeasModal from './AgingIdeasModal';
-import MetricSummaryCard from './MetricSummaryCard';
-import { useState } from 'react';
 
 interface WidgetSettings {
   responsiveness: boolean;
   commitment: boolean;
-  collaboration: boolean;
-  collaborationTrend: boolean;
   continuedEngagement: boolean;
-  agingIdeas: boolean;
   ideaDistribution: boolean;
   clientSubmissions: boolean;
   topFeatures: boolean;
@@ -34,31 +26,23 @@ interface DashboardGridProps {
 
 export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuarter, widgetSettings }) => {
   const { metricSummary, stackedBarData, lineChartData, topFeatures } = data;
-  const [isAgingIdeasModalOpen, setIsAgingIdeasModalOpen] = useState(false);
   
   const tooltips = {
     responsiveness: "(Ideas moved out of the \"Need Review\" stage / Total ideas submitted in the quarter) × 100",
     commitment: "This shows the number of client-prioritized ideas that have been delivered so far this fiscal year, compared to the total number of ideas committed for delivery",
-    collaboration: "Indicates the percentage of ideas that benefit multiple clients, highlighting opportunities for shared solutions.",
     continuedEngagement: "(Number of ideas that received another status update within 90 days after leaving \"Needs Review\") ÷ (Total number of ideas that moved out of \"Needs Review\" in the selected quarter) × 100",
-    aging: "Tracks ideas that have been in Candidate status for over 90 days, helping identify potential bottlenecks in the review process.",
     distribution: "Visualizes the status breakdown of ideas across fiscal years, showing progression from candidate to delivery.",
     submissions: "Tracks the number of unique clients submitting ideas each quarter, measuring engagement trends.",
     features: "Ranks the most requested features by vote count, helping prioritize development efforts.",
     forums: "Lists the key meetings where idea portal metrics are reviewed and discussed with stakeholders."
   };
 
-  const toggleAgingIdeasModal = () => {
-    setIsAgingIdeasModalOpen(!isAgingIdeasModalOpen);
-  };
 
   // Count visible metric cards to determine grid layout
   const visibleMetricCards = [
     widgetSettings.responsiveness,
     widgetSettings.commitment,
-    widgetSettings.collaboration,
     widgetSettings.continuedEngagement,
-    widgetSettings.agingIdeas
   ].filter(Boolean).length;
 
   // Count visible chart widgets
@@ -173,13 +157,6 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
               quarterlyDeliveries={metricSummary.roadmapAlignment.quarterlyDeliveries}
             />
           )}
-          {widgetSettings.collaboration && (
-            <CollaborationCard
-              value={metricSummary.crossClientCollaboration}
-              tooltip={tooltips.collaboration}
-              collaborationTrends={metricSummary.collaborationTrends}
-            />
-          )}
           {widgetSettings.continuedEngagement && (
             <ContinuedEngagementCard
               value={metricSummary.continuedEngagement?.rate || 0}
@@ -187,15 +164,6 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
               denominator={metricSummary.continuedEngagement?.denominator || 0}
               tooltip={tooltips.continuedEngagement}
               ideas={metricSummary.continuedEngagement?.ideas || []}
-            />
-          )}
-          {widgetSettings.agingIdeas && (
-            <MetricSummaryCard
-              title="Aging Candidate Ideas"
-              value={metricSummary.agingIdeas.count}
-              tooltip={tooltips.aging}
-              onClick={toggleAgingIdeasModal}
-              clickable={true}
             />
           )}
         </div>
@@ -209,18 +177,6 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
         </div>
       )}
       
-      {/* Cross-Client Collaboration Trend Chart */}
-      {widgetSettings.collaborationTrend && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-          <CrossClientCollaborationTrend
-            isOpen={true}
-            onClose={() => {}}
-            embedded={true}
-            collaborationTrendData={data.collaborationTrendData}
-          />
-        </div>
-      )}
-
       {/* Bottom Row - Features and Forums */}
       {(widgetSettings.dataSocialization || widgetSettings.clientSubmissions || widgetSettings.topFeatures) && (
         <div className="space-y-4 lg:space-y-6 w-full">
@@ -229,12 +185,6 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
           </div>
         </div>
       )}
-
-      <AgingIdeasModal
-        isOpen={isAgingIdeasModalOpen}
-        onClose={toggleAgingIdeasModal}
-        data={metricSummary.agingIdeas.trend || []}
-      />
     </div>
   );
 };

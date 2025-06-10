@@ -15,9 +15,9 @@ export class CSVError extends Error {
 // Required headers for CSV validation
 const requiredHeaders = [
   'product', 'quarter', 'responsiveness', 'responsiveness_trend', 'roadmap_alignment_committed', 'roadmap_alignment_total',
-  'cross_client_collaboration', 'aging_ideas_count', 'year', 'candidate_ideas', 'in_development', 'archived_ideas', 'flagged_for_future',
+  'year', 'candidate_ideas', 'in_development', 'archived_ideas', 'flagged_for_future',
   'active_quarter', 'active_clients_representing', 'feature_name', 'vote_count', 'status',
-  'status_updated_at', 'client_voters', 'collaborative_ideas', 'total_ideas'
+  'status_updated_at', 'client_voters'
 ];
 
 interface CSVRow {
@@ -29,12 +29,6 @@ interface CSVRow {
   responsiveness_trend: string;
   roadmap_alignment_committed: string;
   roadmap_alignment_total: string;
-  cross_client_collaboration: string;
-  aging_ideas_count: string;
-  aging_ideas_trend_q1: string;
-  aging_ideas_trend_q2: string;
-  aging_ideas_trend_q3: string;
-  aging_ideas_trend_q4: string;
   year: string;
   candidate_ideas: string;
   in_development: string;
@@ -53,8 +47,6 @@ interface CSVRow {
   continued_engagement_rate: string;
   continued_engagement_numerator: string;
   continued_engagement_denominator: string;
-  collaborative_ideas: string;
-  total_ideas_for_collaboration: string;
 }
 
 interface ProductQuarterlyData {
@@ -299,7 +291,6 @@ const transformCSVData = (data: CSVRow[]): DashboardData => {
       committed: safeNumberConversion(firstRow.roadmap_alignment_committed),
       total: safeNumberConversion(firstRow.roadmap_alignment_total),
     },
-    crossClientCollaboration: safeNumberConversion(firstRow.cross_client_collaboration),
     continuedEngagement: {
       rate: safeNumberConversion(firstRow.continued_engagement_rate),
       numerator: safeNumberConversion(firstRow.continued_engagement_numerator),
@@ -309,15 +300,6 @@ const transformCSVData = (data: CSVRow[]): DashboardData => {
     ideaVolume: {
       quarterly: safeNumberConversion(firstRow.quarterly_ideas),
       total: safeNumberConversion(firstRow.total_ideas),
-    },
-    agingIdeas: {
-      count: safeNumberConversion(firstRow.aging_ideas_count),
-      trend: [
-        { quarter: 'FY25 Q1', count: safeNumberConversion(firstRow.aging_ideas_trend_q1) },
-        { quarter: 'FY25 Q2', count: safeNumberConversion(firstRow.aging_ideas_trend_q2) },
-        { quarter: 'FY25 Q3', count: safeNumberConversion(firstRow.aging_ideas_trend_q3) },
-        { quarter: 'FY25 Q4', count: safeNumberConversion(firstRow.aging_ideas_trend_q4) }
-      ]
     },
   };
 

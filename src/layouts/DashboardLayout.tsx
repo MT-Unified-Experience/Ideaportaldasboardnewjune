@@ -14,10 +14,7 @@ import SettingsModal from '../components/common/SettingsModal';
 interface WidgetSettings {
   responsiveness: boolean;
   commitment: boolean;
-  collaboration: boolean;
-  collaborationTrend: boolean;
   continuedEngagement: boolean;
-  agingIdeas: boolean;
   ideaDistribution: boolean;
   clientSubmissions: boolean;
   topFeatures: boolean;
@@ -40,10 +37,7 @@ const getStoredSettings = (): WidgetSettings => {
   return {
     responsiveness: true,
     commitment: true,
-    collaboration: true,
-    collaborationTrend: true,
     continuedEngagement: true,
-    agingIdeas: true,
     ideaDistribution: true,
     clientSubmissions: true,
     topFeatures: true,

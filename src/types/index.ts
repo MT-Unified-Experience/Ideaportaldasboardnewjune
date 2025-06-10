@@ -33,8 +33,6 @@ export interface MetricSummary {
       delivered: number;
     }>;
   };
-  crossClientCollaboration: number;
-  collaborationTrends?: CollaborationTrend[];
   continuedEngagement: {
     rate: number;
     numerator: number;
@@ -54,13 +52,6 @@ export interface MetricSummary {
   ideaVolume: {
     quarterly: number;
     total: number;
-  };
-  agingIdeas: {
-    count: number;
-    trend: Array<{
-      quarter: string;
-      count: number;
-    }>;
   };
 }
 
