@@ -198,7 +198,17 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
       )}
       
       {/* Cross-Client Collaboration Trend Chart */}
-      {widgetSettings.collaboration && (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <CrossClientCollaborationTrend
+          isOpen={true}
+          onClose={() => {}}
+          embedded={true}
+        />
+      </div>
+
+      {/* Cross-Client Collaboration Trend Chart - Alternative conditional display */}
+      {/* Uncomment the line below and comment the above section if you want to make it conditional */}
+      {/* widgetSettings.collaboration && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
           <CrossClientCollaborationTrend
             isOpen={true}
@@ -206,7 +216,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
             embedded={true}
           />
         </div>
-      )}
+      ) */}
 
       {/* Bottom Row - Features and Forums */}
       {(widgetSettings.topFeatures || widgetSettings.dataSocialization) && (
