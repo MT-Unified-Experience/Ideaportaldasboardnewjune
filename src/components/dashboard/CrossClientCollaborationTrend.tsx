@@ -340,6 +340,48 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
               <div className="space-y-4">
                 <h4 className="font-medium text-gray-900">Top Collaborative Ideas</h4>
                 
+                {/* Horizontal Metrics */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Collaborative Ideas</span>
+                      <span className="text-lg font-bold text-amber-600">{selectedDataPoint.collaborativeIdeas}</span>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Total Ideas</span>
+                      <span className="text-lg font-bold text-gray-900">{selectedDataPoint.totalIdeas}</span>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Collaboration Rate</span>
+                      <span className="text-lg font-bold text-blue-600">{selectedDataPoint.collaborationRate}%</span>
+                    </div>
+                  </div>
+                  {selectedDataPoint.significantChange && (
+                    <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600">Quarter-over-Quarter Change</span>
+                        <div className="flex items-center">
+                          {selectedDataPoint.changeDirection === 'up' ? (
+                            <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                          ) : selectedDataPoint.changeDirection === 'down' ? (
+                            <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+                          ) : null}
+                          <span className={`text-lg font-bold ${
+                            selectedDataPoint.changeDirection === 'up' ? 'text-green-600' : 
+                            selectedDataPoint.changeDirection === 'down' ? 'text-red-600' : 'text-gray-600'
+                          }`}>
+                            {selectedDataPoint.changePercentage > 0 ? '+' : ''}{selectedDataPoint.changePercentage}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="overflow-x-auto max-h-64 overflow-y-auto">
                     <table className="min-w-full bg-white border border-gray-200 rounded-lg">
@@ -554,6 +596,48 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                     <div className="space-y-4">
                       <h4 className="font-medium text-gray-900">Top Collaborative Ideas</h4>
                       
+                      {/* Horizontal Metrics */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-600">Collaborative Ideas</span>
+                            <span className="text-lg font-bold text-amber-600">{selectedDataPoint.collaborativeIdeas}</span>
+                          </div>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-600">Total Ideas</span>
+                            <span className="text-lg font-bold text-gray-900">{selectedDataPoint.totalIdeas}</span>
+                          </div>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-600">Collaboration Rate</span>
+                            <span className="text-lg font-bold text-blue-600">{selectedDataPoint.collaborationRate}%</span>
+                          </div>
+                        </div>
+                        {selectedDataPoint.significantChange && (
+                          <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-gray-600">Quarter-over-Quarter Change</span>
+                              <div className="flex items-center">
+                                {selectedDataPoint.changeDirection === 'up' ? (
+                                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                                ) : selectedDataPoint.changeDirection === 'down' ? (
+                                  <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+                                ) : null}
+                                <span className={`text-lg font-bold ${
+                                  selectedDataPoint.changeDirection === 'up' ? 'text-green-600' : 
+                                  selectedDataPoint.changeDirection === 'down' ? 'text-red-600' : 'text-gray-600'
+                                }`}>
+                                  {selectedDataPoint.changePercentage > 0 ? '+' : ''}{selectedDataPoint.changePercentage}%
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
                       <div className="bg-gray-50 rounded-lg p-4">
                         <div className="overflow-x-auto max-h-64 overflow-y-auto">
                           <table className="min-w-full bg-white border border-gray-200 rounded-lg">
@@ -631,4 +715,20 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
             </div>
           </div>
 
-          
+          <div className="bg-gray-50 px-6 py-4 flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CrossClientCollaborationTrend;
+
+export default CrossClientCollaborationTrend
