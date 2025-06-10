@@ -2,7 +2,6 @@ import React from 'react';
 import { DashboardData } from '../../types';
 import DashboardSection from './DashboardSection';
 import MetricCardsSection from './MetricCardsSection';
-import CollaborationTrendSection from './CollaborationTrendSection';
 import ChartsSection from './ChartsSection';
 import FeaturesAndForumsSection from './FeaturesAndForumsSection';
 
@@ -41,10 +40,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
         }}
       />
 
-      {/* Cross-Client Collaboration Trend Section */}
-      <CollaborationTrendSection isVisible={true} />
-
-      {/* Charts Section */}
+      {/* Charts Section - includes Cross-Client Collaboration Trend and Client Submissions */}
       <ChartsSection 
         stackedBarData={stackedBarData}
         lineChartData={lineChartData}
@@ -52,6 +48,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
           ideaDistribution: widgetSettings.ideaDistribution,
           clientSubmissions: widgetSettings.clientSubmissions,
         }}
+        showCollaborationTrend={true}
       />
       
       {/* Features and Forums Section */}

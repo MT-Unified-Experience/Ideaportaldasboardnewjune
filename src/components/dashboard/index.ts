@@ -2,7 +2,6 @@
 export { DashboardGrid } from './DashboardGrid';
 export { default as DashboardSection } from './DashboardSection';
 export { default as MetricCardsSection } from './MetricCardsSection';
-export { default as CollaborationTrendSection } from './CollaborationTrendSection';
 export { default as ChartsSection } from './ChartsSection';
 export { default as FeaturesAndForumsSection } from './FeaturesAndForumsSection';
 
