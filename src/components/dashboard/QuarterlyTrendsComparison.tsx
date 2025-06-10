@@ -510,19 +510,19 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
               <div>
                 <h5 className="font-medium text-gray-900 mb-2">Primary Metrics</h5>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Feature adoption rate > 70% within 6 months</li>
-                  <li>• Client satisfaction score increase > 15%</li>
-                  <li>• Request volume growth > 25% quarter-over-quarter</li>
-                  <li>• Implementation timeline adherence > 90%</li>
+                  <li>• Feature adoption rate {">"}70% within 6 months</li>
+                  <li>• Client satisfaction score increase {">"} 15%</li>
+                  <li>• Request volume growth {">"} 25% quarter-over-quarter</li>
+                  <li>• Implementation timeline adherence {">"} 90%</li>
                 </ul>
               </div>
               <div>
                 <h5 className="font-medium text-gray-900 mb-2">Secondary Metrics</h5>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Cross-client collaboration increase > 20%</li>
-                  <li>• Support ticket reduction > 30%</li>
-                  <li>• Revenue impact > $500K annually</li>
-                  <li>• Market share improvement > 5%</li>
+                  <li>• Cross-client collaboration increase {">"} 20%</li>
+                  <li>• Support ticket reduction {">"} 30%</li>
+                  <li>• Revenue impact {">"} $500K annually</li>
+                  <li>• Market share improvement {">"} 5%</li>
                 </ul>
               </div>
             </div>
