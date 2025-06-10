@@ -42,10 +42,10 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
   const generateTrendData = (): TrendData[] => {
     return features.slice(0, 10).map((feature, index) => {
       const baseRequests = Math.max(feature.vote_count || 10, 5); // Ensure minimum value
-      const q1 = Math.max(1, Math.floor(baseRequests * (0.6 + Math.random() * 0.4)));
-      const q2 = Math.max(1, Math.floor(q1 * (0.8 + Math.random() * 0.6)));
-      const q3 = Math.max(1, Math.floor(q2 * (0.7 + Math.random() * 0.8)));
-      const q4 = baseRequests;
+      const q1 = Math.max(5, Math.floor(baseRequests * (0.6 + Math.random() * 0.4)));
+      const q2 = Math.max(8, Math.floor(q1 * (0.8 + Math.random() * 0.6)));
+      const q3 = Math.max(10, Math.floor(q2 * (0.7 + Math.random() * 0.8)));
+      const q4 = Math.max(15, baseRequests);
       
       const percentageChange = ((q4 - q3) / q3) * 100;
       const growthRate = ((q4 - q1) / q1) * 100;
@@ -217,13 +217,13 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
                     dataKey="q3_requests" 
                     name="Q3 Requests" 
                     fill="#8b5cf6" 
-                    minPointSize={2}
+                    minPointSize={5}
                   />
                   <Bar 
                     dataKey="q4_requests" 
                     name="Q4 Requests" 
                     fill="#3b82f6" 
-                    minPointSize={2}
+                    minPointSize={5}
                   />
                 </BarChart>
               </ResponsiveContainer>
