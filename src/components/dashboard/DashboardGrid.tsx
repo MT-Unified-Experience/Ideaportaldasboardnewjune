@@ -115,10 +115,36 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
   const getBottomRowLayout = () => {
     const bottomWidgets = [];
     
-    if (widgetSettings.topFeatures) {
-      // Only top features
+    if (widgetSettings.dataSocialization && widgetSettings.clientSubmissions) {
+      // Data Socialization and Client Submissions side by side
       bottomWidgets.push(
-        <div key="features" className="col-span-full">
+        <div key="forums" className="lg:col-span-2">
+          <DataSocializationCard />
+        </div>,
+        <div key="submissions" className="lg:col-span-3">
+          <LineChart data={lineChartData} />
+        </div>
+      );
+    } else if (widgetSettings.dataSocialization) {
+      // Only data socialization
+      bottomWidgets.push(
+        <div key="forums" className="col-span-full">
+          <DataSocializationCard />
+        </div>
+      );
+    } else if (widgetSettings.clientSubmissions) {
+      // Only client submissions
+      bottomWidgets.push(
+        <div key="submissions" className="col-span-full">
+          <LineChart data={lineChartData} />
+        </div>
+      );
+    }
+    
+    if (widgetSettings.topFeatures) {
+      // Top features in its own row
+      bottomWidgets.push(
+        <div key="features" className="col-span-full mt-4 lg:mt-6">
           <TopFeaturesChart features={topFeatures} />
         </div>
       );
@@ -162,9 +188,6 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
               ideas={metricSummary.continuedEngagement?.ideas || []}
             />
           )}
-          {widgetSettings.dataSocialization && (
-            <DataSocializationCard />
-          )}
           {widgetSettings.agingIdeas && (
             <MetricSummaryCard
               title="Aging Candidate Ideas"
@@ -177,9 +200,11 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
         </div>
       )}
       {/* Charts Row */}
-      {(widgetSettings.ideaDistribution || widgetSettings.clientSubmissions) && (
+      {widgetSettings.ideaDistribution && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-6 w-full">
-          {getChartLayout()}
+          <div key="distribution" className="col-span-full">
+            <HorizontalStackedBarChart data={stackedBarData} />
+          </div>
         </div>
       )}
       
@@ -205,9 +230,11 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
       ) */}
 
       {/* Bottom Row - Features and Forums */}
-      {widgetSettings.topFeatures && (
+      {(widgetSettings.dataSocialization || widgetSettings.clientSubmissions || widgetSettings.topFeatures) && (
         <div className="space-y-4 lg:space-y-6 w-full">
-          {getBottomRowLayout()}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-6 w-full">
+            {getBottomRowLayout()}
+          </div>
         </div>
       )}
 
