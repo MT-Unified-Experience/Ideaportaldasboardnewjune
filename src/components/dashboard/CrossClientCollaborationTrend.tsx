@@ -227,25 +227,25 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
         <div className="grid grid-cols-4 gap-4">
           <div className="bg-amber-50 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-amber-600">
-              {Math.round(quarterlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / quarterlyData.length)}%
+              {Math.round(quarterlyData.slice(-4).reduce((sum, item) => sum + item.collaborationRate, 0) / quarterlyData.slice(-4).length)}%
             </div>
             <div className="text-sm text-gray-600">Avg Collaboration Rate</div>
           </div>
           <div className="bg-blue-50 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-blue-600">
-              {quarterlyData.reduce((sum, item) => sum + item.collaborativeIdeas, 0)}
+              {quarterlyData.slice(-4).reduce((sum, item) => sum + item.collaborativeIdeas, 0)}
             </div>
             <div className="text-sm text-gray-600">Total Collaborative Ideas</div>
           </div>
           <div className="bg-green-50 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-green-600">
-              {quarterlyData.filter(item => item.changeDirection === 'up').length}
+              {quarterlyData.slice(-4).filter(item => item.changeDirection === 'up').length}
             </div>
             <div className="text-sm text-gray-600">Quarters with Growth</div>
           </div>
           <div className="bg-purple-50 rounded-lg p-4 text-center">
             <div className="text-2xl font-bold text-purple-600">
-              {Math.max(...quarterlyData.map(item => item.collaborationRate))}%
+              {Math.max(...quarterlyData.slice(-4).map(item => item.collaborationRate))}%
             </div>
             <div className="text-sm text-gray-600">Peak Collaboration Rate</div>
           </div>
@@ -254,12 +254,12 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
         {/* Main Chart */}
         <div className="bg-gray-50 rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Quarterly Collaboration Trends (Past 8 Quarters)
+            Quarterly Collaboration Trends (Last 4 Quarters)
           </h3>
           <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={quarterlyData}
+                data={quarterlyData.slice(-4)}
                 onClick={handleDataPointClick}
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
@@ -267,7 +267,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                 <XAxis 
                   dataKey="quarter"
                   tickFormatter={(value, index) => {
-                    const item = quarterlyData[index];
+                    const item = quarterlyData.slice(-4)[index];
                     return formatQuarterLabel(value, item?.year || new Date().getFullYear());
                   }}
                   angle={-45}
@@ -282,7 +282,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                 
                 {/* Reference line for average */}
                 <ReferenceLine 
-                  y={Math.round(quarterlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / quarterlyData.length)}
+                  y={Math.round(quarterlyData.slice(-4).reduce((sum, item) => sum + item.collaborationRate, 0) / quarterlyData.slice(-4).length)}
                   stroke="#6b7280"
                   strokeDasharray="5 5"
                   label={{ value: "Average", position: "topRight" }}
@@ -474,12 +474,12 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
               {/* Main Chart */}
               <div className="bg-gray-50 rounded-lg p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Quarterly Collaboration Trends (Past 8 Quarters)
+                  Quarterly Collaboration Trends (Last 4 Quarters)
                 </h3>
                 <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
-                      data={quarterlyData}
+                      data={quarterlyData.slice(-4)}
                       onClick={handleDataPointClick}
                       margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
@@ -487,7 +487,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                       <XAxis 
                         dataKey="quarter"
                         tickFormatter={(value, index) => {
-                          const item = quarterlyData[index];
+                          const item = quarterlyData.slice(-4)[index];
                           return formatQuarterLabel(value, item?.year || new Date().getFullYear());
                         }}
                         angle={-45}
@@ -502,7 +502,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                       
                       {/* Reference line for average */}
                       <ReferenceLine 
-                        y={Math.round(quarterlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / quarterlyData.length)}
+                        y={Math.round(quarterlyData.slice(-4).reduce((sum, item) => sum + item.collaborationRate, 0) / quarterlyData.slice(-4).length)}
                         stroke="#6b7280"
                         strokeDasharray="5 5"
                         label={{ value: "Average", position: "topRight" }}
