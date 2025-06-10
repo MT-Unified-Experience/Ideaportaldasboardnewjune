@@ -41,7 +41,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
   // Generate comprehensive trend data based on features
   const generateTrendData = (): TrendData[] => {
     return features.slice(0, 10).map((feature, index) => {
-      const baseRequests = feature.vote_count || 10;
+      const baseRequests = Math.max(feature.vote_count || 10, 5); // Ensure minimum value
       const q1 = Math.max(1, Math.floor(baseRequests * (0.6 + Math.random() * 0.4)));
       const q2 = Math.max(1, Math.floor(q1 * (0.8 + Math.random() * 0.6)));
       const q3 = Math.max(1, Math.floor(q2 * (0.7 + Math.random() * 0.8)));
@@ -197,7 +197,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
           <div className="bg-gray-50 rounded-lg p-4">
             <h4 className="text-md font-medium text-gray-900 mb-4">Q3 vs Q4 Request Volume</h4>
             <div className="h-[600px]">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" key={JSON.stringify(trendData)}>
                 <BarChart 
                   layout="horizontal"
                   data={trendData.slice(0, 10)} 
@@ -210,10 +210,21 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
                     dataKey="name" 
                     width={90}
                     tick={{ fontSize: 10 }}
+                    interval={0}
                   />
                   <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="q3_requests" name="Q3 Requests" fill="#8b5cf6" />
-                  <Bar dataKey="q4_requests" name="Q4 Requests" fill="#3b82f6" />
+                  <Bar 
+                    dataKey="q3_requests" 
+                    name="Q3 Requests" 
+                    fill="#8b5cf6" 
+                    minPointSize={2}
+                  />
+                  <Bar 
+                    dataKey="q4_requests" 
+                    name="Q4 Requests" 
+                    fill="#3b82f6" 
+                    minPointSize={2}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
