@@ -3,6 +3,14 @@ export interface CollaborationTrend {
   clientName: string;
 }
 
+export interface CollaborationTrendQuarterlyData {
+  quarter: string;
+  year: number;
+  collaborativeIdeas: number;
+  totalIdeas: number;
+  collaborationRate: number;
+}
+
 export interface MetricSummary {
   responsiveness: number;
   responsivenessTrend?: number;
@@ -98,6 +106,7 @@ export interface DashboardData {
   stackedBarData: StackedBarData[];
   lineChartData: LineChartData[];
   topFeatures: Feature[];
+  collaborationTrendData?: CollaborationTrendQuarterlyData[];
   data_socialization_forums?: Forum[];
 }
 

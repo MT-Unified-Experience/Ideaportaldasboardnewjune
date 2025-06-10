@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import { DashboardData, Feature } from '../types';
+import { DashboardData, Feature, CollaborationTrendQuarterlyData } from '../types';
 
 export class CSVError extends Error {
   constructor(
@@ -10,6 +10,59 @@ export class CSVError extends Error {
     super(message);
     this.name = 'CSVError';
   }
+}
+
+// Required headers for CSV validation
+const requiredHeaders = [
+  'product', 'quarter', 'responsiveness', 'responsiveness_trend', 'roadmap_alignment_committed', 'roadmap_alignment_total',
+  'cross_client_collaboration', 'aging_ideas_count', 'year', 'candidate_ideas', 'in_development', 'archived_ideas', 'flagged_for_future',
+  'active_quarter', 'active_clients_representing', 'feature_name', 'vote_count', 'status',
+  'status_updated_at', 'client_voters', 'collaborative_ideas', 'total_ideas'
+];
+
+interface CSVRow {
+  product: string;
+  quarter: string;
+  quarterly_ideas: string;
+  total_ideas: string;
+  responsiveness: string;
+  responsiveness_trend: string;
+  roadmap_alignment_committed: string;
+  roadmap_alignment_total: string;
+  cross_client_collaboration: string;
+  aging_ideas_count: string;
+  aging_ideas_trend_q1: string;
+  aging_ideas_trend_q2: string;
+  aging_ideas_trend_q3: string;
+  aging_ideas_trend_q4: string;
+  year: string;
+  candidate_ideas: string;
+  in_development: string;
+  archived_ideas: string;
+  flagged_for_future: string;
+  active_quarter: string;
+  active_clients_representing: string;
+  feature_name: string;
+  vote_count: string;
+  status: string;
+  status_updated_at: string;
+  client_voters: string;
+  forum_name: string;
+  forum_audience: string;
+  forum_purpose: string;
+  continued_engagement_rate: string;
+  continued_engagement_numerator: string;
+  continued_engagement_denominator: string;
+  collaborative_ideas: string;
+  total_ideas_for_collaboration: string;
+}
+
+interface ProductQuarterlyData {
+  product_id: string;
+  product_name: string;
+  quarter: string;
+  year: string;
+  sales_data: number;
 }
 
 // Function to validate CSV data matches current product
@@ -198,6 +251,43 @@ const transformFeatureData = (row: CSVRow): Feature | null => {
   };
 };
 
+// Transform collaboration trend data from CSV rows
+const transformCollaborationTrendData = (data: CSVRow[]): CollaborationTrendQuarterlyData[] => {
+  const trendMap = new Map<string, CollaborationTrendQuarterlyData>();
+  
+  data.forEach(row => {
+    if (row.quarter && row.year && row.collaborative_ideas && row.total_ideas_for_collaboration) {
+      const key = `${row.quarter}-${row.year}`;
+      const collaborativeIdeas = safeNumberConversion(row.collaborative_ideas);
+      const totalIdeas = safeNumberConversion(row.total_ideas_for_collaboration);
+      const collaborationRate = totalIdeas > 0 ? Math.round((collaborativeIdeas / totalIdeas) * 100) : 0;
+      
+      // Convert FY format to full year (e.g., FY25 -> 2025)
+      let year = parseInt(row.year);
+      if (row.year.startsWith('FY')) {
+        const fyYear = parseInt(row.year.substring(2));
+        year = fyYear < 50 ? 2000 + fyYear : 1900 + fyYear;
+      }
+      
+      if (!trendMap.has(key)) {
+        trendMap.set(key, {
+          quarter: row.quarter,
+          year: year,
+          collaborativeIdeas: collaborativeIdeas,
+          totalIdeas: totalIdeas,
+          collaborationRate: collaborationRate
+        });
+      }
+    }
+  });
+  
+  return Array.from(trendMap.values()).sort((a, b) => {
+    if (a.year !== b.year) return a.year - b.year;
+    const getQuarterNum = (quarter: string) => parseInt(quarter.slice(-1));
+    return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
+  });
+};
+
 // Transform CSV data into dashboard data format
 const transformCSVData = (data: CSVRow[]): DashboardData => {
   const firstRow = data[0];
@@ -265,6 +355,9 @@ const transformCSVData = (data: CSVRow[]): DashboardData => {
     .filter((feature): feature is Feature => feature !== null)
     .sort((a, b) => b.vote_count - a.vote_count);
 
+  // Transform collaboration trend data
+  const collaborationTrendData = transformCollaborationTrendData(data);
+
   // Transform forums data
   const forums = data
     .filter(row => row.forum_name && row.forum_audience && row.forum_purpose)
@@ -279,6 +372,7 @@ const transformCSVData = (data: CSVRow[]): DashboardData => {
     stackedBarData,
     lineChartData,
     topFeatures: features,
+    collaborationTrendData,
     data_socialization_forums: forums
   };
 };
