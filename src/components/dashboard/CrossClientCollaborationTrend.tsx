@@ -19,6 +19,7 @@ interface CollaborativeIdea {
   submissionDate: string;
   collaborationScore: number;
   status: 'Active' | 'Delivered' | 'In Development';
+  comments: string;
 }
 
 interface QuarterlyCollaborationData {
@@ -73,26 +74,40 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
       if (changePercentage > 3) changeDirection = 'up';
       else if (changePercentage < -3) changeDirection = 'down';
 
-      // Generate sample collaborative ideas
+      // Generate sample collaborative ideas with comments
+      const ideaTemplates = [
+        'AI-Powered Document Analysis',
+        'Multi-Client Workflow Integration',
+        'Cross-Platform Data Sync',
+        'Collaborative Review Dashboard',
+        'Unified Reporting System',
+        'Smart Notification Engine',
+        'Advanced Search Capabilities',
+        'Real-time Collaboration Tools'
+      ];
+
+      const commentTemplates = [
+        'Multiple clients have requested enhanced AI capabilities for document processing and analysis.',
+        'Cross-client collaboration needed for workflow standardization across different organizations.',
+        'Data synchronization requirements identified by several enterprise clients.',
+        'Collaborative review features requested to improve multi-stakeholder decision making.',
+        'Unified reporting system to consolidate data from multiple client environments.',
+        'Smart notifications to improve cross-client communication and updates.',
+        'Advanced search requested by clients dealing with large document repositories.',
+        'Real-time collaboration tools for distributed teams across client organizations.'
+      ];
+
       const topCollaborativeIdeas: CollaborativeIdea[] = Array.from({ length: Math.min(5, baseCollaborativeIdeas) }, (_, index) => ({
-        id: `idea-${year}-${quarter}-${index}`,
-        name: [
-          'AI-Powered Document Analysis',
-          'Multi-Client Workflow Integration',
-          'Cross-Platform Data Sync',
-          'Collaborative Review Dashboard',
-          'Unified Reporting System',
-          'Smart Notification Engine',
-          'Advanced Search Capabilities',
-          'Real-time Collaboration Tools'
-        ][index % 8],
+        id: `COLLAB-${year}-${quarter}-${String(index + 1).padStart(3, '0')}`,
+        name: ideaTemplates[index % 8],
         originalSubmitter: ['Client A', 'Client B', 'Client C', 'Client D'][Math.floor(Math.random() * 4)],
         contributors: [
           'Client A', 'Client B', 'Client C', 'Client D', 'Client E', 'Client F'
         ].slice(0, 2 + Math.floor(Math.random() * 3)),
         submissionDate: new Date(year, (quarterNum - 1) * 3, 1).toISOString(),
         collaborationScore: 60 + Math.floor(Math.random() * 40),
-        status: ['Active', 'Delivered', 'In Development'][Math.floor(Math.random() * 3)] as any
+        status: ['Active', 'Delivered', 'In Development'][Math.floor(Math.random() * 3)] as any,
+        comments: commentTemplates[index % 8]
       }));
 
       data.push({
@@ -321,29 +336,53 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                 </div>
               </div>
 
-              {/* Top Collaborative Ideas */}
+              {/* Top Collaborative Ideas Data Table */}
               <div className="space-y-4">
                 <h4 className="font-medium text-gray-900">Top Collaborative Ideas</h4>
-                <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {selectedDataPoint.topCollaborativeIdeas.map((idea, index) => (
-                    <div key={idea.id} className="p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-start justify-between mb-2">
-                        <h5 className="font-medium text-sm text-gray-900">{idea.name}</h5>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
-                          idea.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                          idea.status === 'In Development' ? 'bg-blue-100 text-blue-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {idea.status}
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-600 space-y-1">
-                        <p><strong>Original Submitter:</strong> {idea.originalSubmitter}</p>
-                        <p><strong>Contributors:</strong> {idea.contributors.join(', ')}</p>
-                        <p><strong>Collaboration Score:</strong> {idea.collaborationScore}%</p>
-                      </div>
-                    </div>
-                  ))}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="overflow-x-auto max-h-64 overflow-y-auto">
+                    <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                      <thead className="bg-gray-100 sticky top-0">
+                        <tr>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
+                            Idea ID
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
+                            Idea Summary
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
+                            Idea Comments
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {selectedDataPoint.topCollaborativeIdeas.map((idea, index) => (
+                          <tr key={idea.id} className="hover:bg-gray-50">
+                            <td className="px-3 py-2 text-xs font-medium text-blue-600 border-r border-gray-200">
+                              {idea.id}
+                            </td>
+                            <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-200">
+                              <div className="max-w-[150px]">
+                                <div className="font-medium">{idea.name}</div>
+                                <div className={`text-xs px-2 py-1 rounded-full mt-1 inline-block ${
+                                  idea.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                                  idea.status === 'In Development' ? 'bg-blue-100 text-blue-800' :
+                                  'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                  {idea.status}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-3 py-2 text-xs text-gray-700">
+                              <div className="max-w-[200px]">
+                                {idea.comments}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -510,29 +549,53 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                       </div>
                     </div>
 
-                    {/* Top Collaborative Ideas */}
+                    {/* Top Collaborative Ideas Data Table */}
                     <div className="space-y-4">
                       <h4 className="font-medium text-gray-900">Top Collaborative Ideas</h4>
-                      <div className="space-y-3 max-h-64 overflow-y-auto">
-                        {selectedDataPoint.topCollaborativeIdeas.map((idea, index) => (
-                          <div key={idea.id} className="p-3 bg-gray-50 rounded-lg">
-                            <div className="flex items-start justify-between mb-2">
-                              <h5 className="font-medium text-sm text-gray-900">{idea.name}</h5>
-                              <span className={`px-2 py-1 text-xs rounded-full ${
-                                idea.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                                idea.status === 'In Development' ? 'bg-blue-100 text-blue-800' :
-                                'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {idea.status}
-                              </span>
-                            </div>
-                            <div className="text-xs text-gray-600 space-y-1">
-                              <p><strong>Original Submitter:</strong> {idea.originalSubmitter}</p>
-                              <p><strong>Contributors:</strong> {idea.contributors.join(', ')}</p>
-                              <p><strong>Collaboration Score:</strong> {idea.collaborationScore}%</p>
-                            </div>
-                          </div>
-                        ))}
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="overflow-x-auto max-h-64 overflow-y-auto">
+                          <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                            <thead className="bg-gray-100 sticky top-0">
+                              <tr>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
+                                  Idea ID
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
+                                  Idea Summary
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
+                                  Idea Comments
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                              {selectedDataPoint.topCollaborativeIdeas.map((idea, index) => (
+                                <tr key={idea.id} className="hover:bg-gray-50">
+                                  <td className="px-3 py-2 text-xs font-medium text-blue-600 border-r border-gray-200">
+                                    {idea.id}
+                                  </td>
+                                  <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-200">
+                                    <div className="max-w-[150px]">
+                                      <div className="font-medium">{idea.name}</div>
+                                      <div className={`text-xs px-2 py-1 rounded-full mt-1 inline-block ${
+                                        idea.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                                        idea.status === 'In Development' ? 'bg-blue-100 text-blue-800' :
+                                        'bg-yellow-100 text-yellow-800'
+                                      }`}>
+                                        {idea.status}
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="px-3 py-2 text-xs text-gray-700">
+                                    <div className="max-w-[200px]">
+                                      {idea.comments}
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
                   </div>
