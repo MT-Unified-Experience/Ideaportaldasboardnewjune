@@ -29,6 +29,18 @@ interface CSVRow {
   responsiveness_trend: string;
   roadmap_alignment_committed: string;
   roadmap_alignment_total: string;
+ responsiveness_q1_percentage: string;
+ responsiveness_q1_moved_out: string;
+ responsiveness_q1_total: string;
+ responsiveness_q2_percentage: string;
+ responsiveness_q2_moved_out: string;
+ responsiveness_q2_total: string;
+ responsiveness_q3_percentage: string;
+ responsiveness_q3_moved_out: string;
+ responsiveness_q3_total: string;
+ responsiveness_q4_percentage: string;
+ responsiveness_q4_moved_out: string;
+ responsiveness_q4_total: string;
   year: string;
   candidate_ideas: string;
   in_development: string;
@@ -284,9 +296,37 @@ const transformCollaborationTrendData = (data: CSVRow[]): CollaborationTrendQuar
 const transformCSVData = (data: CSVRow[]): DashboardData => {
   const firstRow = data[0];
 
+ // Transform quarterly responsiveness data
+ const responsivenessQuarterlyData = [
+   {
+     quarter: 'FY25 Q1',
+     percentage: safeNumberConversion(firstRow.responsiveness_q1_percentage),
+     totalIdeas: safeNumberConversion(firstRow.responsiveness_q1_total),
+     ideasMovedOutOfReview: safeNumberConversion(firstRow.responsiveness_q1_moved_out)
+   },
+   {
+     quarter: 'FY25 Q2',
+     percentage: safeNumberConversion(firstRow.responsiveness_q2_percentage),
+     totalIdeas: safeNumberConversion(firstRow.responsiveness_q2_total),
+     ideasMovedOutOfReview: safeNumberConversion(firstRow.responsiveness_q2_moved_out)
+   },
+   {
+     quarter: 'FY25 Q3',
+     percentage: safeNumberConversion(firstRow.responsiveness_q3_percentage),
+     totalIdeas: safeNumberConversion(firstRow.responsiveness_q3_total),
+     ideasMovedOutOfReview: safeNumberConversion(firstRow.responsiveness_q3_moved_out)
+   },
+   {
+     quarter: 'FY25 Q4',
+     percentage: safeNumberConversion(firstRow.responsiveness_q4_percentage),
+     totalIdeas: safeNumberConversion(firstRow.responsiveness_q4_total),
+     ideasMovedOutOfReview: safeNumberConversion(firstRow.responsiveness_q4_moved_out)
+   }
+ ];
   // Safely extract metric summary from first row
   const metricSummary = {
     responsiveness: safeNumberConversion(firstRow.responsiveness),
+    responsivenessQuarterlyData: responsivenessQuarterlyData,
     roadmapAlignment: {
       committed: safeNumberConversion(firstRow.roadmap_alignment_committed),
       total: safeNumberConversion(firstRow.roadmap_alignment_total),

@@ -17,6 +17,7 @@ interface ResponsivenessCardProps {
     quarter: string;
     percentage: number;
     totalIdeas: number;
+    ideasMovedOutOfReview: number;
   }>;
 }
 
@@ -29,10 +30,10 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
 
   // Generate default quarterly data if none provided
   const defaultQuarterlyData = [
-    { quarter: 'FY25 Q1', percentage: 82, totalIdeas: 45 },
-    { quarter: 'FY25 Q2', percentage: 78, totalIdeas: 52 },
-    { quarter: 'FY25 Q3', percentage: 85, totalIdeas: 38 },
-    { quarter: 'FY25 Q4', percentage: value, totalIdeas: 41 }
+    { quarter: 'FY25 Q1', percentage: 82, totalIdeas: 45, ideasMovedOutOfReview: 37 },
+    { quarter: 'FY25 Q2', percentage: 78, totalIdeas: 52, ideasMovedOutOfReview: 41 },
+    { quarter: 'FY25 Q3', percentage: 85, totalIdeas: 38, ideasMovedOutOfReview: 32 },
+    { quarter: 'FY25 Q4', percentage: value, totalIdeas: 41, ideasMovedOutOfReview: Math.round(41 * value / 100) }
   ];
 
   const chartData = quarterlyData.length > 0 ? quarterlyData : defaultQuarterlyData;
@@ -57,6 +58,10 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Responsiveness:</span>
               <span className="font-medium text-blue-600">{data.percentage}%</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-600">Ideas Moved Out of Review:</span>
+              <span className="font-medium text-green-600">{data.ideasMovedOutOfReview || Math.round(data.totalIdeas * data.percentage / 100)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">Total Ideas:</span>
@@ -122,10 +127,16 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
             <div className="space-y-6">
               {/* Current Quarter Summary */}
               <div className="bg-blue-50 rounded-lg p-6">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-blue-600">{value}%</div>
                     <div className="text-sm text-gray-600">Current Quarter</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-green-600">
+                      {chartData[chartData.length - 1]?.ideasMovedOutOfReview || Math.round((chartData[chartData.length - 1]?.totalIdeas || 0) * value / 100)}
+                    </div>
+                    <div className="text-sm text-gray-600">Ideas Moved Out of Review</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-gray-600">
@@ -201,7 +212,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                               )}
                             </h4>
                             <p className="text-sm text-gray-600 mt-1">
-                              {item.totalIdeas} total ideas processed
+                              {item.ideasMovedOutOfReview || Math.round(item.totalIdeas * item.percentage / 100)} of {item.totalIdeas} ideas moved out of review
                             </p>
                           </div>
                           <div className="text-right">
@@ -230,13 +241,16 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                 </h3>
                 <div className="space-y-2 text-sm text-gray-600">
                   <p>
-                    • Responsiveness measures the percentage of ideas that received a status update after client submission
+                    • Responsiveness measures the percentage of ideas that moved out of the "Need Review" stage after client submission
                   </p>
                   <p>
                     • Higher percentages indicate better engagement and faster feedback loops with clients
                   </p>
                   <p>
                     • Target responsiveness rate is typically 85% or higher for optimal client satisfaction
+                  </p>
+                  <p>
+                    • The metric shows both the number of ideas that progressed and the total ideas submitted for context
                   </p>
                 </div>
               </div>

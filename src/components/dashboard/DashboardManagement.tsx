@@ -265,6 +265,104 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                             />
                           </div>
                         </div>
+                        
+                        {/* Quarterly Responsiveness Data */}
+                        <div className="mt-4 space-y-4">
+                          <h4 className="text-sm font-medium text-gray-700">Quarterly Responsiveness Data</h4>
+                          {['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'].map((quarter, index) => (
+                            <div key={quarter} className="bg-white p-4 rounded-lg border border-gray-200">
+                              <div className="flex items-center gap-4">
+                                <h5 className="text-sm font-medium text-gray-700 w-24 flex-shrink-0">{quarter}</h5>
+                                <div className="grid grid-cols-3 gap-4 flex-1">
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                                      Percentage (%)
+                                    </label>
+                                    <input
+                                      type="number"
+                                      value={(formData.metricSummary?.responsivenessQuarterlyData || [])[index]?.percentage || 0}
+                                      onChange={(e) => {
+                                        setFormData(prev => {
+                                          const newData = Array.from({ length: 4 }, (_, i) => ({
+                                            quarter: ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'][i],
+                                            percentage: (prev.metricSummary?.responsivenessQuarterlyData || [])[i]?.percentage || 0,
+                                            totalIdeas: (prev.metricSummary?.responsivenessQuarterlyData || [])[i]?.totalIdeas || 0,
+                                            ideasMovedOutOfReview: (prev.metricSummary?.responsivenessQuarterlyData || [])[i]?.ideasMovedOutOfReview || 0
+                                          }));
+                                          newData[index] = { ...newData[index], percentage: Number(e.target.value) };
+                                          return {
+                                            ...prev,
+                                            metricSummary: { 
+                                              ...prev.metricSummary, 
+                                              responsivenessQuarterlyData: newData 
+                                            }
+                                          };
+                                        });
+                                      }}
+                                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                                      Ideas Moved Out of Review
+                                    </label>
+                                    <input
+                                      type="number"
+                                      value={(formData.metricSummary?.responsivenessQuarterlyData || [])[index]?.ideasMovedOutOfReview || 0}
+                                      onChange={(e) => {
+                                        setFormData(prev => {
+                                          const newData = Array.from({ length: 4 }, (_, i) => ({
+                                            quarter: ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'][i],
+                                            percentage: (prev.metricSummary?.responsivenessQuarterlyData || [])[i]?.percentage || 0,
+                                            totalIdeas: (prev.metricSummary?.responsivenessQuarterlyData || [])[i]?.totalIdeas || 0,
+                                            ideasMovedOutOfReview: (prev.metricSummary?.responsivenessQuarterlyData || [])[i]?.ideasMovedOutOfReview || 0
+                                          }));
+                                          newData[index] = { ...newData[index], ideasMovedOutOfReview: Number(e.target.value) };
+                                          return {
+                                            ...prev,
+                                            metricSummary: { 
+                                              ...prev.metricSummary, 
+                                              responsivenessQuarterlyData: newData 
+                                            }
+                                          };
+                                        });
+                                      }}
+                                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                                      Total Ideas
+                                    </label>
+                                    <input
+                                      type="number"
+                                      value={(formData.metricSummary?.responsivenessQuarterlyData || [])[index]?.totalIdeas || 0}
+                                      onChange={(e) => {
+                                        setFormData(prev => {
+                                          const newData = Array.from({ length: 4 }, (_, i) => ({
+                                            quarter: ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'][i],
+                                            percentage: (prev.metricSummary?.responsivenessQuarterlyData || [])[i]?.percentage || 0,
+                                            totalIdeas: (prev.metricSummary?.responsivenessQuarterlyData || [])[i]?.totalIdeas || 0,
+                                            ideasMovedOutOfReview: (prev.metricSummary?.responsivenessQuarterlyData || [])[i]?.ideasMovedOutOfReview || 0
+                                          }));
+                                          newData[index] = { ...newData[index], totalIdeas: Number(e.target.value) };
+                                          return {
+                                            ...prev,
+                                            metricSummary: { 
+                                              ...prev.metricSummary, 
+                                              responsivenessQuarterlyData: newData 
+                                            }
+                                          };
+                                        });
+                                      }}
+                                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-blue-500"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
 
