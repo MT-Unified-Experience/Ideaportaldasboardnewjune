@@ -311,7 +311,7 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                     <h3 className="text-lg font-medium text-gray-900">
                       Quarterly Breakdown
                     </h3>
-                    <div className="grid gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       {chartData.map((item, index) => {
                         const isCurrentQuarter = index === chartData.length - 1;
                         const prevItem = index > 0 ? chartData[index - 1] : null;
@@ -327,35 +327,40 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                                 : 'bg-white border-gray-200'
                             } cursor-pointer hover:shadow-md transition-all duration-200`}
                           >
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <h4 className="font-medium text-gray-900">
-                                  {item.quarter}
-                                  {isCurrentQuarter && (
-                                    <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                      Current
-                                    </span>
-                                  )}
-                                </h4>
-                                <p className="text-sm text-gray-600 mt-1">
-                                  {item.numerator} of {item.denominator} ideas had follow-up
-                                </p>
-                                <p className="text-xs text-blue-600 font-medium mt-1">
-                                  Click to view ideas with follow-up
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-2xl font-bold text-gray-900">
-                                  {item.rate}%
-                                </div>
-                                {prevItem && (
-                                  <div className={`text-sm font-medium ${
-                                    change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-500'
-                                  }`}>
-                                    {change > 0 ? '+' : ''}{change.toFixed(1)}% vs prev
-                                  </div>
+                            <div className="text-center space-y-2">
+                              {/* Title */}
+                              <h4 className="font-medium text-gray-900">
+                                {item.quarter}
+                                {isCurrentQuarter && (
+                                  <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Current
+                                  </span>
                                 )}
+                              </h4>
+                              
+                              {/* Engagement Rate */}
+                              <div className="text-3xl font-bold text-gray-900">
+                                {item.rate}%
                               </div>
+                              
+                              {/* Engagement Trend Change */}
+                              {prevItem && (
+                                <div className={`text-sm font-medium ${
+                                  change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-500'
+                                }`}>
+                                  {change > 0 ? '+' : ''}{change.toFixed(1)}% vs prev
+                                </div>
+                              )}
+                              
+                              {/* Description Text */}
+                              <p className="text-sm text-gray-600">
+                                {item.numerator} of {item.denominator} ideas had follow-up
+                              </p>
+                              
+                              {/* Link */}
+                              <p className="text-xs text-blue-600 font-medium">
+                                Click to view ideas with follow-up
+                              </p>
                             </div>
                           </div>
                         );
