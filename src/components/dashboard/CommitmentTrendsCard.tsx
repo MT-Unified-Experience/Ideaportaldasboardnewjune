@@ -135,7 +135,9 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
       </div>
 
       {isOpen && (
-        <div className="fixed inset-y-0 right-0 w-full md:w-[800px] bg-white shadow-xl z-50 overflow-y-auto transform transition-transform duration-300 ease-in-out" style={{ minWidth: '800px', maxHeight: '80vh' }}>
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-500 bg-opacity-75">
+          <div className="flex min-h-full items-center justify-center p-4">
+            <div className="relative transform overflow-hidden rounded-lg bg-white w-full max-w-7xl shadow-xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
@@ -154,7 +156,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
               </button>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-6 max-h-[80vh] overflow-y-auto">
               {/* Current Status Summary */}
               <div className="bg-purple-50 rounded-lg p-6">
                 <div className="grid grid-cols-3 gap-4">
@@ -332,6 +334,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </div>
       )}
