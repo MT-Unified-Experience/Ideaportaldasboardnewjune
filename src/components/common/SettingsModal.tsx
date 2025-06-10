@@ -5,6 +5,7 @@ interface WidgetSettings {
   responsiveness: boolean;
   commitment: boolean;
   collaboration: boolean;
+  collaborationTrend: boolean;
   continuedEngagement: boolean;
   agingIdeas: boolean;
   ideaDistribution: boolean;
@@ -41,6 +42,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     { key: 'responsiveness' as keyof WidgetSettings, label: 'Responsiveness Card', description: 'Shows response time metrics' },
     { key: 'commitment' as keyof WidgetSettings, label: 'Idea Portal Commitment Card', description: 'Displays commitment progress' },
     { key: 'collaboration' as keyof WidgetSettings, label: 'Cross-Client Collaboration Card', description: 'Shows collaboration metrics' },
+    { key: 'collaborationTrend' as keyof WidgetSettings, label: 'Cross-Client Collaboration Trend Chart', description: 'Shows detailed collaboration trends over time' },
     { key: 'continuedEngagement' as keyof WidgetSettings, label: 'Continued Engagement Rate Card', description: 'Tracks follow-up on reviewed ideas' },
     { key: 'agingIdeas' as keyof WidgetSettings, label: 'Aging Ideas Card', description: 'Tracks aging candidate ideas' },
     { key: 'ideaDistribution' as keyof WidgetSettings, label: 'Idea Status Distribution Chart', description: 'Yearly breakdown by status' },
