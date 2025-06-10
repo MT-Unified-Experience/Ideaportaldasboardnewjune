@@ -204,11 +204,6 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                         <div className="text-center">
                           <h4 className="font-medium text-gray-900 mb-2">
                             {formatQuarterLabel(item.quarter)}
-                            {isCurrentQuarter && (
-                              <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                Current
-                              </span>
-                            )}
                           </h4>
                           <div className="text-2xl font-bold text-gray-900 mb-2">
                             {item.percentage}%
@@ -223,6 +218,11 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                           <p className="text-sm text-gray-600">
                             {item.ideasMovedOutOfReview || Math.round(item.totalIdeas * item.percentage / 100)} of {item.totalIdeas} ideas moved out of review
                           </p>
+                          {isCurrentQuarter && (
+                            <span className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              Current
+                            </span>
+                          )}
                         </div>
                       </div>
                     );
