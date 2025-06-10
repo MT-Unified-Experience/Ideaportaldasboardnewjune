@@ -196,22 +196,22 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
           {/* Horizontal bar chart for better label readability */}
           <div className="bg-gray-50 rounded-lg p-4">
             <h4 className="text-md font-medium text-gray-900 mb-4">Q3 vs Q4 Request Volume</h4>
-            <div className="h-[800px]">
+            <div className="h-[500px]">
               <ResponsiveContainer width="100%" height="100%" key={JSON.stringify(trendData)}>
-                <BarChart 
-                  layout="horizontal"
+                <BarChart
                   data={trendData.slice(0, 10)} 
-                  margin={{ top: 20, right: 30, left: 150, bottom: 20 }}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 120 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis 
-                    type="category"
+                  <XAxis 
                     dataKey="name" 
-                    width={140}
-                    tick={{ fontSize: 11 }}
+                    angle={-45}
+                    textAnchor="end"
+                    height={100}
+                    tick={{ fontSize: 10 }}
                     interval={0}
                   />
+                  <YAxis />
                   <Tooltip content={<CustomTooltip />} />
                   <Bar 
                     dataKey="q3_requests" 
