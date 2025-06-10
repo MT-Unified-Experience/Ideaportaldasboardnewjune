@@ -354,7 +354,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                             Idea ID
                           </th>
                           <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
-                            Idea Summary Title
+                            Idea Summary
                           </th>
                           <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
                             Idea Comments
@@ -623,4 +623,41 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                                   <td className="px-3 py-2 text-xs font-medium text-blue-600 border-r border-gray-200">
                                     {idea.id}
                                   </td>
-                                  <td className="px-3 py-2 text-xs text-gray-900 border-
+                                  <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-200">
+                                    <div className="max-w-[150px]">
+                                      <div className="font-medium">{idea.name}</div>
+                                      <div className={`text-xs px-2 py-1 rounded-full mt-1 inline-block ${
+                                        idea.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                                        idea.status === 'In Development' ? 'bg-blue-100 text-blue-800' :
+                                        'bg-yellow-100 text-yellow-800'
+                                      }`}>
+                                        {idea.status}
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="px-3 py-2 text-xs text-gray-700">
+                                    <div className="max-w-[200px]">
+                                      {idea.comments}
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CrossClientCollaborationTrend;
+
+export default CrossClientCollaborationTrend
