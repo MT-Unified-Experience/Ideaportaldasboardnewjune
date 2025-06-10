@@ -333,24 +333,31 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                     </button>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {selectedQuarterIdeas.map((idea, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center p-3 bg-white rounded-lg shadow-sm border border-gray-200"
-                        >
-                          <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                            <span className="text-sm font-medium text-blue-600">
-                              {index + 1}
-                            </span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {idea}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
+                              Idea ID
+                            </th>
+                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
+                              Idea Summary Title
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {selectedQuarterIdeas.map((idea, index) => (
+                            <tr key={index} className="hover:bg-gray-50">
+                              <td className="px-4 py-3 text-sm font-medium text-blue-600 border-r border-gray-200">
+                                ID-{String(index + 1).padStart(3, '0')}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-900">
+                                {idea}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>
