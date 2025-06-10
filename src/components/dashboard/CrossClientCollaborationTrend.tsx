@@ -622,4 +622,115 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                               <span className="text-sm text-gray-600">Quarter-over-Quarter Change</span>
                               <div className="flex items-center">
                                 {selectedDataPoint.changeDirection === 'up' ? (
-                                  <TrendingUp className="h-
+                                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                                ) : selectedDataPoint.changeDirection === 'down' ? (
+                                  <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+                                ) : null}
+                                <span className={`text-lg font-bold ${
+                                  selectedDataPoint.changeDirection === 'up' ? 'text-green-600' : 
+                                  selectedDataPoint.changeDirection === 'down' ? 'text-red-600' : 'text-gray-600'
+                                }`}>
+                                  {selectedDataPoint.changePercentage > 0 ? '+' : ''}{selectedDataPoint.changePercentage}%
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="overflow-x-auto max-h-64 overflow-y-auto">
+                          <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                            <thead className="bg-gray-100 sticky top-0">
+                              <tr>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
+                                  Idea ID
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
+                                  Idea Summary
+                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
+                                  Idea Comments
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                              {selectedDataPoint.topCollaborativeIdeas.map((idea, index) => (
+                                <tr key={idea.id} className="hover:bg-gray-50">
+                                  <td className="px-3 py-2 text-xs font-medium text-blue-600 border-r border-gray-200">
+                                    {idea.id}
+                                  </td>
+                                  <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-200">
+                                    <div className="max-w-[150px]">
+                                      <div className="font-medium">{idea.name}</div>
+                                      <div className={`text-xs px-2 py-1 rounded-full mt-1 inline-block ${
+                                        idea.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                                        idea.status === 'In Development' ? 'bg-blue-100 text-blue-800' :
+                                        'bg-yellow-100 text-yellow-800'
+                                      }`}>
+                                        {idea.status}
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="px-3 py-2 text-xs text-gray-700">
+                                    <div className="max-w-[200px]">
+                                      {idea.comments}
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Insights and Analysis */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Key Insights</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Trend Analysis</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      <li>• Collaboration rates show quarterly patterns with higher engagement in Q2 and Q4</li>
+                      <li>• Significant changes (±8%) occurred in {quarterlyData.filter(item => item.significantChange).length} quarters</li>
+                      <li>• Peak collaboration quarter: {quarterlyData.reduce((max, item) => item.collaborationRate > max.collaborationRate ? item : max).quarter}</li>
+                      <li>• Average quarterly collaborative ideas: {Math.round(quarterlyData.reduce((sum, item) => sum + item.collaborativeIdeas, 0) / quarterlyData.length)}</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Collaboration Benefits</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      <li>• Multi-client ideas typically have 40% higher implementation success rates</li>
+                      <li>• Collaborative features reduce individual client development costs by 25-35%</li>
+                      <li>• Cross-client feedback improves feature quality and adoption rates</li>
+                      <li>• Shared solutions create stronger client community engagement</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 px-6 py-4 flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CrossClientCollaborationTrend;
+
+export default CrossClientCollaborationTrend
+
+export default CrossClientCollaborationTrend
