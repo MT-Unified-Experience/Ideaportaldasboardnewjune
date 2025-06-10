@@ -127,10 +127,10 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
     return bottomWidgets;
   };
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6 w-full">
       {/* Metric Summary Cards Row */}
       {visibleMetricCards > 0 && (
-        <div className={`grid ${getMetricGridCols()} gap-6`}>
+        <div className={`grid ${getMetricGridCols()} gap-3 lg:gap-6 w-full`}>
           {widgetSettings.responsiveness && (
             <ResponsivenessCard
               value={metricSummary.responsiveness}
@@ -178,13 +178,13 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
       )}
       {/* Charts Row */}
       {(widgetSettings.ideaDistribution || widgetSettings.clientSubmissions) && (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-6 w-full">
           {getChartLayout()}
         </div>
       )}
       
       {/* Cross-Client Collaboration Trend Chart */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 lg:p-5 w-full">
         <CrossClientCollaborationTrend
           isOpen={true}
           onClose={() => {}}
@@ -206,7 +206,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
 
       {/* Bottom Row - Features and Forums */}
       {widgetSettings.topFeatures && (
-        <div className="space-y-6">
+        <div className="space-y-4 lg:space-y-6 w-full">
           {getBottomRowLayout()}
         </div>
       )}
