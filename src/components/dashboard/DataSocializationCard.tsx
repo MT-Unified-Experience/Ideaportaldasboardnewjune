@@ -51,33 +51,37 @@ const DataSocializationCard: React.FC = () => {
       
       {/* Compact forum list */}
       <div className="mt-4 space-y-2">
-        {allForums.map((forum, index) => {
-          const Icon = forum.icon;
-          const isUsed = isForumUsed(forum.name);
-          
-          return (
-            <div
-              key={index}
-              className="flex items-center justify-between p-2 rounded-md bg-gray-50"
-            >
-              <div className={`p-0.5 rounded-full ${
-                isUsed ? 'bg-green-500' : 'bg-red-500'
-              }`}>
-                {isUsed ? (
-                  <Check className="h-2.5 w-2.5 text-white" />
-                ) : (
-                  <X className="h-2.5 w-2.5 text-white" />
-                )}
-              </div>
-              <div className="flex items-center space-x-2">
-                <Icon className="h-3 w-3 text-gray-500" />
-                <span className="text-xs font-medium text-gray-700 truncate">
-                  {forum.name}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+        {Array.from({ length: Math.ceil(allForums.length / 2) }, (_, rowIndex) => (
+          <div key={rowIndex} className="grid grid-cols-2 gap-2">
+            {allForums.slice(rowIndex * 2, rowIndex * 2 + 2).map((forum, index) => {
+              const Icon = forum.icon;
+              const isUsed = isForumUsed(forum.name);
+              
+              return (
+                <div
+                  key={rowIndex * 2 + index}
+                  className="flex items-center justify-between p-2 rounded-md bg-gray-50"
+                >
+                  <div className={`p-0.5 rounded-full ${
+                    isUsed ? 'bg-green-500' : 'bg-red-500'
+                  }`}>
+                    {isUsed ? (
+                      <Check className="h-2.5 w-2.5 text-white" />
+                    ) : (
+                      <X className="h-2.5 w-2.5 text-white" />
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Icon className="h-3 w-3 text-gray-500" />
+                    <span className="text-xs font-medium text-gray-700 truncate">
+                      {forum.name}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );
