@@ -1,6 +1,3 @@
-Here's the fixed version with all missing closing brackets added:
-
-```typescript
 import React, { useState, useEffect } from 'react';
 import { X, HelpCircle, BarChart2, Users, Clock, LineChart as LineChartIcon } from 'lucide-react';
 import { DashboardData } from '../../types';
@@ -21,6 +18,8 @@ interface DashboardManagementProps {
   onClose: () => void;
   widgetSettings: WidgetSettings;
 }
+
+type Quarter = 'FY25 Q1' | 'FY25 Q2' | 'FY25 Q3' | 'FY25 Q4';
 
 const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClose, widgetSettings }) => {
   const { dashboardData, updateDashboardData, isLoading } = useData();
@@ -640,3 +639,244 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                                     onChange={(e) => {
                                       const newFeatures = [...formData.topFeatures];
                                       newFeatures[index] = {
+                                        ...feature,
+                                        client_voters: e.target.value.split(';').map(s => s.trim()).filter(Boolean)
+                                      };
+                                      setFormData({ ...formData, topFeatures: newFeatures });
+                                    }}
+                                    placeholder="Client A; Client B; Client C"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Previous Quarter Features */}
+                    {featuresSubTab === 'previous' && (
+                      <div className="space-y-6">
+                        <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                          <h4 className="text-sm font-medium text-amber-800 mb-2">
+                            Previous Quarter ({getPreviousQuarter()}) Features
+                          </h4>
+                          <p className="text-xs text-amber-600">
+                            These features will be displayed in the comparison view for the previous quarter.
+                          </p>
+                        </div>
+                        {Array.from({ length: 10 }).map((_, index) => {
+                          const feature = formData.previousQuarterFeatures?.[index] || {
+                            feature_name: '',
+                            vote_count: 0,
+                            status: 'Under Review' as const,
+                            status_updated_at: new Date().toISOString(),
+                            client_voters: []
+                          };
+                          return (
+                            <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                              <h4 className="text-sm font-medium text-gray-700 mb-4">
+                                Previous Quarter Feature #{index + 1}
+                              </h4>
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Feature Name
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={feature.feature_name}
+                                    onChange={(e) => {
+                                      const newFeatures = [...(formData.previousQuarterFeatures || [])];
+                                      newFeatures[index] = { ...feature, feature_name: e.target.value };
+                                      setFormData({ ...formData, previousQuarterFeatures: newFeatures });
+                                    }}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Vote Count
+                                    </label>
+                                    <input
+                                      type="number"
+                                      value={feature.vote_count}
+                                      onChange={(e) => {
+                                        const newFeatures = [...(formData.previousQuarterFeatures || [])];
+                                        newFeatures[index] = { ...feature, vote_count: Number(e.target.value) };
+                                        setFormData({ ...formData, previousQuarterFeatures: newFeatures });
+                                      }}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Status
+                                    </label>
+                                    <select
+                                      value={feature.status}
+                                      onChange={(e) => {
+                                        const newFeatures = [...(formData.previousQuarterFeatures || [])];
+                                        newFeatures[index] = { 
+                                          ...feature, 
+                                          status: e.target.value as 'Delivered' | 'Under Review' | 'Committed'
+                                        };
+                                        setFormData({ ...formData, previousQuarterFeatures: newFeatures });
+                                      }}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                      <option value="Under Review">Under Review</option>
+                                      <option value="Committed">Committed</option>
+                                      <option value="Delivered">Delivered</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Contributing Clients (separate with semicolon)
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={feature.client_voters.join('; ')}
+                                    onChange={(e) => {
+                                      const newFeatures = [...(formData.previousQuarterFeatures || [])];
+                                      newFeatures[index] = {
+                                        ...feature,
+                                        client_voters: e.target.value.split(';').map(s => s.trim()).filter(Boolean)
+                                      };
+                                      setFormData({ ...formData, previousQuarterFeatures: newFeatures });
+                                    }}
+                                    placeholder="Client A; Client B; Client C"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Forums Tab */}
+                {activeTab === 'forums' && (
+                  <div className="space-y-6">
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h3 className="text-sm font-medium text-gray-700 mb-4">Data Socialization Forums</h3>
+                      <div className="space-y-4">
+                        {Array.from({ length: 5 }).map((_, index) => {
+                          const forum = formData.dataSocializationForums?.[index] || {
+                            title: '',
+                            date: '',
+                            attendees: 0,
+                            keyTopics: []
+                          };
+                          return (
+                            <div key={index} className="bg-white p-4 rounded border">
+                              <h4 className="text-sm font-medium text-gray-700 mb-3">
+                                Forum #{index + 1}
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Forum Title
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={forum.title}
+                                    onChange={(e) => {
+                                      const newForums = [...(formData.dataSocializationForums || [])];
+                                      newForums[index] = { ...forum, title: e.target.value };
+                                      setFormData({ ...formData, dataSocializationForums: newForums });
+                                    }}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Date
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={forum.date}
+                                    onChange={(e) => {
+                                      const newForums = [...(formData.dataSocializationForums || [])];
+                                      newForums[index] = { ...forum, date: e.target.value };
+                                      setFormData({ ...formData, dataSocializationForums: newForums });
+                                    }}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Attendees
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={forum.attendees}
+                                    onChange={(e) => {
+                                      const newForums = [...(formData.dataSocializationForums || [])];
+                                      newForums[index] = { ...forum, attendees: Number(e.target.value) };
+                                      setFormData({ ...formData, dataSocializationForums: newForums });
+                                    }}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </div>
+                              </div>
+                              <div className="mt-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  Key Topics (separate with semicolon)
+                                </label>
+                                <input
+                                  type="text"
+                                  value={forum.keyTopics.join('; ')}
+                                  onChange={(e) => {
+                                    const newForums = [...(formData.dataSocializationForums || [])];
+                                    newForums[index] = {
+                                      ...forum,
+                                      keyTopics: e.target.value.split(';').map(s => s.trim()).filter(Boolean)
+                                    };
+                                    setFormData({ ...formData, dataSocializationForums: newForums });
+                                  }}
+                                  placeholder="Topic A; Topic B; Topic C"
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                >
+                  {isLoading ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DashboardManagement;
