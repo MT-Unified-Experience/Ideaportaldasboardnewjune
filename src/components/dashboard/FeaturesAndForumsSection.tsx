@@ -11,29 +11,25 @@ interface WidgetSettings {
 interface FeaturesAndForumsSectionProps {
   topFeatures: Feature[];
   widgetSettings: WidgetSettings;
+  showDataSocializationInCharts?: boolean;
 }
 
 const FeaturesAndForumsSection: React.FC<FeaturesAndForumsSectionProps> = ({ 
   topFeatures, 
-  widgetSettings 
+  widgetSettings,
+  showDataSocializationInCharts = false
 }) => {
   // Don't render if no widgets are visible
-  if (!widgetSettings.topFeatures && !widgetSettings.dataSocialization) {
+  if (!widgetSettings.topFeatures && (!widgetSettings.dataSocialization || showDataSocializationInCharts)) {
     return null;
   }
 
   return (
     <div className="space-y-4 lg:space-y-6 w-full">
-      {/* Data Socialization and Top Features Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 lg:gap-6 w-full">
-        {widgetSettings.dataSocialization && (
-          <div className="lg:col-span-2">
-            <DataSocializationCard />
-          </div>
-        )}
-        
+      {/* Top Features Layout */}
+      <div className="grid grid-cols-1 gap-3 lg:gap-6 w-full">
         {widgetSettings.topFeatures && (
-          <div className={widgetSettings.dataSocialization ? "lg:col-span-3" : "col-span-full"}>
+          <div className="col-span-full">
             <TopFeaturesChart features={topFeatures} />
           </div>
         )}

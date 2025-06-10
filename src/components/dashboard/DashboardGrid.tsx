@@ -40,13 +40,14 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
         }}
       />
 
-      {/* Charts Section - includes Cross-Client Collaboration Trend and Client Submissions */}
+      {/* Charts Section - includes Cross-Client Collaboration Trend, Client Submissions, and Data Socialization */}
       <ChartsSection 
         stackedBarData={stackedBarData}
         lineChartData={lineChartData}
         widgetSettings={{
           ideaDistribution: widgetSettings.ideaDistribution,
           clientSubmissions: widgetSettings.clientSubmissions,
+          dataSocialization: widgetSettings.dataSocialization,
         }}
         showCollaborationTrend={true}
       />
@@ -56,8 +57,9 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
         topFeatures={topFeatures}
         widgetSettings={{
           topFeatures: widgetSettings.topFeatures,
-          dataSocialization: widgetSettings.dataSocialization,
+          dataSocialization: false, // Now handled in ChartsSection
         }}
+        showDataSocializationInCharts={widgetSettings.dataSocialization}
       />
     </DashboardSection>
   );
