@@ -264,80 +264,9 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                         strokeWidth={2}
                         className="cursor-pointer"
                       />
-                    );
-                  }}
-                  activeDot={{ r: 10, stroke: '#f59e0b', strokeWidth: 2 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-4 flex items-center justify-center space-x-6 text-sm text-gray-600">
-            <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-amber-500 mr-2"></div>
-              <span>Regular Data Point</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 rounded-full bg-red-600 mr-2"></div>
-              <span>Significant Change (±8%)</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Selected Data Point Details */}
-        {selectedDataPoint && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">
-                {selectedDataPoint.quarter} {selectedDataPoint.year} - Detailed Metrics
-              </h3>
-              <button
-                onClick={() => setSelectedDataPoint(null)}
-                className="text-gray-400 hover:text-gray-500"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Metrics Summary */}
-              <div className="space-y-4">
-                <h4 className="font-medium text-gray-900">Collaboration Metrics</h4>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm text-gray-600">Collaborative Ideas</span>
-                    <span className="font-medium text-amber-600">{selectedDataPoint.collaborativeIdeas}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm text-gray-600">Total Ideas</span>
-                    <span className="font-medium text-gray-900">{selectedDataPoint.totalIdeas}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm text-gray-600">Collaboration Rate</span>
-                    <span className="font-medium text-blue-600">{selectedDataPoint.collaborationRate}%</span>
-                  </div>
-                  {selectedDataPoint.significantChange && (
-                    <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                      <span className="text-sm text-gray-600">Quarter-over-Quarter Change</span>
-                      <div className="flex items-center">
-                        {selectedDataPoint.changeDirection === 'up' ? (
-                          <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                        ) : selectedDataPoint.changeDirection === 'down' ? (
-                          <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-                        ) : null}
-                        <span className={`font-medium ${
-                          selectedDataPoint.changeDirection === 'up' ? 'text-green-600' : 
-                          selectedDataPoint.changeDirection === 'down' ? 'text-red-600' : 'text-gray-600'
-                        }`}>
-                          {selectedDataPoint.changePercentage > 0 ? '+' : ''}{selectedDataPoint.changePercentage}%
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
 
               {/* Top Collaborative Ideas Data Table */}
-              <div className="space-y-4">
+              <div className="space-y-4 col-span-full">
                 <h4 className="font-medium text-gray-900">Top Collaborative Ideas</h4>
                 
                 {/* Horizontal Metrics */}
