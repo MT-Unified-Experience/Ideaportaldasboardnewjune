@@ -33,6 +33,11 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
   quarterlyDeliveries = []
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedDataPoint, setSelectedDataPoint] = useState<{
+    type: 'annual' | 'quarterly';
+    label: string;
+    ideas: Array<{ id: string; summary: string }>;
+  } | null>(null);
 
   // Generate default data if none provided
   const defaultCommitmentTrends = [
@@ -62,6 +67,66 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
     ...item,
     quarterLabel: `${item.quarter} ${item.year}`
   }));
+
+  // Generate sample ideas for data points
+  const generateIdeasForDataPoint = (type: 'annual' | 'quarterly', label: string, count: number) => {
+    const ideaTemplates = [
+      'AI-Powered Document Analysis',
+      'Mobile App Enhancement',
+      'Reporting Dashboard Improvements',
+      'API Integration Updates',
+      'Custom Workflow Builder',
+      'Document Management System',
+      'Search Functionality Enhancement',
+      'Bulk Actions Feature',
+      'Dashboard Customization',
+      'Email Integration',
+      'Advanced Analytics',
+      'Multi-language Support',
+      'Real-time Notifications',
+      'Data Export Enhancements',
+      'User Permission Management',
+      'Automated Workflow Templates',
+      'Integration with Third-party Tools',
+      'Mobile Responsive Design',
+      'Advanced Search Filters',
+      'Audit Trail Improvements'
+    ];
+
+    return Array.from({ length: count }, (_, index) => ({
+      id: `${type === 'annual' ? 'ANN' : 'QTR'}-${label.replace(/\s+/g, '')}-${String(index + 1).padStart(3, '0')}`,
+      summary: ideaTemplates[index % ideaTemplates.length]
+    }));
+  };
+
+  // Handle chart clicks
+  const handleAnnualChartClick = (data: any) => {
+    if (data && data.activePayload && data.activePayload[0]) {
+      const payload = data.activePayload[0].payload;
+      const year = payload.year;
+      const delivered = payload.delivered;
+      
+      setSelectedDataPoint({
+        type: 'annual',
+        label: `${year} Delivered Ideas`,
+        ideas: generateIdeasForDataPoint('annual', year, delivered)
+      });
+    }
+  };
+
+  const handleQuarterlyChartClick = (data: any) => {
+    if (data && data.activePayload && data.activePayload[0]) {
+      const payload = data.activePayload[0].payload;
+      const quarterLabel = payload.quarterLabel;
+      const delivered = payload.delivered;
+      
+      setSelectedDataPoint({
+        type: 'quarterly',
+        label: `${quarterLabel} Delivered Ideas`,
+        ideas: generateIdeasForDataPoint('quarterly', quarterLabel, delivered)
+      });
+    }
+  };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -182,7 +247,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                     </h3>
                     <div className="h-[350px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData}>
+                        <LineChart data={chartData} onClick={handleAnnualChartClick}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis 
                             dataKey="year"
@@ -200,7 +265,12 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                             stroke="#3b82f6"
                             strokeWidth={3}
                             dot={{ fill: '#3b82f6', r: 6 }}
-                            activeDot={{ r: 8, stroke: '#3b82f6', strokeWidth: 2 }}
+                            activeDot={{ 
+                              r: 8, 
+                              stroke: '#3b82f6', 
+                              strokeWidth: 2,
+                              style: { cursor: 'pointer' }
+                            }}
                           />
                           <Line
                             type="monotone"
@@ -209,7 +279,13 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                             stroke="#22c55e"
                             strokeWidth={3}
                             dot={{ fill: '#22c55e', r: 6 }}
-                            activeDot={{ r: 8, stroke: '#22c55e', strokeWidth: 2 }}
+                            activeDot={{ 
+                              r: 8, 
+                              stroke: '#22c55e', 
+                              strokeWidth: 2,
+                              onClick: handleAnnualChartClick,
+                              style: { cursor: 'pointer' }
+                            }}
                           />
                         </LineChart>
                       </ResponsiveContainer>
@@ -223,7 +299,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                     </h3>
                     <div className="h-[300px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={transformedQuarterlyData}>
+                        <LineChart data={transformedQuarterlyData} onClick={handleQuarterlyChartClick}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis 
                             dataKey="quarterLabel"
@@ -251,7 +327,13 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                             stroke="#22c55e"
                             strokeWidth={3}
                             dot={{ fill: '#22c55e', r: 5 }}
-                            activeDot={{ r: 7, stroke: '#22c55e', strokeWidth: 2 }}
+                            activeDot={{ 
+                              r: 7, 
+                              stroke: '#22c55e', 
+                              strokeWidth: 2,
+                              onClick: handleQuarterlyChartClick,
+                              style: { cursor: 'pointer' }
+                            }}
                           />
                         </LineChart>
                       </ResponsiveContainer>
@@ -311,6 +393,51 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                     </div>
                   </div>
 
+                  {/* Ideas Data Table */}
+                  {selectedDataPoint && (
+                    <div className="bg-white rounded-lg border border-gray-200 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-medium text-gray-900">
+                          {selectedDataPoint.label}
+                        </h3>
+                        <button
+                          onClick={() => setSelectedDataPoint(null)}
+                          className="text-gray-400 hover:text-gray-500"
+                        >
+                          <X className="h-5 w-5" />
+                        </button>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                            <thead className="bg-gray-100">
+                              <tr>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
+                                  Idea ID
+                                </th>
+                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
+                                  Idea Summary Title
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                              {selectedDataPoint.ideas.map((idea, index) => (
+                                <tr key={index} className="hover:bg-gray-50">
+                                  <td className="px-4 py-3 text-sm font-medium text-blue-600 border-r border-gray-200">
+                                    {idea.id}
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-gray-900">
+                                    {idea.summary}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Insights */}
                   <div className="bg-gray-50 rounded-lg p-6">
                     <h3 className="text-lg font-medium text-gray-900 mb-3">
@@ -328,6 +455,9 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                       </p>
                       <p>
                         • Target delivery rate is typically 85% or higher for optimal commitment fulfillment
+                      </p>
+                      <p>
+                        • Click on any data point in the charts to view the specific ideas delivered for that period
                       </p>
                     </div>
                   </div>
