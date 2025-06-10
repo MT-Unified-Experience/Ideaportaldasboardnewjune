@@ -35,13 +35,25 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
     features: "Manages top requested features and their details"
   };
 
-  const tabs = [
+  // Filter tabs based on widget settings
+  const allTabs = [
     { id: 'metrics', name: 'Key Metrics', icon: BarChart2 },
-    { id: 'distribution', name: 'Idea Status Distribution by Year', icon: Users },
-    { id: 'submissions', name: 'Client Submissions by Quarter', icon: LineChartIcon },
-    { id: 'features', name: 'Top 10 Requested Features', icon: Clock },
-    { id: 'forums', name: 'Data Socialization Forums', icon: Users }
+    { id: 'distribution', name: 'Idea Status Distribution by Year', icon: Users, requiresSetting: 'ideaDistribution' },
+    { id: 'submissions', name: 'Client Submissions by Quarter', icon: LineChartIcon, requiresSetting: 'clientSubmissions' },
+    { id: 'features', name: 'Top 10 Requested Features', icon: Clock, requiresSetting: 'topFeatures' },
+    { id: 'forums', name: 'Data Socialization Forums', icon: Users, requiresSetting: 'dataSocialization' }
   ];
+
+  const tabs = allTabs.filter(tab => 
+    !tab.requiresSetting || widgetSettings[tab.requiresSetting as keyof WidgetSettings]
+  );
+
+  // Ensure activeTab is valid when tabs change
+  React.useEffect(() => {
+    if (!tabs.find(tab => tab.id === activeTab)) {
+      setActiveTab('metrics');
+    }
+  }, [tabs, activeTab]);
 
   useEffect(() => {
     if (dashboardData) {

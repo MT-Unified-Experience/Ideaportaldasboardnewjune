@@ -5,10 +5,10 @@ import { TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle, Clock, Use
 interface TrendData {
   id: string;
   name: string;
-  q1_requests: number;
-  q2_requests: number;
-  q3_requests: number;
-  q4_requests: number;
+  q1_votes: number;
+  q2_votes: number;
+  q3_votes: number;
+  q4_votes: number;
   q3_rank: number;
   q4_rank: number;
   percentage_change: number;
@@ -41,11 +41,11 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
   // Generate comprehensive trend data based on features
   const generateTrendData = (): TrendData[] => {
     return features.slice(0, 10).map((feature, index) => {
-      const baseRequests = Math.max(feature.vote_count || 10, 5); // Ensure minimum value
-      const q1 = Math.max(5, Math.floor(baseRequests * (0.6 + Math.random() * 0.4)));
+      const baseVotes = Math.max(feature.vote_count || 10, 5); // Ensure minimum value
+      const q1 = Math.max(5, Math.floor(baseVotes * (0.6 + Math.random() * 0.4)));
       const q2 = Math.max(8, Math.floor(q1 * (0.8 + Math.random() * 0.6)));
       const q3 = Math.max(10, Math.floor(q2 * (0.7 + Math.random() * 0.8)));
-      const q4 = Math.max(15, baseRequests);
+      const q4 = Math.max(15, baseVotes);
       
       const percentageChange = ((q4 - q3) / q3) * 100;
       const growthRate = ((q4 - q1) / q1) * 100;
@@ -62,10 +62,10 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
       return {
         id: `trend-${index}`,
         name: feature.feature_name,
-        q1_requests: q1,
-        q2_requests: q2,
-        q3_requests: q3,
-        q4_requests: q4,
+        q1_votes: q1,
+        q2_votes: q2,
+        q3_votes: q3,
+        q4_votes: q4,
         q3_rank: index + 1,
         q4_rank: index + 1,
         percentage_change: percentageChange,
@@ -129,12 +129,12 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
           <p className="font-medium text-gray-900 mb-2">{data.name}</p>
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
-              <span>Q3 Requests:</span>
-              <span className="font-medium">{data.q3_requests}</span>
+              <span>Q3 Votes:</span>
+              <span className="font-medium">{data.q3_votes}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span>Q4 Requests:</span>
-              <span className="font-medium">{data.q4_requests}</span>
+              <span>Q4 Votes:</span>
+              <span className="font-medium">{data.q4_votes}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span>Change:</span>
@@ -197,7 +197,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Q3 Chart */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="text-md font-medium text-gray-900 mb-4">Q3 Request Volume</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">Q3 Vote Volume</h4>
               <div className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
@@ -215,12 +215,12 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
                     />
                     <YAxis />
                     <Tooltip 
-                      formatter={(value: number, name: string) => [value, 'Q3 Requests']}
+                      formatter={(value: number, name: string) => [value, 'Q3 Votes']}
                       labelFormatter={(label: string) => `Feature: ${label}`}
                     />
                     <Bar 
-                      dataKey="q3_requests" 
-                      name="Q3 Requests" 
+                      dataKey="q3_votes" 
+                      name="Q3 Votes" 
                       fill="#8b5cf6" 
                       minPointSize={5}
                     />
@@ -231,7 +231,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
 
             {/* Q4 Chart */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="text-md font-medium text-gray-900 mb-4">Q4 Request Volume</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">Q4 Vote Volume</h4>
               <div className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
@@ -249,12 +249,12 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
                     />
                     <YAxis />
                     <Tooltip 
-                      formatter={(value: number, name: string) => [value, 'Q4 Requests']}
+                      formatter={(value: number, name: string) => [value, 'Q4 Votes']}
                       labelFormatter={(label: string) => `Feature: ${label}`}
                     />
                     <Bar 
-                      dataKey="q4_requests" 
-                      name="Q4 Requests" 
+                      dataKey="q4_votes" 
+                      name="Q4 Votes" 
                       fill="#3b82f6" 
                       minPointSize={5}
                     />
@@ -295,7 +295,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
                     </div>
                   </div>
                   <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-                    <span>Q3: {trend.q3_requests} → Q4: {trend.q4_requests}</span>
+                    <span>Q3: {trend.q3_votes} → Q4: {trend.q4_votes}</span>
                     <span className={`px-2 py-1 rounded-full ${getImpactColor(trend.estimated_impact)}`}>
                       {trend.estimated_impact} Impact
                     </span>
@@ -324,10 +324,10 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
                   <div className="h-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={[
-                        { quarter: 'Q1', requests: selectedTrend.q1_requests },
-                        { quarter: 'Q2', requests: selectedTrend.q2_requests },
-                        { quarter: 'Q3', requests: selectedTrend.q3_requests },
-                        { quarter: 'Q4', requests: selectedTrend.q4_requests }
+                        { quarter: 'Q1', votes: selectedTrend.q1_votes },
+                        { quarter: 'Q2', votes: selectedTrend.q2_votes },
+                        { quarter: 'Q3', votes: selectedTrend.q3_votes },
+                        { quarter: 'Q4', votes: selectedTrend.q4_votes }
                       ]}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="quarter" />
@@ -335,7 +335,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
                         <Tooltip />
                         <Line 
                           type="monotone" 
-                          dataKey="requests" 
+                          dataKey="votes" 
                           stroke="#3b82f6" 
                           strokeWidth={3}
                           dot={{ fill: '#3b82f6', r: 6 }}
@@ -491,7 +491,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
                     <div>
                       <h6 className="text-sm font-medium text-gray-700 mb-2">Estimated Impact</h6>
                       <ul className="text-xs text-gray-600 space-y-1">
-                        <li>• Revenue potential: High</li>
+                        <li>• Vote momentum: High</li>
                         <li>• Client satisfaction: +{Math.round(trend.growth_rate / 10)}%</li>
                         <li>• Market differentiation: Strong</li>
                       </ul>
@@ -555,9 +555,9 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
               <div>
                 <h5 className="font-medium text-gray-900 mb-2">Primary Metrics</h5>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Feature adoption rate {">"}70% within 6 months</li>
+                  <li>• Vote conversion rate {">"}70% within 6 months</li>
                   <li>• Client satisfaction score increase {">"} 15%</li>
-                  <li>• Request volume growth {">"} 25% quarter-over-quarter</li>
+                  <li>• Vote volume growth {">"} 25% quarter-over-quarter</li>
                   <li>• Implementation timeline adherence {">"} 90%</li>
                 </ul>
               </div>
@@ -565,7 +565,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
                 <h5 className="font-medium text-gray-900 mb-2">Secondary Metrics</h5>
                 <ul className="text-sm text-gray-600 space-y-1">
                   <li>• Cross-client collaboration increase {">"} 20%</li>
-                  <li>• Support ticket reduction {">"} 30%</li>
+                  <li>• Client engagement increase {">"} 30%</li>
                   <li>• Revenue impact {">"} $500K annually</li>
                   <li>• Market share improvement {">"} 5%</li>
                 </ul>
