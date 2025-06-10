@@ -610,7 +610,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                                   Idea ID
                                 </th>
                                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
-                                  Idea Summary
+                                  Idea Summary Title
                                 </th>
                                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
                                   Idea Comments
