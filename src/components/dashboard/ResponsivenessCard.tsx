@@ -201,32 +201,28 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                             : 'bg-white border-gray-200'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-medium text-gray-900">
-                              {formatQuarterLabel(item.quarter)}
-                              {isCurrentQuarter && (
-                                <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                  Current
-                                </span>
-                              )}
-                            </h4>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {item.ideasMovedOutOfReview || Math.round(item.totalIdeas * item.percentage / 100)} of {item.totalIdeas} ideas moved out of review
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-2xl font-bold text-gray-900">
-                              {item.percentage}%
-                            </div>
-                            {prevItem && (
-                              <div className={`text-sm font-medium ${
-                                change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-500'
-                              }`}>
-                                {change > 0 ? '+' : ''}{change.toFixed(1)}% vs prev
-                              </div>
+                        <div className="text-center">
+                          <h4 className="font-medium text-gray-900 mb-2">
+                            {formatQuarterLabel(item.quarter)}
+                            {isCurrentQuarter && (
+                              <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                Current
+                              </span>
                             )}
+                          </h4>
+                          <div className="text-2xl font-bold text-gray-900 mb-2">
+                            {item.percentage}%
                           </div>
+                          {prevItem && (
+                            <div className={`text-sm font-medium mb-2 ${
+                              change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-500'
+                            }`}>
+                              {change > 0 ? '+' : ''}{change.toFixed(1)}% vs prev
+                            </div>
+                          )}
+                          <p className="text-sm text-gray-600">
+                            {item.ideasMovedOutOfReview || Math.round(item.totalIdeas * item.percentage / 100)} of {item.totalIdeas} ideas moved out of review
+                          </p>
                         </div>
                       </div>
                     );
