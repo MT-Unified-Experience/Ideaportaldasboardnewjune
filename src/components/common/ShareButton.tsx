@@ -18,10 +18,10 @@ const ShareButton: React.FC = () => {
     <div className="relative">
       <button
         onClick={handleShare}
-        className="inline-flex items-center px-2 sm:px-3 py-2 bg-white text-gray-700 text-xs sm:text-sm font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 border border-gray-200"
+        className="inline-flex items-center px-3 py-2 bg-white text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 border border-gray-200"
       >
         <Share2 className="h-4 w-4 mr-2" />
-        <span className="hidden sm:inline">Share</span>
+        Share
       </button>
       
       {showTooltip && (

@@ -44,7 +44,7 @@ const MetricCardsSection: React.FC<MetricCardsSectionProps> = ({
   if (visibleMetricCards === 0) return null;
 
   return (
-    <div className={`grid ${getMetricGridCols()} gap-3 lg:gap-6 w-full`}>
+    <div className={`grid ${getMetricGridCols()} gap-6`}>
       {widgetSettings.responsiveness && (
         <ResponsivenessCard
           value={metricSummary.responsiveness}

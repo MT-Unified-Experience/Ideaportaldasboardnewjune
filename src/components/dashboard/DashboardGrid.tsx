@@ -33,9 +33,9 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
   const { metricSummary, stackedBarData, lineChartData, topFeatures } = data;
 
   return (
-    <DashboardSection spacing="md">
+    <div className="space-y-6">
       {/* First Row: Metric Summary Cards */}
-      <div className="grid grid-cols-1 gap-3 lg:gap-6 w-full">
+      <div className="grid grid-cols-1 gap-6">
         <MetricCardsSection 
           metricSummary={metricSummary}
           widgetSettings={{
@@ -47,7 +47,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
       </div>
 
       {/* Second Row: Data Socialization Forums + Client Submissions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-6 w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Data Socialization Forums takes up 1 column */}
         {widgetSettings.dataSocialization && (
           <div className="lg:col-span-1">
@@ -64,7 +64,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
       </div>
 
       {/* Third Row: Cross-Client Collaboration Trend */}
-      <div className="grid grid-cols-1 gap-3 lg:gap-6 w-full">
+      <div className="grid grid-cols-1 gap-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
           <CrossClientCollaborationTrend
             isOpen={true}
@@ -76,12 +76,12 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
       
       {/* Fourth Row: Top 10 Trends Over Last 2 Quarters */}
       {widgetSettings.topFeatures && (
-        <div className="grid grid-cols-1 gap-3 lg:gap-6 w-full">
+        <div className="grid grid-cols-1 gap-6">
           <div className="col-span-full">
             <TopFeaturesChart features={topFeatures} />
           </div>
         </div>
       )}
-    </DashboardSection>
+    </div>
   );
 };

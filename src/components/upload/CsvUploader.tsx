@@ -84,18 +84,16 @@ export const CsvUploader: React.FC = () => {
           type="button"
           onClick={handleButtonClick}
           disabled={isLoading}
-          className="inline-flex items-center px-2 sm:px-4 py-2 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Upload className="h-[0.7rem] w-[0.7rem] mr-2" />
-          <span className="hidden sm:inline">{isLoading ? 'Uploading...' : 'Upload CSV'}</span>
-          <span className="sm:hidden">{isLoading ? 'Upload...' : 'CSV'}</span>
+          {isLoading ? 'Uploading...' : 'Upload CSV'}
         </button>
         <a 
           href={`${import.meta.env.BASE_URL}template.csv`} 
-          className="block mt-2 text-[9px] sm:text-[10px] text-blue-600 hover:text-blue-800 text-right"
+          className="block mt-2 text-[10px] text-blue-600 hover:text-blue-800 text-right"
         > 
-          <span className="hidden sm:inline">Download sample CSV<br />template</span>
-          <span className="sm:hidden">Sample<br />CSV</span>
+          Download sample CSV<br />template
         </a>
       </div>
       <ErrorModal

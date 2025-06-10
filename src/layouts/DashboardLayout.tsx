@@ -73,22 +73,22 @@ const DashboardLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 w-full overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow">
-        <div className="w-full px-2 sm:px-4 lg:px-6 py-3 lg:py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center">
               <BarChart2 className="h-8 w-8 text-blue-600 mr-3" />
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900">Idea Portal Dashboard</h1>
+              <h1 className="text-xl font-bold text-gray-900">Idea Portal Dashboard</h1>
             </div>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsSettingsOpen(true)}
-                className="inline-flex items-center px-2 sm:px-3 py-2 bg-white text-gray-700 text-xs sm:text-sm font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 border border-gray-200"
+                className="inline-flex items-center px-3 py-2 bg-white text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 border border-gray-200"
               >
                 <Settings className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Settings</span>
+                Settings
               </button>
               <ShareButton />
             </div>
@@ -97,39 +97,37 @@ const DashboardLayout: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="w-full px-2 sm:px-4 lg:px-6 py-4 lg:py-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Product Navigation */}
-        <div className="mb-4 lg:mb-6">
+        <div className="mb-6">
           <ProductTabs />
         </div>
 
         {/* Quarter Navigation and CSV Upload */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 lg:mb-6 gap-3 lg:gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
-            <h2 className="text-base lg:text-lg font-semibold text-gray-800 mb-2">
+            <h2 className="text-lg font-semibold text-gray-800 mb-2">
               {currentProduct} - {currentQuarter}
             </h2>
             <QuarterTabs />
           </div>
           
-          <div className="w-full lg:w-auto flex items-center justify-end">
-            <div className="flex items-start gap-2 lg:gap-3 flex-wrap">
+          <div className="w-full md:w-auto flex items-center justify-end">
+            <div className="flex items-start gap-3">
               <div className="edit-dashboard-wrapper mt-0 items-top">
                 <button
                   onClick={() => setIsActionItemsOpen(true)}
-                  className="inline-flex items-center px-2 sm:px-4 py-2 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 mr-1 sm:mr-2"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 mr-2"
                 >
                   <ListTodo className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">View Action Items</span>
-                  <span className="sm:hidden">Actions</span>
+                  View Action Items
                 </button>
                 <button
                   onClick={() => setIsManagementOpen(true)}
-                  className="inline-flex items-center px-2 sm:px-4 py-2 bg-blue-600 text-white text-xs sm:text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
                 >
                   <Edit className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">Edit Dashboard</span>
-                  <span className="sm:hidden">Edit</span>
+                  Edit Dashboard
                 </button>
               </div>
               <CsvUploader />
