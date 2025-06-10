@@ -153,12 +153,12 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="flex items-center gap-2 mb-6">
         <h3 className="text-lg font-medium text-gray-900">
-          Quarterly Trends Analysis: Q3 vs Q4 Comparison
+          Top 10 Trends Over Last 2 Quarters
         </h3>
         <div className="relative group">
           <HelpCircle className="h-4 w-4 text-gray-400 cursor-help" />
           <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-            Comprehensive analysis of feature request trends with statistical significance testing and strategic recommendations
+            Analysis of the top 10 feature request trends comparing Q3 and Q4 performance with detailed insights
           </div>
         </div>
       </div>
@@ -193,68 +193,70 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
       {/* Q3 vs Q4 Comparison View */}
       {activeView === 'comparison' && (
         <div className="space-y-6">
-          {/* Side-by-side comparison chart */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="text-md font-medium text-gray-900 mb-4">Q3 vs Q4 Request Volume</h4>
-              <div className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={trendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="name" 
-                      angle={-45}
-                      textAnchor="end"
-                      height={100}
-                      fontSize={10}
-                    />
-                    <YAxis />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="q3_requests" name="Q3 Requests" fill="#8b5cf6" />
-                    <Bar dataKey="q4_requests" name="Q4 Requests" fill="#3b82f6" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+          {/* Horizontal bar chart for better label readability */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="text-md font-medium text-gray-900 mb-4">Q3 vs Q4 Request Volume</h4>
+            <div className="h-[600px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart 
+                  layout="horizontal"
+                  data={trendData.slice(0, 10)} 
+                  margin={{ top: 20, right: 30, left: 100, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis 
+                    type="category"
+                    dataKey="name" 
+                    width={90}
+                    tick={{ fontSize: 10 }}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="q3_requests" name="Q3 Requests" fill="#8b5cf6" />
+                  <Bar dataKey="q4_requests" name="Q4 Requests" fill="#3b82f6" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
+          </div>
 
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="text-md font-medium text-gray-900 mb-4">Percentage Change Q3 to Q4</h4>
-              <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                {trendData.map((trend, index) => (
-                  <div
-                    key={trend.id}
-                    className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                      selectedTrend?.id === trend.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:bg-gray-50'
-                    }`}
-                    onClick={() => setSelectedTrend(trend)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium text-gray-900">#{index + 1}</span>
-                        <span className="text-sm text-gray-700 truncate max-w-[150px]">{trend.name}</span>
-                        {getTrendIcon(trend.trend_direction, trend.is_significant)}
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className={`text-sm font-medium ${
-                          trend.percentage_change > 0 ? 'text-green-600' : 
-                          trend.percentage_change < 0 ? 'text-red-600' : 'text-gray-600'
-                        }`}>
-                          {trend.percentage_change > 0 ? '+' : ''}{trend.percentage_change.toFixed(1)}%
-                        </span>
-                        {trend.is_significant && (
-                          <AlertTriangle className="h-3 w-3 text-orange-500" title="Statistically significant change" />
-                        )}
-                      </div>
+          {/* Percentage change list */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="text-md font-medium text-gray-900 mb-4">Percentage Change Q3 to Q4</h4>
+            <div className="space-y-3 max-h-[400px] overflow-y-auto">
+              {trendData.slice(0, 10).map((trend, index) => (
+                <div
+                  key={trend.id}
+                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                    selectedTrend?.id === trend.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:bg-gray-50'
+                  }`}
+                  onClick={() => setSelectedTrend(trend)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-gray-900">#{index + 1}</span>
+                      <span className="text-sm text-gray-700 truncate max-w-[200px]">{trend.name}</span>
+                      {getTrendIcon(trend.trend_direction, trend.is_significant)}
                     </div>
-                    <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-                      <span>Q3: {trend.q3_requests} → Q4: {trend.q4_requests}</span>
-                      <span className={`px-2 py-1 rounded-full ${getImpactColor(trend.estimated_impact)}`}>
-                        {trend.estimated_impact} Impact
+                    <div className="flex items-center space-x-2">
+                      <span className={`text-sm font-medium ${
+                        trend.percentage_change > 0 ? 'text-green-600' : 
+                        trend.percentage_change < 0 ? 'text-red-600' : 'text-gray-600'
+                      }`}>
+                        {trend.percentage_change > 0 ? '+' : ''}{trend.percentage_change.toFixed(1)}%
                       </span>
+                      {trend.is_significant && (
+                        <AlertTriangle className="h-3 w-3 text-orange-500" title="Statistically significant change" />
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
+                  <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                    <span>Q3: {trend.q3_requests} → Q4: {trend.q4_requests}</span>
+                    <span className={`px-2 py-1 rounded-full ${getImpactColor(trend.estimated_impact)}`}>
+                      {trend.estimated_impact} Impact
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -503,24 +505,24 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
 
           {/* Success Metrics */}
           <div className="bg-yellow-50 rounded-lg p-6 border border-yellow-200">
-            <h4 className="text-lg font-medium text-gray-900 mb-4">Success Metrics &amp; KPIs</h4>
+            <h4 className="text-lg font-medium text-gray-900 mb-4">Success Metrics & KPIs</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h5 className="font-medium text-gray-900 mb-2">Primary Metrics</h5>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Feature adoption rate &gt; 70% within 6 months</li>
-                  <li>• Client satisfaction score increase &gt; 15%</li>
-                  <li>• Request volume growth &gt; 25% quarter-over-quarter</li>
-                  <li>• Implementation timeline adherence &gt; 90%</li>
+                  <li>• Feature adoption rate > 70% within 6 months</li>
+                  <li>• Client satisfaction score increase > 15%</li>
+                  <li>• Request volume growth > 25% quarter-over-quarter</li>
+                  <li>• Implementation timeline adherence > 90%</li>
                 </ul>
               </div>
               <div>
                 <h5 className="font-medium text-gray-900 mb-2">Secondary Metrics</h5>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Cross-client collaboration increase &gt; 20%</li>
-                  <li>• Support ticket reduction &gt; 30%</li>
-                  <li>• Revenue impact &gt; $500K annually</li>
-                  <li>• Market share improvement &gt; 5%</li>
+                  <li>• Cross-client collaboration increase > 20%</li>
+                  <li>• Support ticket reduction > 30%</li>
+                  <li>• Revenue impact > $500K annually</li>
+                  <li>• Market share improvement > 5%</li>
                 </ul>
               </div>
             </div>
