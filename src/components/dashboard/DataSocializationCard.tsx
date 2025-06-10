@@ -65,7 +65,7 @@ const DataSocializationCard: React.FC = () => {
             return (
               <div
                 key={index}
-                className="flex items-center p-1.5 rounded-md bg-gray-50"
+                className="flex items-center p-1.5 rounded-md"
               >
                 <div className={`p-0.5 rounded-full ${
                   isUsed ? 'bg-green-500' : 'bg-red-500'
@@ -77,7 +77,7 @@ const DataSocializationCard: React.FC = () => {
                   )}
                 </div>
                 <div className="flex-1 ml-1.5">
-                  <span className="text-[10px] font-medium text-gray-700 text-left break-words leading-tight">
+                  <span className="text-sm font-medium text-gray-700 text-left break-words leading-tight">
                     {forum.name}
                   </span>
                 </div>
@@ -95,7 +95,7 @@ const DataSocializationCard: React.FC = () => {
             return (
               <div
                 key={index}
-                className="flex items-center p-2 rounded-md bg-gray-50"
+                className="flex items-center p-2 rounded-md"
               >
                 <div className={`p-0.5 rounded-full ${
                   isUsed ? 'bg-green-500' : 'bg-red-500'
@@ -107,7 +107,7 @@ const DataSocializationCard: React.FC = () => {
                   )}
                 </div>
                 <div className="flex-1 ml-2">
-                  <span className="text-[10px] font-medium text-gray-700 text-left break-words leading-tight">
+                  <span className="text-sm font-medium text-gray-700 text-left break-words leading-tight">
                     {forum.name}
                   </span>
                 </div>
