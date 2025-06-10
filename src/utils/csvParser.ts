@@ -252,18 +252,25 @@ const transformCSVDataWithMapping = (data: any[], mapping: FieldMapping, current
   // Transform features data
   const featuresMap = new Map<string, Feature>();
   data.forEach(row => {
-    const featureName = getValue(row, 'feature_name');
+    // Try multiple possible feature name fields
+    const featureName = getValue(row, 'feature_name') || 
+                       getValue(row, 'idea_name') || 
+                       getValue(row, 'idea_title') || 
+                       getValue(row, 'idea_summary');
     const voteCount = getValue(row, 'vote_count');
-    const status = getValue(row, 'status');
+    // Try multiple possible vote count fields
+    const votes = voteCount || getValue(row, 'idea_votes') || getValue(row, 'votes');
+    // Try multiple possible status fields
+    const status = getValue(row, 'status') || getValue(row, 'idea_status') || getValue(row, 'current_status');
     
-    if (featureName && voteCount && status) {
-      const clientVoters = getValue(row, 'client_voters');
-      const statusUpdatedAt = getValue(row, 'status_updated_at');
+    if (featureName && votes && status) {
+      const clientVoters = getValue(row, 'client_voters') || getValue(row, 'submitter') || getValue(row, 'submitted_by');
+      const statusUpdatedAt = getValue(row, 'status_updated_at') || getValue(row, 'updated_at') || getValue(row, 'created_at');
       
       if (!featuresMap.has(featureName)) {
         featuresMap.set(featureName, {
           feature_name: featureName,
-          vote_count: safeNumberConversion(voteCount),
+          vote_count: safeNumberConversion(votes),
           status: status as 'Delivered' | 'Under Review' | 'Committed',
           status_updated_at: statusUpdatedAt || new Date().toISOString(),
           client_voters: clientVoters ? clientVoters.split(',').map(s => s.trim()) : []

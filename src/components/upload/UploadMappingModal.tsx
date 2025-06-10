@@ -34,11 +34,37 @@ const UploadMappingModal: React.FC<UploadMappingModalProps> = ({
   // Dashboard field definitions with descriptions
   const dashboardFields = [
     { key: 'feature_name', label: 'Feature Name', required: true, description: 'Name of the feature or idea' },
+    { key: 'idea_id', label: 'Idea ID', required: false, description: 'Unique identifier for the idea' },
+    { key: 'idea_summary', label: 'Idea Summary', required: false, description: 'Brief summary or description of the idea' },
+    { key: 'idea_description', label: 'Idea Description', required: false, description: 'Detailed description of the idea' },
+    { key: 'idea_title', label: 'Idea Title', required: false, description: 'Title of the idea' },
+    { key: 'idea_name', label: 'Idea Name', required: false, description: 'Name of the idea' },
     { key: 'vote_count', label: 'Vote Count', required: true, description: 'Number of votes for this feature' },
+    { key: 'idea_votes', label: 'Idea Votes', required: false, description: 'Number of votes for this idea' },
+    { key: 'votes', label: 'Votes', required: false, description: 'Vote count' },
     { key: 'status', label: 'Status', required: true, description: 'Current status (Delivered, Under Review, Committed)' },
+    { key: 'idea_status', label: 'Idea Status', required: false, description: 'Status of the idea' },
+    { key: 'current_status', label: 'Current Status', required: false, description: 'Current status of the item' },
     { key: 'client_voters', label: 'Client Voters', required: false, description: 'List of clients who voted (comma-separated)' },
+    { key: 'submitter', label: 'Submitter', required: false, description: 'Person or client who submitted the idea' },
+    { key: 'submitted_by', label: 'Submitted By', required: false, description: 'Who submitted this idea' },
+    { key: 'assignee', label: 'Assignee', required: false, description: 'Person assigned to work on this idea' },
+    { key: 'owner', label: 'Owner', required: false, description: 'Owner of the idea' },
     { key: 'status_updated_at', label: 'Status Updated Date', required: false, description: 'Date when status was last updated' },
+    { key: 'created_at', label: 'Created Date', required: false, description: 'Date when the idea was created' },
+    { key: 'updated_at', label: 'Updated Date', required: false, description: 'Date when the idea was last updated' },
+    { key: 'due_date', label: 'Due Date', required: false, description: 'Due date for the idea' },
+    { key: 'priority', label: 'Priority', required: false, description: 'Priority level of the idea' },
+    { key: 'category', label: 'Category', required: false, description: 'Category or type of the idea' },
+    { key: 'tags', label: 'Tags', required: false, description: 'Tags associated with the idea' },
+    { key: 'comments', label: 'Comments', required: false, description: 'Comments or notes about the idea' },
+    { key: 'score', label: 'Score', required: false, description: 'Score or rating of the idea' },
+    { key: 'effort', label: 'Effort', required: false, description: 'Effort estimate for implementing the idea' },
+    { key: 'business_value', label: 'Business Value', required: false, description: 'Business value of the idea' },
     { key: 'product', label: 'Product', required: false, description: 'Product name (will default to current product if not mapped)' },
+    { key: 'product_line', label: 'Product Line', required: false, description: 'Product line or family' },
+    { key: 'release', label: 'Release', required: false, description: 'Target release for the idea' },
+    { key: 'epic', label: 'Epic', required: false, description: 'Epic that contains this idea' },
     { key: 'quarter', label: 'Quarter', required: false, description: 'Quarter information (will default to current quarter if not mapped)' },
     { key: 'responsiveness', label: 'Responsiveness', required: false, description: 'Responsiveness percentage' },
     { key: 'roadmap_alignment_committed', label: 'Committed Ideas', required: false, description: 'Number of committed ideas' },
@@ -49,7 +75,10 @@ const UploadMappingModal: React.FC<UploadMappingModalProps> = ({
     { key: 'archived_ideas', label: 'Archived Ideas', required: false, description: 'Number of archived ideas' },
     { key: 'flagged_for_future', label: 'Flagged for Future', required: false, description: 'Number of ideas flagged for future' },
     { key: 'active_quarter', label: 'Active Quarter', required: false, description: 'Active quarter for client submissions' },
-    { key: 'active_clients_representing', label: 'Active Clients Count', required: false, description: 'Number of active clients' }
+    { key: 'active_clients_representing', label: 'Active Clients Count', required: false, description: 'Number of active clients' },
+    { key: 'forum_name', label: 'Forum Name', required: false, description: 'Name of the discussion forum' },
+    { key: 'forum_audience', label: 'Forum Audience', required: false, description: 'Target audience for the forum' },
+    { key: 'forum_purpose', label: 'Forum Purpose', required: false, description: 'Purpose of the forum' }
   ];
 
   const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,18 +112,64 @@ const UploadMappingModal: React.FC<UploadMappingModalProps> = ({
             // Auto-map common field names
             if (lowerHeader.includes('idea name') || lowerHeader.includes('feature')) {
               autoMapping[header] = 'feature_name';
+            } else if (lowerHeader.includes('idea id') || lowerHeader.includes('id')) {
+              autoMapping[header] = 'idea_id';
+            } else if (lowerHeader.includes('idea summary') || lowerHeader.includes('summary')) {
+              autoMapping[header] = 'idea_summary';
+            } else if (lowerHeader.includes('idea title') || lowerHeader.includes('title')) {
+              autoMapping[header] = 'idea_title';
+            } else if (lowerHeader.includes('description')) {
+              autoMapping[header] = 'idea_description';
             } else if (lowerHeader.includes('vote') || lowerHeader.includes('count')) {
               autoMapping[header] = 'vote_count';
+            } else if (lowerHeader.includes('idea votes')) {
+              autoMapping[header] = 'idea_votes';
             } else if (lowerHeader.includes('status') && !lowerHeader.includes('date')) {
               autoMapping[header] = 'status';
+            } else if (lowerHeader.includes('idea status')) {
+              autoMapping[header] = 'idea_status';
+            } else if (lowerHeader.includes('submitter') || lowerHeader.includes('submitted by')) {
+              autoMapping[header] = 'submitter';
+            } else if (lowerHeader.includes('assignee')) {
+              autoMapping[header] = 'assignee';
+            } else if (lowerHeader.includes('owner')) {
+              autoMapping[header] = 'owner';
+            } else if (lowerHeader.includes('priority')) {
+              autoMapping[header] = 'priority';
+            } else if (lowerHeader.includes('category')) {
+              autoMapping[header] = 'category';
+            } else if (lowerHeader.includes('tags')) {
+              autoMapping[header] = 'tags';
+            } else if (lowerHeader.includes('score')) {
+              autoMapping[header] = 'score';
+            } else if (lowerHeader.includes('effort')) {
+              autoMapping[header] = 'effort';
+            } else if (lowerHeader.includes('business value')) {
+              autoMapping[header] = 'business_value';
+            } else if (lowerHeader.includes('release')) {
+              autoMapping[header] = 'release';
+            } else if (lowerHeader.includes('epic')) {
+              autoMapping[header] = 'epic';
+            } else if (lowerHeader.includes('created') && lowerHeader.includes('date')) {
+              autoMapping[header] = 'created_at';
+            } else if (lowerHeader.includes('due date')) {
+              autoMapping[header] = 'due_date';
             } else if (lowerHeader.includes('client') && (lowerHeader.includes('voter') || lowerHeader.includes('firm'))) {
               autoMapping[header] = 'client_voters';
             } else if (lowerHeader.includes('date') || lowerHeader.includes('updated')) {
               autoMapping[header] = 'status_updated_at';
             } else if (lowerHeader.includes('product')) {
               autoMapping[header] = 'product';
+            } else if (lowerHeader.includes('product line')) {
+              autoMapping[header] = 'product_line';
             } else if (lowerHeader.includes('quarter')) {
               autoMapping[header] = 'quarter';
+            } else if (lowerHeader.includes('forum name')) {
+              autoMapping[header] = 'forum_name';
+            } else if (lowerHeader.includes('forum audience')) {
+              autoMapping[header] = 'forum_audience';
+            } else if (lowerHeader.includes('forum purpose')) {
+              autoMapping[header] = 'forum_purpose';
             }
           });
           
