@@ -278,13 +278,13 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         
         const isConnected = await checkSupabaseConnection();
         if (!isConnected) {
-          setError(new Error('Unable to connect to Supabase. Please check your connection settings.'));
+          console.warn('Unable to connect to Supabase. Running in demo mode.');
           return false;
         }
         return true;
       } catch (error) {
         console.error('Connection check failed:', error);
-        setError(error instanceof Error ? error : new Error('Connection check failed'));
+        console.warn('Connection check failed, continuing in demo mode');
         return false;
       }
     };
@@ -301,21 +301,32 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         // Check connection before fetching
         const isConnected = await checkSupabaseConnection();
-        if (!isConnected) { 
-          throw new Error('Unable to establish database connection. Please try again later.');
+        if (!isConnected && import.meta.env.VITE_SUPABASE_URL) { 
+          console.warn('Unable to establish database connection. Using default data.');
         }
 
-        const { data, error: fetchError } = await supabase
-          .from('dashboards')
-          .select('data')
-          .eq('product', currentProduct)
-          .eq('quarter', currentQuarter)
-          .maybeSingle();
+        let data = null;
+        let fetchError = null;
+
+        // Only try to fetch from Supabase if we have valid credentials
+        if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+          const result = await supabase
+            .from('dashboards')
+            .select('data')
+            .eq('product', currentProduct)
+            .eq('quarter', currentQuarter)
+            .maybeSingle();
+          
+          data = result.data;
+          fetchError = result.error;
+          
+          if (fetchError) {
+            console.warn('Supabase fetch error:', fetchError);
+          }
+        }
         
-        if (fetchError) throw fetchError;
-        
-        // If data exists
-        if (data) {
+        // If data exists from Supabase
+        if (data && data.data) {
           const fetchedData = data.data;
 
           // Deep merge the fetched data with defaults
@@ -383,7 +394,25 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
-        setError(parseError(err));
+        // Don't set error in demo mode, just use default data
+        console.warn('Using default data due to fetch error:', err);
+        setAllProductsData(prevData => ({
+          ...prevData,
+          [currentProduct]: {
+            ...prevData[currentProduct],
+            [currentQuarter]: {
+              ...defaultDashboardData,
+              previousQuarterFeatures: [],
+              data_socialization_forums: [
+                { name: 'CSC' },
+                { name: 'Sprint Reviews' },
+                { name: 'Customer Advisory Board (CAB)' },
+                { name: 'CWG' },
+                { name: 'Quarterly Product Reviews (QBRs)' }
+              ]
+            }
+          }
+        }));
       } finally {
         setIsLoading(false);
       }
@@ -405,6 +434,16 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Function to handle CSV upload
   const uploadCSV = async (file: File): Promise<void> => {
+    // If no Supabase connection, show warning but don't fail
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      setError(new CSVError(
+        'Demo Mode Active',
+        'application',
+        ['Supabase is not configured. CSV upload is disabled in demo mode.', 'Please configure Supabase environment variables to enable data persistence.']
+      ));
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     
@@ -503,6 +542,16 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Function to handle CSV upload with field mapping
   const uploadCSVWithMapping = async (file: File, mapping: { [csvHeader: string]: string }): Promise<void> => {
+    // If no Supabase connection, show warning but don't fail
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      setError(new CSVError(
+        'Demo Mode Active',
+        'application',
+        ['Supabase is not configured. CSV upload is disabled in demo mode.', 'Please configure Supabase environment variables to enable data persistence.']
+      ));
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     
@@ -588,6 +637,19 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Function to update dashboard data
   const updateDashboardData = async (data: DashboardData): Promise<void> => {
+    // If no Supabase connection, just update local state
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      console.warn('Demo mode: Data changes will not be persisted');
+      setAllProductsData(prevData => ({
+        ...prevData,
+        [currentProduct]: {
+          ...prevData[currentProduct],
+          [currentQuarter]: data
+        }
+      }));
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     
