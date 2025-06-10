@@ -32,7 +32,7 @@ const DataSocializationCard: React.FC = () => {
   const coverageRate = Math.round((activeForums / allForums.length) * 100);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 h-full">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 h-full flex flex-col">
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2">
@@ -55,7 +55,7 @@ const DataSocializationCard: React.FC = () => {
       </div>
       
       {/* Forum list with custom layout */}
-      <div className="mt-4 space-y-2">
+      <div className="mt-4 space-y-2 flex-1 flex flex-col justify-center">
         {/* First row: CSC, Sprint Reviews, CWG with smaller font */}
         <div className="grid grid-cols-3 gap-1">
           {firstRowForums.map((forum, index) => {
@@ -65,7 +65,7 @@ const DataSocializationCard: React.FC = () => {
             return (
               <div
                 key={index}
-                className="flex items-center p-1.5 rounded-md bg-gray-50"
+                className="flex items-center p-2 rounded-md bg-gray-50"
               >
                 <div className={`p-0.5 rounded-full ${
                   isUsed ? 'bg-green-500' : 'bg-red-500'
@@ -76,7 +76,7 @@ const DataSocializationCard: React.FC = () => {
                     <X className="h-2 w-2 text-white" />
                   )}
                 </div>
-                <div className="flex-1 ml-1.5">
+                <div className="flex-1 ml-2">
                   <span className="text-[10px] font-medium text-gray-700 text-left break-words leading-tight">
                     {forum.name}
                   </span>
@@ -95,7 +95,7 @@ const DataSocializationCard: React.FC = () => {
             return (
               <div
                 key={index}
-                className="flex items-center p-2 rounded-md bg-gray-50"
+                className="flex items-center p-2.5 rounded-md bg-gray-50"
               >
                 <div className={`p-0.5 rounded-full ${
                   isUsed ? 'bg-green-500' : 'bg-red-500'
