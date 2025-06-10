@@ -143,7 +143,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                       <Briefcase className="h-6 w-6 text-purple-600" />
                     </div>
                     <h2 className="text-2xl font-semibold text-gray-900 ml-4">
-                      Commitment & Delivery Trends
+                      Idea Portal Commitment Trends
                     </h2>
                   </div>
                   <button
