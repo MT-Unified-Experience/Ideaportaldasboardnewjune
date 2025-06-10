@@ -452,6 +452,74 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                         />
                       </div>
                     </div>
+
+                    {/* Quarterly Continued Engagement Trends */}
+                    <div className="mt-4">
+                      <h4 className="text-sm font-medium text-gray-700 mb-3">Quarterly Continued Engagement Trends</h4>
+                      <div className="space-y-3">
+                        {['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'].map((quarter, index) => (
+                          <div key={quarter} className="bg-white p-3 rounded border">
+                            <h5 className="text-sm font-medium text-gray-700 mb-2">{quarter}</h5>
+                            <div className="grid grid-cols-3 gap-3">
+                              <div>
+                                <label className="block text-xs text-gray-600 mb-1">Rate (%)</label>
+                                <input
+                                  type="number"
+                                  value={(formData.metricSummary?.continuedEngagement?.quarterlyTrends || [])[index]?.rate || 0}
+                                  onChange={(e) => {
+                                    const newTrends = [...(formData.metricSummary?.continuedEngagement?.quarterlyTrends || [])];
+                                    newTrends[index] = {
+                                      quarter,
+                                      rate: Number(e.target.value),
+                                      numerator: newTrends[index]?.numerator || 0,
+                                      denominator: newTrends[index]?.denominator || 0
+                                    };
+                                    handleMetricChange('continuedEngagement', { quarterlyTrends: newTrends });
+                                  }}
+                                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-600 mb-1">Ideas with Follow-up</label>
+                                <input
+                                  type="number"
+                                  value={(formData.metricSummary?.continuedEngagement?.quarterlyTrends || [])[index]?.numerator || 0}
+                                  onChange={(e) => {
+                                    const newTrends = [...(formData.metricSummary?.continuedEngagement?.quarterlyTrends || [])];
+                                    newTrends[index] = {
+                                      quarter,
+                                      rate: newTrends[index]?.rate || 0,
+                                      numerator: Number(e.target.value),
+                                      denominator: newTrends[index]?.denominator || 0
+                                    };
+                                    handleMetricChange('continuedEngagement', { quarterlyTrends: newTrends });
+                                  }}
+                                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-xs text-gray-600 mb-1">Total Reviewed</label>
+                                <input
+                                  type="number"
+                                  value={(formData.metricSummary?.continuedEngagement?.quarterlyTrends || [])[index]?.denominator || 0}
+                                  onChange={(e) => {
+                                    const newTrends = [...(formData.metricSummary?.continuedEngagement?.quarterlyTrends || [])];
+                                    newTrends[index] = {
+                                      quarter,
+                                      rate: newTrends[index]?.rate || 0,
+                                      numerator: newTrends[index]?.numerator || 0,
+                                      denominator: Number(e.target.value)
+                                    };
+                                    handleMetricChange('continuedEngagement', { quarterlyTrends: newTrends });
+                                  }}
+                                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Idea Volume */}
