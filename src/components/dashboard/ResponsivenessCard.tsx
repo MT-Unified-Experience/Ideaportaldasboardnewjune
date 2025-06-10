@@ -186,7 +186,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                 <h3 className="text-lg font-medium text-gray-900">
                   Quarterly Breakdown
                 </h3>
-                <div className="grid gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   {chartData.map((item, index) => {
                     const isCurrentQuarter = index === chartData.length - 1;
                     const prevItem = index > 0 ? chartData[index - 1] : null;
