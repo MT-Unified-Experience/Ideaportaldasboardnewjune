@@ -18,8 +18,8 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
   const tooltips = {
     responsiveness: "Measures how quickly Mitratech responds to client ideas. A higher percentage indicates better engagement and faster feedback loops with clients.",
     roadmapAlignment: "Shows cumulative progress towards the yearly planning goal by tracking the total number of ideas committed versus the annual target.",
-    crossClientCollaboration: "Indicates the percentage of ideas that benefit multiple clients, highlighting opportunities for shared solutions.",
-    agingIdeas: "Tracks ideas that have been in Candidate status for over 90 days, helping identify potential bottlenecks in the review process.",
+    continuedEngagement: "Percentage of ideas that received at least one additional status update within 90 days after being moved out of 'Needs Review'",
+    ideaVolume: "Tracks the number of ideas submitted and processed during the quarter",
     distribution: "Shows the distribution of ideas across different statuses by year",
     submissions: "Tracks client submission trends over time",
     features: "Manages top requested features and their details"
@@ -162,267 +162,171 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
             <div className="space-y-6 max-h-[60vh] overflow-y-auto">
               {/* Key Metrics Tab */}
               {activeTab === 'metrics' && (
-                <div>
-                {/* Responsiveness */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="relative group">
-                      <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
-                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                        {tooltips.responsiveness}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="w-full">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Responsiveness (%)
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.metricSummary?.responsiveness || 0}
-                        onChange={(e) => handleMetricChange('responsiveness', Number(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div className="w-full">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Trend (%)
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.metricSummary?.responsivenessTrend || 0}
-                        onChange={(e) => handleMetricChange('responsivenessTrend', Number(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Roadmap Alignment */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-4">
-                    <h3 className="text-sm font-medium text-gray-700">
-                      Idea Portal Commitment
-                    </h3>
-                    <div className="relative group">
-                      <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
-                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                        {tooltips.roadmapAlignment}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 mt-2">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Total Ideas Committed
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.metricSummary?.roadmapAlignment?.committed || 0}
-                        onChange={(e) => handleMetricChange('roadmapAlignment', { committed: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Annual Target
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.metricSummary?.roadmapAlignment?.total || 0}
-                        onChange={(e) => handleMetricChange('roadmapAlignment', { total: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Cross-Client Collaboration */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Cross-Client Collaboration (%)
-                    </label>
-                    <div className="relative group">
-                      <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
-                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                        {tooltips.crossClientCollaboration}
-                      </div>
-                    </div>
-                  </div>
-                  <input
-                    type="number"
-                    value={formData.metricSummary?.crossClientCollaboration || 0}
-                    onChange={(e) => handleMetricChange('crossClientCollaboration', Number(e.target.value))} 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <div className="mt-4 space-y-4">
-                    {['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'].map((quarter, index) => (
-                      <div key={quarter} className="bg-gray-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-4">
-                          <h4 className="text-sm font-medium text-gray-700 w-24 flex-shrink-0">{quarter}</h4>
-                          <div className="w-[107px] flex-shrink-0">
-                            <label className="block text-sm font-medium text-gray-700 mb-1 whitespace-nowrap">
-                              Collaboration Rate (%)
-                            </label>
-                            <input
-                              type="number"
-                              value={(formData.metricSummary?.collaborationTrends || [])[index]?.rate || 0} 
-                              onChange={(e) => {
-                                setFormData(prev => {
-                                  const newTrends = Array.from({ length: 4 }, (_, i) => ({
-                                    rate: (prev.metricSummary?.collaborationTrends || [])[i]?.rate || 0,
-                                    clientName: (prev.metricSummary?.collaborationTrends || [])[i]?.clientName || ''
-                                  }));
-                                  newTrends[index] = { ...(newTrends[index] || {}), rate: Number(e.target.value) };
-                                  return {
-                                    ...prev,
-                                    metricSummary: { ...prev.metricSummary, collaborationTrends: newTrends }
-                                  };
-                                });
-                              }}
-                              className="w-[107px] px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
-                            />
-                          </div>
-                          <div className="w-[250px] ml-[80px]">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Client Name
-                            </label>
-                            <input
-                              type="text"
-                              value={(formData.metricSummary?.collaborationTrends || [])[index]?.clientName || ''}
-                              onChange={(e) => {
-                                setFormData(prev => {
-                                  const newTrends = Array.from({ length: 4 }, (_, i) => ({
-                                    rate: (prev.metricSummary?.collaborationTrends || [])[i]?.rate || 0,
-                                    clientName: (prev.metricSummary?.collaborationTrends || [])[i]?.clientName || ''
-                                  }));
-                                  newTrends[index] = { ...(newTrends[index] || {}), clientName: e.target.value };
-                                  return {
-                                    ...prev,
-                                    metricSummary: { ...prev.metricSummary, collaborationTrends: newTrends }
-                                  };
-                                });
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm" 
-                              placeholder="Enter client name"
-                            />
-                          </div>
+                <div className="space-y-6">
+                  {/* Responsiveness */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center gap-2 mb-4">
+                      <h3 className="text-sm font-medium text-gray-700">Responsiveness</h3>
+                      <div className="relative group">
+                        <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                          {tooltips.responsiveness}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Continued Engagement */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-4">
-                    <h3 className="text-sm font-medium text-gray-700">
-                      Continued Engagement Rate
-                    </h3>
-                    <div className="relative group">
-                      <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
-                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                        Percentage of ideas that received at least one additional status update within 90 days after being moved out of 'Needs Review'
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Responsiveness (%)
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.metricSummary?.responsiveness || 0}
+                          onChange={(e) => handleMetricChange('responsiveness', Number(e.target.value))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Trend (%)
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.metricSummary?.responsivenessTrend || 0}
+                          onChange={(e) => handleMetricChange('responsivenessTrend', Number(e.target.value))}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
                       </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-4 mt-2">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Rate (%)
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.metricSummary?.continuedEngagement?.rate || 0}
-                        onChange={(e) => handleMetricChange('continuedEngagement', { rate: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Ideas with Follow-up
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.metricSummary?.continuedEngagement?.numerator || 0}
-                        onChange={(e) => handleMetricChange('continuedEngagement', { numerator: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Total Reviewed Ideas
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.metricSummary?.continuedEngagement?.denominator || 0}
-                        onChange={(e) => handleMetricChange('continuedEngagement', { denominator: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
-                </div>
 
-                {/* Aging Ideas */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Aging Ideas Count
-                    </label>
-                    <div className="relative group">
-                      <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
-                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                        {tooltips.agingIdeas}
-                      </div>
-                    </div>
-                  </div>
-                  <input
-                    type="number"
-                    value={formData.metricSummary?.agingIdeas?.count || 0}
-                    onChange={(e) => handleMetricChange('agingIdeas', { count: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <div className="mt-4 space-y-4">
-                    {['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'].map((quarter, index) => (
-                      <div key={quarter} className="bg-gray-50 p-4 rounded-lg">
-                        <div className="flex items-center gap-4">
-                          <h4 className="text-sm font-medium text-gray-700 w-24 flex-shrink-0">{quarter}</h4>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Aging Ideas Count
-                            </label>
-                            <input
-                              type="number"
-                              value={(formData.metricSummary?.agingIdeas?.trend || [])[index]?.count || 0}
-                              onChange={(e) => {
-                                setFormData(prev => {
-                                  const newTrend = Array.from({ length: 4 }, (_, i) => ({
-                                    quarter: ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'][i],
-                                    count: (prev.metricSummary?.agingIdeas?.trend || [])[i]?.count || 0
-                                  }));
-                                  newTrend[index] = { ...newTrend[index], count: Number(e.target.value) };
-                                  return {
-                                    ...prev,
-                                    metricSummary: {
-                                      ...prev.metricSummary,
-                                      agingIdeas: {
-                                        ...prev.metricSummary?.agingIdeas,
-                                        trend: newTrend
-                                      }
-                                    }
-                                  };
-                                });
-                              }}
-                              className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 text-sm"
-                            />
-                          </div>
+                  {/* Roadmap Alignment */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center gap-2 mb-4">
+                      <h3 className="text-sm font-medium text-gray-700">
+                        Idea Portal Commitment
+                      </h3>
+                      <div className="relative group">
+                        <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                          {tooltips.roadmapAlignment}
                         </div>
                       </div>
-                    ))}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Total Ideas Committed
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.metricSummary?.roadmapAlignment?.committed || 0}
+                          onChange={(e) => handleMetricChange('roadmapAlignment', { committed: Number(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Annual Target
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.metricSummary?.roadmapAlignment?.total || 0}
+                          onChange={(e) => handleMetricChange('roadmapAlignment', { total: Number(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
+
+                  {/* Continued Engagement */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center gap-2 mb-4">
+                      <h3 className="text-sm font-medium text-gray-700">
+                        Continued Engagement Rate
+                      </h3>
+                      <div className="relative group">
+                        <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                          {tooltips.continuedEngagement}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Rate (%)
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.metricSummary?.continuedEngagement?.rate || 0}
+                          onChange={(e) => handleMetricChange('continuedEngagement', { rate: Number(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Ideas with Follow-up
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.metricSummary?.continuedEngagement?.numerator || 0}
+                          onChange={(e) => handleMetricChange('continuedEngagement', { numerator: Number(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Total Reviewed Ideas
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.metricSummary?.continuedEngagement?.denominator || 0}
+                          onChange={(e) => handleMetricChange('continuedEngagement', { denominator: Number(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Idea Volume */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center gap-2 mb-4">
+                      <h3 className="text-sm font-medium text-gray-700">
+                        Idea Volume
+                      </h3>
+                      <div className="relative group">
+                        <HelpCircle className="h-4 w-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                          {tooltips.ideaVolume}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Quarterly Ideas
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.metricSummary?.ideaVolume?.quarterly || 0}
+                          onChange={(e) => handleMetricChange('ideaVolume', { quarterly: Number(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Total Ideas
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.metricSummary?.ideaVolume?.total || 0}
+                          onChange={(e) => handleMetricChange('ideaVolume', { total: Number(e.target.value) })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -438,7 +342,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                   }))).map((item, index) => (
                     <div key={index} className="bg-gray-50 p-4 rounded-lg">
                       <h4 className="text-sm font-medium text-gray-700 mb-4">{item.year}</h4>
-                      <div className="flex flex-wrap gap-4 mb-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Candidate Ideas
@@ -447,7 +351,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                             type="number"
                             value={item.candidateIdeas}
                             onChange={(e) => handleStackedBarDataChange(index, 'candidateIdeas', Number(e.target.value))}
-                            className="w-32 px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                         <div>
@@ -458,7 +362,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                             type="number"
                             value={item.inDevelopment}
                             onChange={(e) => handleStackedBarDataChange(index, 'inDevelopment', Number(e.target.value))}
-                            className="w-32 px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                         <div>
@@ -469,7 +373,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                             type="number"
                             value={item.archivedIdeas}
                             onChange={(e) => handleStackedBarDataChange(index, 'archivedIdeas', Number(e.target.value))}
-                            className="w-32 px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                         <div>
@@ -480,7 +384,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                             type="number"
                             value={item.flaggedForFuture}
                             onChange={(e) => handleStackedBarDataChange(index, 'flaggedForFuture', Number(e.target.value))}
-                            className="w-32 px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                       </div>
@@ -502,7 +406,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                       return (
                       <div key={index} className="bg-gray-50 p-4 rounded-lg">
                         <h4 className="text-sm font-medium text-gray-700 mb-4">{item.quarter}</h4>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                               Number of Clients
@@ -511,7 +415,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                               type="number"
                               value={item.clientsRepresenting}
                               onChange={(e) => handleLineChartDataChange(index, Number(e.target.value))}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                           </div>
                           <div>
@@ -533,7 +437,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                                 setFormData({ ...formData, lineChartData: newLineChartData });
                               }}
                               placeholder="Client A; Client B; Client C"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                           </div>
                         </div>
@@ -572,10 +476,10 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                               newFeatures[index] = { ...feature, feature_name: e.target.value };
                               setFormData({ ...formData, topFeatures: newFeatures });
                             }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                               Vote Count
@@ -588,7 +492,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                                 newFeatures[index] = { ...feature, vote_count: Number(e.target.value) };
                                 setFormData({ ...formData, topFeatures: newFeatures });
                               }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                           </div>
                           <div>
@@ -605,7 +509,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                                 };
                                 setFormData({ ...formData, topFeatures: newFeatures });
                               }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                               <option value="Under Review">Under Review</option>
                               <option value="Committed">Committed</option>
@@ -629,7 +533,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                               setFormData({ ...formData, topFeatures: newFeatures });
                             }}
                             placeholder="Client A; Client B; Client C"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                       </div>
@@ -651,7 +555,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                   ]).map((forum, index) => (
                     <div key={index} className="bg-gray-50 p-4 rounded-lg">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           Forum Name
                         </label>
                         <input
@@ -670,7 +574,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                             };
                             setFormData({ ...formData, data_socialization_forums: newForums });
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
                     </div>
