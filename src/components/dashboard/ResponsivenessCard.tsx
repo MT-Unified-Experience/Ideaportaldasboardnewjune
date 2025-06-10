@@ -27,16 +27,95 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
   quarterlyData = []
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedQuarterIdeas, setSelectedQuarterIdeas] = useState<string[] | null>(null);
+  const [selectedQuarterName, setSelectedQuarterName] = useState<string | null>(null);
 
   // Generate default quarterly data if none provided
   const defaultQuarterlyData = [
-    { quarter: 'FY25 Q1', percentage: 82, totalIdeas: 45, ideasMovedOutOfReview: 37 },
-    { quarter: 'FY25 Q2', percentage: 78, totalIdeas: 52, ideasMovedOutOfReview: 41 },
-    { quarter: 'FY25 Q3', percentage: 85, totalIdeas: 38, ideasMovedOutOfReview: 32 },
-    { quarter: 'FY25 Q4', percentage: value, totalIdeas: 41, ideasMovedOutOfReview: Math.round(41 * value / 100) }
+    { 
+      quarter: 'FY25 Q1', 
+      percentage: 82, 
+      totalIdeas: 45, 
+      ideasMovedOutOfReview: 37,
+      ideasList: [
+        'AI-Powered Document Analysis',
+        'Mobile App Enhancement',
+        'Reporting Dashboard Improvements',
+        'API Integration Updates',
+        'Custom Workflow Builder',
+        'Document Management System',
+        'Search Functionality Enhancement',
+        'Bulk Actions Feature',
+        'Dashboard Customization',
+        'Email Integration'
+      ]
+    },
+    { 
+      quarter: 'FY25 Q2', 
+      percentage: 78, 
+      totalIdeas: 52, 
+      ideasMovedOutOfReview: 41,
+      ideasList: [
+        'Advanced Analytics Dashboard',
+        'Multi-language Support',
+        'Real-time Notifications',
+        'Data Export Enhancements',
+        'User Permission Management',
+        'Automated Workflow Templates',
+        'Integration with Third-party Tools',
+        'Mobile Responsive Design',
+        'Advanced Search Filters',
+        'Audit Trail Improvements'
+      ]
+    },
+    { 
+      quarter: 'FY25 Q3', 
+      percentage: 85, 
+      totalIdeas: 38, 
+      ideasMovedOutOfReview: 32,
+      ideasList: [
+        'Cloud Storage Integration',
+        'Enhanced Security Features',
+        'Performance Optimization',
+        'Custom Report Builder',
+        'Collaboration Tools',
+        'Version Control System',
+        'Automated Backup Solutions',
+        'Single Sign-On (SSO)',
+        'Advanced User Analytics',
+        'Mobile App Offline Mode'
+      ]
+    },
+    { 
+      quarter: 'FY25 Q4', 
+      percentage: value, 
+      totalIdeas: 41, 
+      ideasMovedOutOfReview: Math.round(41 * value / 100),
+      ideasList: [
+        'Machine Learning Integration',
+        'Advanced Data Visualization',
+        'Cross-platform Synchronization',
+        'Enhanced Mobile Features',
+        'Automated Testing Framework',
+        'Real-time Collaboration',
+        'Advanced Security Protocols',
+        'Custom Integration APIs',
+        'Enhanced User Experience',
+        'Performance Monitoring Tools'
+      ]
+    }
   ];
 
   const chartData = quarterlyData.length > 0 ? quarterlyData : defaultQuarterlyData;
+
+  // Handle data point click
+  const handleDataPointClick = (data: any) => {
+    if (data && data.activePayload && data.activePayload[0]) {
+      const quarterData = data.activePayload[0].payload;
+      setSelectedQuarterIdeas(quarterData.ideasList || []);
+      setSelectedQuarterName(quarterData.quarter);
+    }
+  };
 
   // Format quarter labels for display
   const formatQuarterLabel = (quarter: string) => {
@@ -154,7 +233,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                 </h3>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData}>
+                    <LineChart data={chartData} onClick={handleDataPointClick}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis 
                         dataKey="quarter" 
@@ -174,7 +253,13 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                         stroke="#3b82f6"
                         strokeWidth={3}
                         dot={{ fill: '#3b82f6', r: 6 }}
-                        activeDot={{ r: 8, stroke: '#3b82f6', strokeWidth: 2 }}
+                        activeDot={{ 
+                          r: 8, 
+                          stroke: '#3b82f6', 
+                          strokeWidth: 2,
+                          onClick: handleDataPointClick,
+                          style: { cursor: 'pointer' }
+                        }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -230,6 +315,47 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                 </div>
               </div>
 
+              {/* Ideas List for Selected Quarter */}
+              {selectedQuarterIdeas && selectedQuarterIdeas.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium text-gray-900">
+                      {formatQuarterLabel(selectedQuarterName || '')} - Ideas Moved Out of Review
+                    </h3>
+                    <button
+                      onClick={() => {
+                        setSelectedQuarterIdeas(null);
+                        setSelectedQuarterName(null);
+                      }}
+                      className="text-gray-400 hover:text-gray-500"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {selectedQuarterIdeas.map((idea, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center p-3 bg-white rounded-lg shadow-sm border border-gray-200"
+                        >
+                          <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                            <span className="text-sm font-medium text-blue-600">
+                              {index + 1}
+                            </span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {idea}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Insights */}
               <div className="bg-gray-50 rounded-lg p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-3">
@@ -247,6 +373,9 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                   </p>
                   <p>
                     • The metric shows both the number of ideas that progressed and the total ideas submitted for context
+                  </p>
+                  <p>
+                    • Click on any data point in the chart to view the specific ideas that moved out of review for that quarter
                   </p>
                 </div>
               </div>

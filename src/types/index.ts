@@ -19,6 +19,7 @@ export interface MetricSummary {
     percentage: number;
     totalIdeas: number;
     ideasMovedOutOfReview: number;
+    ideasList?: string[];
   }>;
   roadmapAlignment: {
     committed: number;
