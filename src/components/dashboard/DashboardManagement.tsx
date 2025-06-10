@@ -781,7 +781,3 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
 };
 
 export default DashboardManagement;
-
-export default DashboardManagement
-
-export default DashboardManagement
