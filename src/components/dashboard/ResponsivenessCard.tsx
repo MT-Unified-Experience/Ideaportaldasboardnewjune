@@ -285,6 +285,10 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                             ? 'bg-blue-50 border-blue-200' 
                             : 'bg-white border-gray-200'
                         }`}
+                        onClick={() => {
+                          setSelectedQuarterIdeas(item.ideasList || []);
+                          setSelectedQuarterName(item.quarter);
+                        }}
                       >
                         <div className="text-center">
                           <h4 className="font-medium text-gray-900 mb-2">
@@ -308,6 +312,9 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                               Current
                             </span>
                           )}
+                          <div className="mt-2 text-xs text-blue-600 font-medium">
+                            Click to view ideas
+                          </div>
                         </div>
                       </div>
                     );
