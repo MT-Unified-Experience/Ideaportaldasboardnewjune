@@ -115,28 +115,11 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
   const getBottomRowLayout = () => {
     const bottomWidgets = [];
     
-    if (widgetSettings.topFeatures && widgetSettings.dataSocialization) {
-      // Both widgets visible
-      bottomWidgets.push(
-        <div key="features" className="col-span-full">
-          <TopFeaturesChart features={topFeatures} />
-        </div>,
-        <div key="forums" className="col-span-full mt-6">
-          <DataSocializationCard />
-        </div>
-      );
-    } else if (widgetSettings.topFeatures) {
+    if (widgetSettings.topFeatures) {
       // Only top features
       bottomWidgets.push(
         <div key="features" className="col-span-full">
           <TopFeaturesChart features={topFeatures} />
-        </div>
-      );
-    } else if (widgetSettings.dataSocialization) {
-      // Only data socialization
-      bottomWidgets.push(
-        <div key="forums" className="col-span-full">
-          <DataSocializationCard />
         </div>
       );
     }
@@ -179,6 +162,9 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
               ideas={metricSummary.continuedEngagement?.ideas || []}
             />
           )}
+          {widgetSettings.dataSocialization && (
+            <DataSocializationCard />
+          )}
           {widgetSettings.agingIdeas && (
             <MetricSummaryCard
               title="Aging Candidate Ideas"
@@ -219,7 +205,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
       ) */}
 
       {/* Bottom Row - Features and Forums */}
-      {(widgetSettings.topFeatures || widgetSettings.dataSocialization) && (
+      {widgetSettings.topFeatures && (
         <div className="space-y-6">
           {getBottomRowLayout()}
         </div>
