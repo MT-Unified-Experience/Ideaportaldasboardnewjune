@@ -3,12 +3,23 @@ import { X, HelpCircle, BarChart2, Users, Clock, LineChart as LineChartIcon } fr
 import { DashboardData } from '../../types';
 import { useData } from '../../contexts/DataContext';
 
+interface WidgetSettings {
+  responsiveness: boolean;
+  commitment: boolean;
+  continuedEngagement: boolean;
+  ideaDistribution: boolean;
+  clientSubmissions: boolean;
+  topFeatures: boolean;
+  dataSocialization: boolean;
+}
+
 interface DashboardManagementProps {
   isOpen: boolean;
   onClose: () => void;
+  widgetSettings: WidgetSettings;
 }
 
-const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClose }) => {
+const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClose, widgetSettings }) => {
   const { dashboardData, updateDashboardData, isLoading } = useData();
   const { currentProduct, currentQuarter } = useData();
   const [formData, setFormData] = useState<DashboardData>(dashboardData || {} as DashboardData);
@@ -26,13 +37,41 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
     features: "Manages top requested features and their details"
   };
 
-  const tabs = [
-    { id: 'metrics', name: 'Key Metrics', icon: BarChart2 },
-    { id: 'distribution', name: 'Idea Status Distribution by Year', icon: Users },
-    { id: 'submissions', name: 'Client Submissions by Quarter', icon: LineChartIcon },
-    { id: 'features', name: 'Top 10 Features (Current & Previous Quarter)', icon: Clock },
-    { id: 'forums', name: 'Data Socialization Forums', icon: Users }
+  // Filter tabs based on widget settings
+  const allTabs = [
+    { 
+      id: 'metrics', 
+      name: 'Key Metrics', 
+      icon: BarChart2,
+      visible: widgetSettings.responsiveness || widgetSettings.commitment || widgetSettings.continuedEngagement
+    },
+    { 
+      id: 'distribution', 
+      name: 'Idea Status Distribution by Year', 
+      icon: Users,
+      visible: widgetSettings.ideaDistribution
+    },
+    { 
+      id: 'submissions', 
+      name: 'Client Submissions by Quarter', 
+      icon: LineChartIcon,
+      visible: widgetSettings.clientSubmissions
+    },
+    { 
+      id: 'features', 
+      name: 'Top 10 Features (Current & Previous Quarter)', 
+      icon: Clock,
+      visible: widgetSettings.topFeatures
+    },
+    { 
+      id: 'forums', 
+      name: 'Data Socialization Forums', 
+      icon: Users,
+      visible: widgetSettings.dataSocialization
+    }
   ];
+
+  const tabs = allTabs.filter(tab => tab.visible);
 
   // Helper function to get previous quarter
   const getPreviousQuarter = (): string => {
@@ -65,6 +104,14 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
       });
     }
   }, [dashboardData]);
+
+  // Update active tab if current tab becomes invisible
+  useEffect(() => {
+    const isActiveTabVisible = tabs.some(tab => tab.id === activeTab);
+    if (!isActiveTabVisible && tabs.length > 0) {
+      setActiveTab(tabs[0].id);
+    }
+  }, [widgetSettings, activeTab, tabs]);
 
   const handleStackedBarDataChange = (index: number, field: string, value: number) => {
     setFormData(prev => ({
@@ -126,6 +173,11 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
 
   if (!isOpen) return null;
 
+  // Don't render if no tabs are visible
+  if (tabs.length === 0) {
+    return null;
+  }
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-500 bg-opacity-75">
       <div className="flex min-h-full items-center justify-center p-4">
@@ -175,7 +227,8 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
               {/* Key Metrics Tab */}
               {activeTab === 'metrics' && (
                 <div className="space-y-6">
-                  {/* Responsiveness */}
+                  {/* Responsiveness - only show if enabled */}
+                  {widgetSettings.responsiveness && (
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-4">
                       <h3 className="text-sm font-medium text-gray-700">Responsiveness</h3>
@@ -212,7 +265,8 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                     </div>
                   </div>
 
-                  {/* Roadmap Alignment */}
+                  {/* Roadmap Alignment - only show if enabled */}
+                  {widgetSettings.commitment && (
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-4">
                       <h3 className="text-sm font-medium text-gray-700">
@@ -251,7 +305,8 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                     </div>
                   </div>
 
-                  {/* Continued Engagement */}
+                  {/* Continued Engagement - only show if enabled */}
+                  {widgetSettings.continuedEngagement && (
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="flex items-center gap-2 mb-4">
                       <h3 className="text-sm font-medium text-gray-700">
@@ -300,6 +355,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                       </div>
                     </div>
                   </div>
+                  )}
 
                   {/* Idea Volume */}
                   <div className="bg-gray-50 p-4 rounded-lg">
