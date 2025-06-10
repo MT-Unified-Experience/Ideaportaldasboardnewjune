@@ -325,7 +325,7 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                               isCurrentQuarter 
                                 ? 'bg-green-50 border-green-200' 
                                 : 'bg-white border-gray-200'
-                            } cursor-pointer hover:shadow-md transition-all duration-200`}
+                            } cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 transform`}
                           >
                             <div className="text-center space-y-2">
                               {/* Title */}
@@ -358,7 +358,7 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                               </p>
                               
                               {/* Link */}
-                              <p className="text-xs text-blue-600 font-medium">
+                              <p className="text-xs text-blue-600 font-medium hover:text-blue-800 transition-colors">
                                 Click to view ideas with follow-up
                               </p>
                             </div>
