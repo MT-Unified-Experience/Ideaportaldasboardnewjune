@@ -107,7 +107,7 @@ const DataSocializationCard: React.FC = () => {
                   )}
                 </div>
                 <div className="flex-1 ml-2">
-                  <span className="text-xs font-medium text-gray-700 text-left break-words">
+                  <span className="text-[10px] font-medium text-gray-700 text-left break-words leading-tight">
                     {forum.name}
                   </span>
                 </div>
