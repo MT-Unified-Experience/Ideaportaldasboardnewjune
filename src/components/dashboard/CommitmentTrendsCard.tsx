@@ -135,10 +135,8 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-500 bg-opacity-75">
-          <div className="flex min-h-full items-center justify-center p-4">
-            <div className="relative transform overflow-hidden rounded-lg bg-white w-full max-w-7xl shadow-xl">
-              <div className="p-6">
+        <div className="fixed inset-y-0 right-0 w-full md:w-[800px] bg-white shadow-xl z-50 overflow-y-auto transform transition-transform duration-300 ease-in-out">
+          <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
@@ -335,8 +333,6 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
         </div>
       )}
     </>
