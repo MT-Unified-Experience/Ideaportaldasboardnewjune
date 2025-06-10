@@ -5,6 +5,9 @@ import MetricCardsSection from './MetricCardsSection';
 import ChartsSection from './ChartsSection';
 import FeaturesAndForumsSection from './FeaturesAndForumsSection';
 import DataSocializationCard from './DataSocializationCard';
+import LineChart from './LineChart';
+import CrossClientCollaborationTrend from './CrossClientCollaborationTrend';
+import { TopFeaturesChart } from './TopFeaturesChart';
 
 interface WidgetSettings {
   responsiveness: boolean;
@@ -31,49 +34,54 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
 
   return (
     <DashboardSection spacing="md">
-      {/* First Row: Metric Summary Cards + Data Socialization Forums */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 lg:gap-6 w-full">
-        {/* Metric Cards take up 3 columns */}
-        <div className="lg:col-span-3">
-          <MetricCardsSection 
-            metricSummary={metricSummary}
-            widgetSettings={{
-              responsiveness: widgetSettings.responsiveness,
-              commitment: widgetSettings.commitment,
-              continuedEngagement: widgetSettings.continuedEngagement,
-            }}
-          />
-        </div>
-        
+      {/* First Row: Metric Summary Cards */}
+      <div className="grid grid-cols-1 gap-3 lg:gap-6 w-full">
+        <MetricCardsSection 
+          metricSummary={metricSummary}
+          widgetSettings={{
+            responsiveness: widgetSettings.responsiveness,
+            commitment: widgetSettings.commitment,
+            continuedEngagement: widgetSettings.continuedEngagement,
+          }}
+        />
+      </div>
+
+      {/* Second Row: Data Socialization Forums + Client Submissions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-6 w-full">
         {/* Data Socialization Forums takes up 1 column */}
         {widgetSettings.dataSocialization && (
           <div className="lg:col-span-1">
             <DataSocializationCard />
           </div>
         )}
+        
+        {/* Client Submissions takes up 2 columns */}
+        {widgetSettings.clientSubmissions && (
+          <div className="lg:col-span-2">
+            <LineChart data={lineChartData} />
+          </div>
+        )}
       </div>
 
-      {/* Charts Section - includes Cross-Client Collaboration Trend and Client Submissions */}
-      <ChartsSection 
-        stackedBarData={stackedBarData}
-        lineChartData={lineChartData}
-        widgetSettings={{
-          ideaDistribution: widgetSettings.ideaDistribution,
-          clientSubmissions: widgetSettings.clientSubmissions,
-          dataSocialization: false, // Now handled in first row
-        }}
-        showCollaborationTrend={true}
-      />
+      {/* Third Row: Cross-Client Collaboration Trend */}
+      <div className="grid grid-cols-1 gap-3 lg:gap-6 w-full">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+          <CrossClientCollaborationTrend
+            isOpen={true}
+            onClose={() => {}}
+            embedded={true}
+          />
+        </div>
+      </div>
       
-      {/* Features and Forums Section */}
-      <FeaturesAndForumsSection 
-        topFeatures={topFeatures}
-        widgetSettings={{
-          topFeatures: widgetSettings.topFeatures,
-          dataSocialization: false, // Now handled in ChartsSection
-        }}
-        showDataSocializationInCharts={false}
-      />
+      {/* Fourth Row: Top 10 Trends Over Last 2 Quarters */}
+      {widgetSettings.topFeatures && (
+        <div className="grid grid-cols-1 gap-3 lg:gap-6 w-full">
+          <div className="col-span-full">
+            <TopFeaturesChart features={topFeatures} />
+          </div>
+        </div>
+      )}
     </DashboardSection>
   );
 };
