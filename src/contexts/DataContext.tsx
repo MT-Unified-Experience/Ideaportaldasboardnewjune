@@ -137,6 +137,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           stackedBarData: [...defaultDashboardData.stackedBarData],
           lineChartData: [...defaultDashboardData.lineChartData],
           topFeatures: [...defaultDashboardData.topFeatures],
+          previousQuarterFeatures: [],
           data_socialization_forums: [
             { name: 'CSC' },
             { name: 'Sprint Reviews' },
@@ -342,6 +343,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             },
             lineChartData: fetchedData.lineChartData || [...defaultDashboardData.lineChartData],
             topFeatures: fetchedData.topFeatures || [...defaultDashboardData.topFeatures],
+            previousQuarterFeatures: fetchedData.previousQuarterFeatures || [],
             data_socialization_forums: fetchedData.data_socialization_forums || [
               { name: 'CSC' },
               { name: 'Sprint Reviews' },
@@ -366,6 +368,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               ...prevData[currentProduct],
               [currentQuarter]: {
                 ...defaultDashboardData,
+                previousQuarterFeatures: [],
                 data_socialization_forums: [
                   { name: 'CSC' },
                   { name: 'Sprint Reviews' },
@@ -526,6 +529,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         stackedBarData: [...(data.stackedBarData || defaultDashboardData.stackedBarData)],
         lineChartData: [...(data.lineChartData || defaultDashboardData.lineChartData)],
         topFeatures: [...(data.topFeatures || defaultDashboardData.topFeatures)],
+        previousQuarterFeatures: [...(data.previousQuarterFeatures || [])],
         data_socialization_forums: data.data_socialization_forums || []
       };
 

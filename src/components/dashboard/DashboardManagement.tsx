@@ -13,6 +13,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
   const { currentProduct, currentQuarter } = useData();
   const [formData, setFormData] = useState<DashboardData>(dashboardData || {} as DashboardData);
   const [activeTab, setActiveTab] = useState('metrics');
+  const [featuresSubTab, setFeaturesSubTab] = useState<'current' | 'previous'>('current');
   const expectedYears = ['FY22', 'FY23', 'FY24', 'FY25'];
   
   const tooltips = {
@@ -29,9 +30,20 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
     { id: 'metrics', name: 'Key Metrics', icon: BarChart2 },
     { id: 'distribution', name: 'Idea Status Distribution by Year', icon: Users },
     { id: 'submissions', name: 'Client Submissions by Quarter', icon: LineChartIcon },
-    { id: 'features', name: 'Top 10 Requested Features', icon: Clock },
+    { id: 'features', name: 'Top 10 Features (Current & Previous Quarter)', icon: Clock },
     { id: 'forums', name: 'Data Socialization Forums', icon: Users }
   ];
+
+  // Helper function to get previous quarter
+  const getPreviousQuarter = (): string => {
+    const quarters: Quarter[] = ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'];
+    const currentIndex = quarters.indexOf(currentQuarter);
+    if (currentIndex > 0) {
+      return quarters[currentIndex - 1];
+    }
+    // If current quarter is Q1, return Q4 of previous fiscal year
+    return 'FY24 Q4';
+  };
 
   useEffect(() => {
     if (dashboardData) {
@@ -450,96 +462,241 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
               {/* Features Tab */}
               {activeTab === 'features' && (
                 <div className="space-y-6">
-                  {Array.from({ length: 10 }).map((_, index) => {
-                    const feature = formData.topFeatures[index] || {
-                      feature_name: '',
-                      vote_count: 0,
-                      status: 'Under Review' as const,
-                      status_updated_at: new Date().toISOString(),
-                      client_voters: []
-                    };
-                    return (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="text-sm font-medium text-gray-700 mb-4">
-                        Feature #{index + 1}
-                      </h4>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Feature Name
-                          </label>
-                          <input
-                            type="text"
-                            value={feature.feature_name}
-                            onChange={(e) => {
-                              const newFeatures = [...formData.topFeatures];
-                              newFeatures[index] = { ...feature, feature_name: e.target.value };
-                              setFormData({ ...formData, topFeatures: newFeatures });
-                            }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Vote Count
-                            </label>
-                            <input
-                              type="number"
-                              value={feature.vote_count}
-                              onChange={(e) => {
-                                const newFeatures = [...formData.topFeatures];
-                                newFeatures[index] = { ...feature, vote_count: Number(e.target.value) };
-                                setFormData({ ...formData, topFeatures: newFeatures });
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Status
-                            </label>
-                            <select
-                              value={feature.status}
-                              onChange={(e) => {
-                                const newFeatures = [...formData.topFeatures];
-                                newFeatures[index] = { 
-                                  ...feature, 
-                                  status: e.target.value as 'Delivered' | 'Under Review' | 'Committed'
-                                };
-                                setFormData({ ...formData, topFeatures: newFeatures });
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                              <option value="Under Review">Under Review</option>
-                              <option value="Committed">Committed</option>
-                              <option value="Delivered">Delivered</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Contributing Clients (separate with semicolon)
-                          </label>
-                          <input
-                            type="text"
-                            value={feature.client_voters.join('; ')}
-                            onChange={(e) => {
-                              const newFeatures = [...formData.topFeatures];
-                              newFeatures[index] = {
-                                ...feature,
-                                client_voters: e.target.value.split(';').map(s => s.trim()).filter(Boolean)
-                              };
-                              setFormData({ ...formData, topFeatures: newFeatures });
-                            }}
-                            placeholder="Client A; Client B; Client C"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    );
-                  })}
+                 {/* Sub-tabs for Current and Previous Quarter */}
+                 <div className="border-b border-gray-200">
+                   <nav className="-mb-px flex space-x-8">
+                     <button
+                       type="button"
+                       onClick={() => setFeaturesSubTab('current')}
+                       className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                         featuresSubTab === 'current'
+                           ? 'border-blue-500 text-blue-600'
+                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                       }`}
+                     >
+                       Current Quarter Features
+                     </button>
+                     <button
+                       type="button"
+                       onClick={() => setFeaturesSubTab('previous')}
+                       className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                         featuresSubTab === 'previous'
+                           ? 'border-blue-500 text-blue-600'
+                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                       }`}
+                     >
+                       Previous Quarter Features
+                     </button>
+                   </nav>
+                 </div>
+
+                 {/* Current Quarter Features */}
+                 {featuresSubTab === 'current' && (
+                   <div className="space-y-6">
+                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                       <h4 className="text-sm font-medium text-blue-800 mb-2">
+                         Current Quarter ({currentQuarter}) Features
+                       </h4>
+                       <p className="text-xs text-blue-600">
+                         These features will be displayed in the main dashboard view for the current quarter.
+                       </p>
+                     </div>
+                     {Array.from({ length: 10 }).map((_, index) => {
+                       const feature = formData.topFeatures[index] || {
+                         feature_name: '',
+                         vote_count: 0,
+                         status: 'Under Review' as const,
+                         status_updated_at: new Date().toISOString(),
+                         client_voters: []
+                       };
+                       return (
+                       <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                         <h4 className="text-sm font-medium text-gray-700 mb-4">
+                           Current Quarter Feature #{index + 1}
+                         </h4>
+                         <div className="space-y-4">
+                           <div>
+                             <label className="block text-sm font-medium text-gray-700 mb-2">
+                               Feature Name
+                             </label>
+                             <input
+                               type="text"
+                               value={feature.feature_name}
+                               onChange={(e) => {
+                                 const newFeatures = [...formData.topFeatures];
+                                 newFeatures[index] = { ...feature, feature_name: e.target.value };
+                                 setFormData({ ...formData, topFeatures: newFeatures });
+                               }}
+                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             />
+                           </div>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             <div>
+                               <label className="block text-sm font-medium text-gray-700 mb-2">
+                                 Vote Count
+                               </label>
+                               <input
+                                 type="number"
+                                 value={feature.vote_count}
+                                 onChange={(e) => {
+                                   const newFeatures = [...formData.topFeatures];
+                                   newFeatures[index] = { ...feature, vote_count: Number(e.target.value) };
+                                   setFormData({ ...formData, topFeatures: newFeatures });
+                                 }}
+                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               />
+                             </div>
+                             <div>
+                               <label className="block text-sm font-medium text-gray-700 mb-2">
+                                 Status
+                               </label>
+                               <select
+                                 value={feature.status}
+                                 onChange={(e) => {
+                                   const newFeatures = [...formData.topFeatures];
+                                   newFeatures[index] = { 
+                                     ...feature, 
+                                     status: e.target.value as 'Delivered' | 'Under Review' | 'Committed'
+                                   };
+                                   setFormData({ ...formData, topFeatures: newFeatures });
+                                 }}
+                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               >
+                                 <option value="Under Review">Under Review</option>
+                                 <option value="Committed">Committed</option>
+                                 <option value="Delivered">Delivered</option>
+                               </select>
+                             </div>
+                           </div>
+                           <div>
+                             <label className="block text-sm font-medium text-gray-700 mb-2">
+                               Contributing Clients (separate with semicolon)
+                             </label>
+                             <input
+                               type="text"
+                               value={feature.client_voters.join('; ')}
+                               onChange={(e) => {
+                                 const newFeatures = [...formData.topFeatures];
+                                 newFeatures[index] = {
+                                   ...feature,
+                                   client_voters: e.target.value.split(';').map(s => s.trim()).filter(Boolean)
+                                 };
+                                 setFormData({ ...formData, topFeatures: newFeatures });
+                               }}
+                               placeholder="Client A; Client B; Client C"
+                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             />
+                           </div>
+                         </div>
+                       </div>
+                       );
+                     })}
+                   </div>
+                 )}
+
+                 {/* Previous Quarter Features */}
+                 {featuresSubTab === 'previous' && (
+                   <div className="space-y-6">
+                     <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                       <h4 className="text-sm font-medium text-amber-800 mb-2">
+                         Previous Quarter ({getPreviousQuarter()}) Features
+                       </h4>
+                       <p className="text-xs text-amber-600">
+                         These features will be used for comparison analysis in the quarterly trends dashboard.
+                       </p>
+                     </div>
+                     {Array.from({ length: 10 }).map((_, index) => {
+                       const feature = (formData.previousQuarterFeatures || [])[index] || {
+                         feature_name: '',
+                         vote_count: 0,
+                         status: 'Under Review' as const,
+                         status_updated_at: new Date().toISOString(),
+                         client_voters: []
+                       };
+                       return (
+                       <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                         <h4 className="text-sm font-medium text-gray-700 mb-4">
+                           Previous Quarter Feature #{index + 1}
+                         </h4>
+                         <div className="space-y-4">
+                           <div>
+                             <label className="block text-sm font-medium text-gray-700 mb-2">
+                               Feature Name
+                             </label>
+                             <input
+                               type="text"
+                               value={feature.feature_name}
+                               onChange={(e) => {
+                                 const newFeatures = [...(formData.previousQuarterFeatures || [])];
+                                 newFeatures[index] = { ...feature, feature_name: e.target.value };
+                                 setFormData({ ...formData, previousQuarterFeatures: newFeatures });
+                               }}
+                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             />
+                           </div>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             <div>
+                               <label className="block text-sm font-medium text-gray-700 mb-2">
+                                 Vote Count
+                               </label>
+                               <input
+                                 type="number"
+                                 value={feature.vote_count}
+                                 onChange={(e) => {
+                                   const newFeatures = [...(formData.previousQuarterFeatures || [])];
+                                   newFeatures[index] = { ...feature, vote_count: Number(e.target.value) };
+                                   setFormData({ ...formData, previousQuarterFeatures: newFeatures });
+                                 }}
+                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               />
+                             </div>
+                             <div>
+                               <label className="block text-sm font-medium text-gray-700 mb-2">
+                                 Status
+                               </label>
+                               <select
+                                 value={feature.status}
+                                 onChange={(e) => {
+                                   const newFeatures = [...(formData.previousQuarterFeatures || [])];
+                                   newFeatures[index] = { 
+                                     ...feature, 
+                                     status: e.target.value as 'Delivered' | 'Under Review' | 'Committed'
+                                   };
+                                   setFormData({ ...formData, previousQuarterFeatures: newFeatures });
+                                 }}
+                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               >
+                                 <option value="Under Review">Under Review</option>
+                                 <option value="Committed">Committed</option>
+                                 <option value="Delivered">Delivered</option>
+                               </select>
+                             </div>
+                           </div>
+                           <div>
+                             <label className="block text-sm font-medium text-gray-700 mb-2">
+                               Contributing Clients (separate with semicolon)
+                             </label>
+                             <input
+                               type="text"
+                               value={feature.client_voters.join('; ')}
+                               onChange={(e) => {
+                                 const newFeatures = [...(formData.previousQuarterFeatures || [])];
+                                 newFeatures[index] = {
+                                   ...feature,
+                                   client_voters: e.target.value.split(';').map(s => s.trim()).filter(Boolean)
+                                 };
+                                 setFormData({ ...formData, previousQuarterFeatures: newFeatures });
+                               }}
+                               placeholder="Client A; Client B; Client C"
+                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                             />
+                           </div>
+                         </div>
+                       </div>
+                       );
+                     })}
+                   </div>
+                 )}
                 </div>
               )}
 

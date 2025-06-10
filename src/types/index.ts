@@ -97,6 +97,7 @@ export interface DashboardData {
   stackedBarData: StackedBarData[];
   lineChartData: LineChartData[];
   topFeatures: Feature[];
+  previousQuarterFeatures?: Feature[];
   collaborationTrendData?: CollaborationTrendQuarterlyData[];
   data_socialization_forums?: Forum[];
 }
