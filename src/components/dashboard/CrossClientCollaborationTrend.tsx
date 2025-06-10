@@ -264,102 +264,14 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                         strokeWidth={2}
                         className="cursor-pointer"
                       />
-
-              {/* Top Collaborative Ideas Data Table */}
-              <div className="space-y-4 col-span-full">
-                <h4 className="font-medium text-gray-900">Top Collaborative Ideas</h4>
-                
-                {/* Horizontal Metrics */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Collaborative Ideas</span>
-                      <span className="text-lg font-bold text-amber-600">{selectedDataPoint.collaborativeIdeas}</span>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Total Ideas</span>
-                      <span className="text-lg font-bold text-gray-900">{selectedDataPoint.totalIdeas}</span>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Collaboration Rate</span>
-                      <span className="text-lg font-bold text-blue-600">{selectedDataPoint.collaborationRate}%</span>
-                    </div>
-                  </div>
-                  {selectedDataPoint.significantChange && (
-                    <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">Quarter-over-Quarter Change</span>
-                        <div className="flex items-center">
-                          {selectedDataPoint.changeDirection === 'up' ? (
-                            <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                          ) : selectedDataPoint.changeDirection === 'down' ? (
-                            <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-                          ) : null}
-                          <span className={`text-lg font-bold ${
-                            selectedDataPoint.changeDirection === 'up' ? 'text-green-600' : 
-                            selectedDataPoint.changeDirection === 'down' ? 'text-red-600' : 'text-gray-600'
-                          }`}>
-                            {selectedDataPoint.changePercentage > 0 ? '+' : ''}{selectedDataPoint.changePercentage}%
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="overflow-x-auto max-h-64 overflow-y-auto">
-                    <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                      <thead className="bg-gray-100 sticky top-0">
-                        <tr>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
-                            Idea ID
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
-                            Idea Summary
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-700 border-b border-gray-200">
-                            Idea Comments
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {selectedDataPoint.topCollaborativeIdeas.map((idea, index) => (
-                          <tr key={idea.id} className="hover:bg-gray-50">
-                            <td className="px-3 py-2 text-xs font-medium text-blue-600 border-r border-gray-200">
-                              {idea.id}
-                            </td>
-                            <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-200">
-                              <div className="max-w-[150px]">
-                                <div className="font-medium">{idea.name}</div>
-                                <div className={`text-xs px-2 py-1 rounded-full mt-1 inline-block ${
-                                  idea.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                                  idea.status === 'In Development' ? 'bg-blue-100 text-blue-800' :
-                                  'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                  {idea.status}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-3 py-2 text-xs text-gray-700">
-                              <div className="max-w-[200px]">
-                                {idea.comments}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
+                    );
+                  }}
+                  activeDot={{ r: 10, stroke: '#f59e0b', strokeWidth: 2 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
-        )}
+        </div>
       </div>
     );
   }
@@ -524,49 +436,6 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                     {/* Top Collaborative Ideas Data Table */}
                     <div className="space-y-4">
                       <h4 className="font-medium text-gray-900">Top Collaborative Ideas</h4>
-                      
-                      {/* Horizontal Metrics */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Collaborative Ideas</span>
-                            <span className="text-lg font-bold text-amber-600">{selectedDataPoint.collaborativeIdeas}</span>
-                          </div>
-                        </div>
-                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Total Ideas</span>
-                            <span className="text-lg font-bold text-gray-900">{selectedDataPoint.totalIdeas}</span>
-                          </div>
-                        </div>
-                        <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Collaboration Rate</span>
-                            <span className="text-lg font-bold text-blue-600">{selectedDataPoint.collaborationRate}%</span>
-                          </div>
-                        </div>
-                        {selectedDataPoint.significantChange && (
-                          <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">Quarter-over-Quarter Change</span>
-                              <div className="flex items-center">
-                                {selectedDataPoint.changeDirection === 'up' ? (
-                                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                                ) : selectedDataPoint.changeDirection === 'down' ? (
-                                  <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-                                ) : null}
-                                <span className={`text-lg font-bold ${
-                                  selectedDataPoint.changeDirection === 'up' ? 'text-green-600' : 
-                                  selectedDataPoint.changeDirection === 'down' ? 'text-red-600' : 'text-gray-600'
-                                }`}>
-                                  {selectedDataPoint.changePercentage > 0 ? '+' : ''}{selectedDataPoint.changePercentage}%
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      
                       <div className="bg-gray-50 rounded-lg p-4">
                         <div className="overflow-x-auto max-h-64 overflow-y-auto">
                           <table className="min-w-full bg-white border border-gray-200 rounded-lg">
