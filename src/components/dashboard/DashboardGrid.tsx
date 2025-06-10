@@ -70,7 +70,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
     if (widgetSettings.ideaDistribution && widgetSettings.clientSubmissions) {
       // Both charts visible - side by side
       charts.push(
-        <div key="distribution\" className=\"lg:col-span-2">
+        <div key="distribution" className="lg:col-span-2">
           <HorizontalStackedBarChart data={stackedBarData} />
         </div>,
         <div key="submissions" className="lg:col-span-3">
