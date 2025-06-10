@@ -197,34 +197,6 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
           </div>
         </div>
 
-        {/* Summary Statistics */}
-        <div className="grid grid-cols-4 gap-4">
-          <div className="bg-amber-50 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-amber-600">
-              {Math.round(quarterlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / quarterlyData.length)}%
-            </div>
-            <div className="text-sm text-gray-600">Avg Collaboration Rate</div>
-          </div>
-          <div className="bg-blue-50 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">
-              {quarterlyData.reduce((sum, item) => sum + item.collaborativeIdeas, 0)}
-            </div>
-            <div className="text-sm text-gray-600">Total Collaborative Ideas</div>
-          </div>
-          <div className="bg-green-50 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">
-              {quarterlyData.filter(item => item.changeDirection === 'up').length}
-            </div>
-            <div className="text-sm text-gray-600">Quarters with Growth</div>
-          </div>
-          <div className="bg-purple-50 rounded-lg p-4 text-center">
-            <div className="text-2xl font-bold text-purple-600">
-              {Math.max(...quarterlyData.map(item => item.collaborationRate))}%
-            </div>
-            <div className="text-sm text-gray-600">Peak Collaboration Rate</div>
-          </div>
-        </div>
-
         {/* Main Chart */}
         <div className="bg-gray-50 rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
@@ -417,34 +389,6 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
             </div>
 
             <div className="space-y-6 max-h-[70vh] overflow-y-auto">
-              {/* Summary Statistics */}
-              <div className="grid grid-cols-4 gap-4">
-                <div className="bg-amber-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-amber-600">
-                    {Math.round(quarterlyData.reduce((sum, item) => sum + item.collaborationRate, 0) / quarterlyData.length)}%
-                  </div>
-                  <div className="text-sm text-gray-600">Avg Collaboration Rate</div>
-                </div>
-                <div className="bg-blue-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {quarterlyData.reduce((sum, item) => sum + item.collaborativeIdeas, 0)}
-                  </div>
-                  <div className="text-sm text-gray-600">Total Collaborative Ideas</div>
-                </div>
-                <div className="bg-green-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {quarterlyData.filter(item => item.changeDirection === 'up').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Quarters with Growth</div>
-                </div>
-                <div className="bg-purple-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-600">
-                    {Math.max(...quarterlyData.map(item => item.collaborationRate))}%
-                  </div>
-                  <div className="text-sm text-gray-600">Peak Collaboration Rate</div>
-                </div>
-              </div>
-
               {/* Main Chart */}
               <div className="bg-gray-50 rounded-lg p-6">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">
