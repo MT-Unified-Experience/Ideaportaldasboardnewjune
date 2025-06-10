@@ -201,19 +201,22 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
               <div className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={trendData.slice(0, 10)} 
-                    margin={{ top: 20, right: 30, left: 20, bottom: 120 }}
+                    layout="horizontal"
+                    data={trendData.slice(0, 10)}
+                    margin={{ top: 20, right: 30, left: 150, bottom: 20 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
-                      dataKey="name" 
-                      angle={-45}
-                      textAnchor="end"
-                      height={100}
+                      type="number"
+                      tick={{ fontSize: 11 }}
+                    />
+                    <YAxis 
+                      type="category"
+                      dataKey="name"
                       tick={{ fontSize: 10 }}
+                      width={140}
                       interval={0}
                     />
-                    <YAxis />
                     <Tooltip 
                       formatter={(value: number, name: string) => [value, 'Q3 Requests']}
                       labelFormatter={(label: string) => `Feature: ${label}`}
@@ -235,19 +238,22 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
               <div className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={trendData.slice(0, 10)} 
-                    margin={{ top: 20, right: 30, left: 20, bottom: 120 }}
+                    layout="horizontal"
+                    data={trendData.slice(0, 10)}
+                    margin={{ top: 20, right: 30, left: 150, bottom: 20 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
-                      dataKey="name" 
-                      angle={-45}
-                      textAnchor="end"
-                      height={100}
+                      type="number"
+                      tick={{ fontSize: 11 }}
+                    />
+                    <YAxis 
+                      type="category"
+                      dataKey="name"
                       tick={{ fontSize: 10 }}
+                      width={140}
                       interval={0}
                     />
-                    <YAxis />
                     <Tooltip 
                       formatter={(value: number, name: string) => [value, 'Q4 Requests']}
                       labelFormatter={(label: string) => `Feature: ${label}`}
