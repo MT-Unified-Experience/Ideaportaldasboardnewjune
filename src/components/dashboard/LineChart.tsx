@@ -136,7 +136,7 @@ const ClientList: React.FC<ClientListProps> = ({ quarter, clients, onClose }) =>
                       Client or Firm Name
                     </th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
-                      Idea Summary
+                      Idea Summary Title
                     </th>
                   </tr>
                 </thead>
