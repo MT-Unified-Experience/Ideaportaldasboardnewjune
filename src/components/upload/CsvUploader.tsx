@@ -2,11 +2,12 @@ import React, { useState, useRef } from 'react';
 import { Upload } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 import ErrorModal from '../common/ErrorModal';
-import { CSVError, validateCSVData } from '../../utils/csvParser';
+import { CSVError } from '../../utils/csvParser';
+import UploadMappingModal from './UploadMappingModal';
 
 export const CsvUploader: React.FC = () => {
-  const { uploadCSV, isLoading, error, currentProduct } = useData();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadCSVWithMapping, isLoading, error, currentProduct } = useData();
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorDetails, setErrorDetails] = useState<{
     message: string;
@@ -34,21 +35,10 @@ export const CsvUploader: React.FC = () => {
     }
   }, [error]);
 
-  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    
-    if (e.target.files && e.target.files[0]) {
-      await handleFile(e.target.files[0]);
-    }
-  };
-
-  const handleFile = async (file: File) => {
+  const handleUploadComplete = async (file: File, mapping: { [csvHeader: string]: string }) => {
     try {
-      // Validate that the CSV contains data for the current product
-      const fileContent = await file.text();
-      await validateCSVData(fileContent, currentProduct);
-      
-      await uploadCSV(file);
+      await uploadCSVWithMapping(file, mapping);
+      setIsUploadModalOpen(false);
     } catch (err) {
       if (err instanceof CSVError) {
         setErrorDetails({
@@ -58,12 +48,7 @@ export const CsvUploader: React.FC = () => {
         });
         setShowError(true);
       }
-      console.error(err);
     }
-  };
-
-  const handleButtonClick = () => {
-    fileInputRef.current?.click();
   };
 
   const handleCloseError = () => {
@@ -73,16 +58,9 @@ export const CsvUploader: React.FC = () => {
   return (
     <div className="flex items-start gap-3">
       <div className="flex flex-col items-end">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".csv"
-          onChange={handleChange}
-          className="hidden"
-        />
         <button
           type="button"
-          onClick={handleButtonClick}
+          onClick={() => setIsUploadModalOpen(true)}
           disabled={isLoading}
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -96,6 +74,14 @@ export const CsvUploader: React.FC = () => {
           Download sample CSV<br />template
         </a>
       </div>
+      
+      <UploadMappingModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onComplete={handleUploadComplete}
+        currentProduct={currentProduct}
+      />
+      
       <ErrorModal
         isOpen={showError}
         onClose={handleCloseError}

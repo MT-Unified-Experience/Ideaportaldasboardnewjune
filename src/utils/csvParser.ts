@@ -1,6 +1,10 @@
 import Papa from 'papaparse';
 import { DashboardData, Feature, CollaborationTrendQuarterlyData } from '../types';
 
+interface FieldMapping {
+  [csvHeader: string]: string;
+}
+
 export class CSVError extends Error {
   constructor(
     message: string,
@@ -12,6 +16,41 @@ export class CSVError extends Error {
   }
 }
 
+// Function to parse CSV data with dynamic field mapping
+export const parseCSVWithMapping = (csvData: string, mapping: FieldMapping, currentProduct: string): Promise<DashboardData> => {
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvData, {
+      header: true,
+      dynamicTyping: false,
+      skipEmptyLines: true,
+      complete: (results) => {
+        try {
+          // Validate data structure
+          if (!Array.isArray(results.data) || results.data.length === 0) {
+            throw new CSVError(
+              'Invalid data structure',
+              'data',
+              ['The CSV file must contain at least one row of data']
+            );
+          }
+
+          const parsedData = transformCSVDataWithMapping(results.data as any[], mapping, currentProduct);
+          resolve(parsedData);
+        } catch (error) {
+          reject(error);
+        }
+      },
+      error: (error) => {
+        reject(new CSVError(
+          'Failed to parse CSV file',
+          'file',
+          [error.message]
+        ));
+      }
+    });
+  });
+};
+
 // Required headers for CSV validation
 const requiredHeaders = [
   'product', 'quarter', 'responsiveness', 'responsiveness_trend', 'roadmap_alignment_committed', 'roadmap_alignment_total',
@@ -19,6 +58,12 @@ const requiredHeaders = [
   'active_quarter', 'active_clients_representing', 'feature_name', 'vote_count', 'status',
   'status_updated_at', 'client_voters'
 ];
+
+// Helper function to safely get value from row using mapping
+const getMappedValue = (row: any, csvHeader: string, mapping: FieldMapping): string => {
+  const mappedField = mapping[csvHeader];
+  return mappedField ? (row[csvHeader] || '') : '';
+};
 
 interface CSVRow {
   product: string;
@@ -137,6 +182,134 @@ export const transformProductQuarterlyCSVData = (data: CSVRow[]): ProductQuarter
     year: row.year,
     sales_data: safeNumberConversion(row.sales_data)
   }));
+};
+
+// Transform CSV data with dynamic mapping
+const transformCSVDataWithMapping = (data: any[], mapping: FieldMapping, currentProduct: string): DashboardData => {
+  // Helper function to get mapped value
+  const getValue = (row: any, dashboardField: string): string => {
+    // Find the CSV header that maps to this dashboard field
+    const csvHeader = Object.keys(mapping).find(header => mapping[header] === dashboardField);
+    return csvHeader ? (row[csvHeader] || '') : '';
+  };
+
+  // Get the first row for metric summary data
+  const firstRow = data[0] || {};
+
+  // Extract metric summary with fallbacks
+  const metricSummary = {
+    responsiveness: safeNumberConversion(getValue(firstRow, 'responsiveness')) || 85, // Default fallback
+    roadmapAlignment: {
+      committed: safeNumberConversion(getValue(firstRow, 'roadmap_alignment_committed')) || 0,
+      total: safeNumberConversion(getValue(firstRow, 'roadmap_alignment_total')) || 0,
+    },
+    continuedEngagement: {
+      rate: safeNumberConversion(getValue(firstRow, 'continued_engagement_rate')) || 0,
+      numerator: safeNumberConversion(getValue(firstRow, 'continued_engagement_numerator')) || 0,
+      denominator: safeNumberConversion(getValue(firstRow, 'continued_engagement_denominator')) || 0,
+      ideas: []
+    },
+    ideaVolume: {
+      quarterly: safeNumberConversion(getValue(firstRow, 'quarterly_ideas')) || 0,
+      total: safeNumberConversion(getValue(firstRow, 'total_ideas')) || 0,
+    },
+  };
+
+  // Transform stacked bar data (group by year)
+  const yearGroups = new Map<string, any>();
+  data.forEach(row => {
+    const year = getValue(row, 'year');
+    if (year && !yearGroups.has(year)) {
+      yearGroups.set(year, {
+        year,
+        candidateIdeas: safeNumberConversion(getValue(row, 'candidate_ideas')),
+        inDevelopment: safeNumberConversion(getValue(row, 'in_development')),
+        archivedIdeas: safeNumberConversion(getValue(row, 'archived_ideas')),
+        flaggedForFuture: safeNumberConversion(getValue(row, 'flagged_for_future')),
+      });
+    }
+  });
+  const stackedBarData = Array.from(yearGroups.values());
+
+  // Transform line chart data (group by quarter)
+  const quarterGroups = new Map<string, any>();
+  data.forEach(row => {
+    const quarter = getValue(row, 'active_quarter');
+    if (quarter && !quarterGroups.has(quarter)) {
+      const clientVoters = getValue(row, 'client_voters');
+      quarterGroups.set(quarter, {
+        quarter,
+        clientsRepresenting: safeNumberConversion(getValue(row, 'active_clients_representing')),
+        clients: clientVoters ? clientVoters.split(',').map(s => s.trim()) : []
+      });
+    }
+  });
+  const lineChartData = Array.from(quarterGroups.values()).sort((a, b) => {
+    const getQuarterNum = (str: string) => parseInt(str.slice(-1));
+    return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
+  });
+
+  // Transform features data
+  const featuresMap = new Map<string, Feature>();
+  data.forEach(row => {
+    const featureName = getValue(row, 'feature_name');
+    const voteCount = getValue(row, 'vote_count');
+    const status = getValue(row, 'status');
+    
+    if (featureName && voteCount && status) {
+      const clientVoters = getValue(row, 'client_voters');
+      const statusUpdatedAt = getValue(row, 'status_updated_at');
+      
+      if (!featuresMap.has(featureName)) {
+        featuresMap.set(featureName, {
+          feature_name: featureName,
+          vote_count: safeNumberConversion(voteCount),
+          status: status as 'Delivered' | 'Under Review' | 'Committed',
+          status_updated_at: statusUpdatedAt || new Date().toISOString(),
+          client_voters: clientVoters ? clientVoters.split(',').map(s => s.trim()) : []
+        });
+      }
+    }
+  });
+  const features = Array.from(featuresMap.values()).sort((a, b) => b.vote_count - a.vote_count);
+
+  // Transform forums data
+  const forumsSet = new Set<string>();
+  const forums: { name: string }[] = [];
+  data.forEach(row => {
+    const forumName = getValue(row, 'forum_name');
+    if (forumName && !forumsSet.has(forumName)) {
+      forumsSet.add(forumName);
+      forums.push({ name: forumName });
+    }
+  });
+
+  // If no forums found in mapping, use defaults
+  const defaultForums = [
+    { name: 'CSC' },
+    { name: 'Sprint Reviews' },
+    { name: 'Customer Advisory Board (CAB)' },
+    { name: 'CWG' },
+    { name: 'Quarterly Product Reviews (QBRs)' }
+  ];
+
+  return {
+    metricSummary,
+    stackedBarData: stackedBarData.length > 0 ? stackedBarData : [
+      { year: 'FY22', candidateIdeas: 0, inDevelopment: 0, archivedIdeas: 0, flaggedForFuture: 0 },
+      { year: 'FY23', candidateIdeas: 0, inDevelopment: 0, archivedIdeas: 0, flaggedForFuture: 0 },
+      { year: 'FY24', candidateIdeas: 0, inDevelopment: 0, archivedIdeas: 0, flaggedForFuture: 0 },
+      { year: 'FY25', candidateIdeas: 0, inDevelopment: 0, archivedIdeas: 0, flaggedForFuture: 0 }
+    ],
+    lineChartData: lineChartData.length > 0 ? lineChartData : [
+      { quarter: 'FY25 Q1', clientsRepresenting: 0, clients: [] },
+      { quarter: 'FY25 Q2', clientsRepresenting: 0, clients: [] },
+      { quarter: 'FY25 Q3', clientsRepresenting: 0, clients: [] },
+      { quarter: 'FY25 Q4', clientsRepresenting: 0, clients: [] }
+    ],
+    topFeatures: features,
+    data_socialization_forums: forums.length > 0 ? forums : defaultForums
+  };
 };
 
 // Function to parse CSV data and transform it into dashboard data

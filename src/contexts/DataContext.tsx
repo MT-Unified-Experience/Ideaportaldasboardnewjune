@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { DashboardData, Product, Quarter, ProductData, ProductQuarterlyData } from '../types';
-import { parseCSV, validateCSVHeaders, CSVError } from '../utils/csvParser';
+import { parseCSV, parseCSVWithMapping, validateCSVHeaders, CSVError } from '../utils/csvParser';
 import { supabase, checkSupabaseConnection } from '../utils/supabaseClient';
 import { useEffect, useMemo } from 'react';
 
@@ -15,6 +15,7 @@ interface DataContextType {
   setCurrentProduct: (product: Product) => void;
   setCurrentQuarter: (quarter: Quarter) => void;
   uploadCSV: (file: File) => Promise<void>;
+  uploadCSVWithMapping: (file: File, mapping: { [csvHeader: string]: string }) => Promise<void>;
   uploadProductQuarterlyCSV: (file: File) => Promise<void>;
   fetchProductQuarterlyData: (filters?: { product_id?: string; product_name?: string; quarter?: string; year?: string; page?: number; limit?: number; orderBy?: string; orderDirection?: 'asc' | 'desc'; }) => Promise<ProductQuarterlyData[]>;
   updateDashboardData: (data: DashboardData) => Promise<void>;
@@ -500,6 +501,91 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Function to handle CSV upload with field mapping
+  const uploadCSVWithMapping = async (file: File, mapping: { [csvHeader: string]: string }): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Check if file is CSV
+      if (!file.name.endsWith('.csv')) {
+        throw new CSVError(
+          'Invalid file format',
+          'file',
+          ['Only CSV files are supported', 'Please upload a file with .csv extension']
+        );
+      }
+      
+      // Read file contents
+      const fileContent = await file.text();
+      
+      // Parse CSV data with mapping
+      const parsedData = await parseCSVWithMapping(fileContent, mapping, currentProduct);
+      
+      // Safely merge nested objects with defaults
+      const mergedMetricSummary = {
+        ...defaultDashboardData.metricSummary,
+        ...(parsedData.metricSummary || {}),
+        // Explicitly handle nested objects to prevent null values
+        roadmapAlignment: safelyMergeNestedObjects(
+          defaultDashboardData.metricSummary.roadmapAlignment,
+          parsedData.metricSummary?.roadmapAlignment
+        ),
+        ideaVolume: safelyMergeNestedObjects(
+          defaultDashboardData.metricSummary.ideaVolume,
+          parsedData.metricSummary?.ideaVolume
+        )
+      };
+
+      // Merge parsed data with default values
+      const mergedData: DashboardData = {
+        metricSummary: mergedMetricSummary,
+        stackedBarData: mergeStackedBarData(
+          defaultDashboardData.stackedBarData,
+          parsedData.stackedBarData || []
+        ),
+        lineChartData: parsedData.lineChartData || defaultDashboardData.lineChartData,
+        topFeatures: parsedData.topFeatures || defaultDashboardData.topFeatures,
+        data_socialization_forums: parsedData.data_socialization_forums || []
+      };
+
+      // Store data in Supabase
+      const { error: upsertError } = await supabase
+        .from('dashboards')
+        .upsert({
+          product: currentProduct,
+          quarter: currentQuarter,
+          data: mergedData
+        }, {
+          onConflict: 'product,quarter'
+        });
+      
+      if (upsertError) throw upsertError;
+      
+      // Update data for the current product and quarter
+      setAllProductsData(prevData => ({
+        ...prevData,
+        [currentProduct]: {
+          ...prevData[currentProduct],
+          [currentQuarter]: mergedData
+        }
+      }));
+      
+    } catch (err) {
+      if (err instanceof CSVError) {
+        setError(err);
+      } else {
+        setError(new CSVError(
+          'An unexpected error occurred',
+          'application',
+          [(err as Error)?.message || 'Please try again or contact support']
+        ));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Function to update dashboard data
   const updateDashboardData = async (data: DashboardData): Promise<void> => {
     setIsLoading(true);
@@ -569,6 +655,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCurrentProduct,
     setCurrentQuarter,
     uploadCSV,
+    uploadCSVWithMapping,
     uploadProductQuarterlyCSV,
     updateDashboardData,
     fetchProductQuarterlyData,
