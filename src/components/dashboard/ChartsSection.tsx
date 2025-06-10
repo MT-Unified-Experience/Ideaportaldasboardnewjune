@@ -38,9 +38,9 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({
         </div>
       )}
 
-      {/* Cross-Client Collaboration Trend, Client Submissions, and Data Socialization in Same Row */}
-      {(showCollaborationTrend || widgetSettings.clientSubmissions || widgetSettings.dataSocialization) && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-6 w-full">
+      {/* Cross-Client Collaboration Trend and Client Submissions */}
+      {(showCollaborationTrend || widgetSettings.clientSubmissions) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-6 w-full">
           {/* Cross-Client Collaboration Trend */}
           {showCollaborationTrend && (
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 lg:col-span-1">
@@ -56,13 +56,6 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({
           {widgetSettings.clientSubmissions && (
             <div className="lg:col-span-1">
               <LineChart data={lineChartData} />
-            </div>
-          )}
-          
-          {/* Data Socialization Forums */}
-          {widgetSettings.dataSocialization && (
-            <div className="lg:col-span-1">
-              <DataSocializationCard />
             </div>
           )}
         </div>
