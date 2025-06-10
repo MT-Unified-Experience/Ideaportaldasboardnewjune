@@ -190,15 +190,6 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
           )}
         </div>
       )}
-      {/* Cross-Client Collaboration Trend Chart */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-        <CrossClientCollaborationTrend
-          isOpen={true}
-          onClose={() => {}}
-          embedded={true}
-        />
-      </div>
-
       {/* Charts Row */}
       {(widgetSettings.ideaDistribution || widgetSettings.clientSubmissions) && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -206,6 +197,17 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ data, currentQuart
         </div>
       )}
       
+      {/* Cross-Client Collaboration Trend Chart */}
+      {widgetSettings.collaboration && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+          <CrossClientCollaborationTrend
+            isOpen={true}
+            onClose={() => {}}
+            embedded={true}
+          />
+        </div>
+      )}
+
       {/* Bottom Row - Features and Forums */}
       {(widgetSettings.topFeatures || widgetSettings.dataSocialization) && (
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
