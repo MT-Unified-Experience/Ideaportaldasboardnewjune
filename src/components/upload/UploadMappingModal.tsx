@@ -90,3 +90,5 @@ export const CsvUploader: React.FC = () => {
     </div>
   );
 };
+
+export default UploadMappingModal
