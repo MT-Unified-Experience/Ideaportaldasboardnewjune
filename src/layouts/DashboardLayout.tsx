@@ -7,9 +7,10 @@ import QuarterTabs from '../components/navigation/QuarterTabs';
 import DashboardManagement from '../components/dashboard/DashboardManagement';
 import { CsvUploader } from '../components/upload/CsvUploader';
 import { DashboardGrid } from '../components/dashboard';
-import { BarChart2, Edit, ListTodo, Settings } from 'lucide-react';
+import { BarChart2, Edit, ListTodo, Settings, TestTube } from 'lucide-react';
 import ShareButton from '../components/common/ShareButton';
 import SettingsModal from '../components/common/SettingsModal';
+import DataValidationPanel from '../components/testing/DataValidationPanel';
 
 interface WidgetSettings {
   responsiveness: boolean;
@@ -59,6 +60,7 @@ const DashboardLayout: React.FC = () => {
   const [isActionItemsOpen, setIsActionItemsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [widgetSettings, setWidgetSettings] = useState<WidgetSettings>(getStoredSettings);
+  const [isValidationOpen, setIsValidationOpen] = useState(false);
 
   // Load settings from localStorage on component mount
   useEffect(() => {
@@ -89,6 +91,13 @@ const DashboardLayout: React.FC = () => {
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
+              </button>
+              <button
+                onClick={() => setIsValidationOpen(true)}
+                className="inline-flex items-center px-3 py-2 bg-white text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 border border-gray-200"
+              >
+                <TestTube className="h-4 w-4 mr-2" />
+                Test Data
               </button>
               <ShareButton />
             </div>
@@ -164,6 +173,11 @@ const DashboardLayout: React.FC = () => {
           onClose={() => setIsSettingsOpen(false)}
           widgetSettings={widgetSettings}
           onSettingsChange={handleSettingsChange}
+        />
+
+        <DataValidationPanel
+          isOpen={isValidationOpen}
+          onClose={() => setIsValidationOpen(false)}
         />
 
       </main>
