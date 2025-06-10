@@ -57,7 +57,8 @@ const defaultDashboardData: DashboardData = {
     flaggedForFuture: 0
   })),
   lineChartData: [],
-  topFeatures: []
+  topFeatures: [],
+  collaborationTrendData: []
 };
 
 // Helper function to create a default error object
@@ -352,6 +353,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             },
             lineChartData: fetchedData.lineChartData || [...defaultDashboardData.lineChartData],
             topFeatures: fetchedData.topFeatures || [...defaultDashboardData.topFeatures],
+            collaborationTrendData: fetchedData.collaborationTrendData || [...defaultDashboardData.collaborationTrendData],
             data_socialization_forums: fetchedData.data_socialization_forums || [
               { name: 'CSC' },
               { name: 'Sprint Reviews' },
@@ -456,7 +458,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           parsedData.stackedBarData || []
         ),
         lineChartData: parsedData.lineChartData || defaultDashboardData.lineChartData,
-        topFeatures: parsedData.topFeatures || defaultDashboardData.topFeatures
+        topFeatures: parsedData.topFeatures || defaultDashboardData.topFeatures,
+        collaborationTrendData: parsedData.collaborationTrendData || defaultDashboardData.collaborationTrendData
       };
 
       // Log the merged data for debugging
@@ -541,6 +544,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         stackedBarData: [...(data.stackedBarData || defaultDashboardData.stackedBarData)],
         lineChartData: [...(data.lineChartData || defaultDashboardData.lineChartData)],
         topFeatures: [...(data.topFeatures || defaultDashboardData.topFeatures)],
+        collaborationTrendData: [...(data.collaborationTrendData || defaultDashboardData.collaborationTrendData)],
         data_socialization_forums: data.data_socialization_forums || []
       };
 

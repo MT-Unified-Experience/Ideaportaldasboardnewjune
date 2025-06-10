@@ -37,17 +37,43 @@ interface CrossClientCollaborationTrendProps {
   isOpen: boolean;
   onClose: () => void;
   embedded?: boolean;
+  collaborationTrendData?: Array<{
+    quarter: string;
+    year: number;
+    collaborativeIdeas: number;
+    totalIdeas: number;
+    collaborationRate: number;
+  }>;
 }
 
 const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps> = ({
   isOpen,
   onClose,
   embedded = false,
+  collaborationTrendData = []
 }) => {
   const [selectedDataPoint, setSelectedDataPoint] = useState<QuarterlyCollaborationData | null>(null);
 
   // Generate comprehensive quarterly data for the past 8 quarters
   const generateQuarterlyData = (): QuarterlyCollaborationData[] => {
+    // If we have collaboration trend data from CSV, use it
+    if (collaborationTrendData.length > 0) {
+      return collaborationTrendData.map((item, index) => ({
+        quarter: item.quarter,
+        year: item.year,
+        collaborativeIdeas: item.collaborativeIdeas,
+        totalIdeas: item.totalIdeas,
+        collaborationRate: item.collaborationRate,
+        significantChange: index > 0 ? Math.abs(item.collaborationRate - collaborationTrendData[index - 1].collaborationRate) >= 8 : false,
+        changeDirection: index > 0 ? 
+          (item.collaborationRate > collaborationTrendData[index - 1].collaborationRate ? 'up' : 
+           item.collaborationRate < collaborationTrendData[index - 1].collaborationRate ? 'down' : 'stable') : 'stable',
+        changePercentage: index > 0 ? item.collaborationRate - collaborationTrendData[index - 1].collaborationRate : 0,
+        topCollaborativeIdeas: [] // Keep empty for now as this detailed data isn't in CSV
+      }));
+    }
+
+    // Fallback to generated data if no CSV data available
     const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
     
     const currentDate = new Date();
