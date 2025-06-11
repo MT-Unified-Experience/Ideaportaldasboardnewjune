@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, X, HelpCircle, Upload } from 'lucide-react';
+import { TrendingUp, X, HelpCircle, Upload, Users } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -9,7 +9,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { X, Users, HelpCircle } from 'lucide-react';
 import { LineChartData, Feature } from '../../types';
 import { useData } from '../../contexts/DataContext';
 
