@@ -597,96 +597,218 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
               {/* Features Tab */}
               {activeTab === 'features' && (
                 <div className="space-y-6">
-                  {Array.from({ length: 10 }).map((_, index) => {
-                    const feature = formData.topFeatures[index] || {
-                      feature_name: '',
-                      vote_count: 0,
-                      status: 'Under Review' as const,
-                      status_updated_at: new Date().toISOString(),
-                      client_voters: []
-                    };
-                    return (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="text-sm font-medium text-gray-700 mb-4">
-                        Feature #{index + 1}
-                      </h4>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Feature Name
-                          </label>
-                          <input
-                            type="text"
-                            value={feature.feature_name}
-                            onChange={(e) => {
-                              const newFeatures = [...formData.topFeatures];
-                              newFeatures[index] = { ...feature, feature_name: e.target.value };
-                              setFormData({ ...formData, topFeatures: newFeatures });
-                            }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Vote Count
-                            </label>
-                            <input
-                              type="number"
-                              value={feature.vote_count}
-                              onChange={(e) => {
-                                const newFeatures = [...formData.topFeatures];
-                                newFeatures[index] = { ...feature, vote_count: Number(e.target.value) };
-                                setFormData({ ...formData, topFeatures: newFeatures });
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Status
-                            </label>
-                            <select
-                              value={feature.status}
-                              onChange={(e) => {
-                                const newFeatures = [...formData.topFeatures];
-                                newFeatures[index] = { 
-                                  ...feature, 
-                                  status: e.target.value as 'Delivered' | 'Under Review' | 'Committed'
-                                };
-                                setFormData({ ...formData, topFeatures: newFeatures });
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            >
-                              <option value="Under Review">Under Review</option>
-                              <option value="Committed">Committed</option>
-                              <option value="Delivered">Delivered</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Contributing Clients (separate with semicolon)
-                          </label>
-                          <input
-                            type="text"
-                            value={feature.client_voters.join('; ')}
-                            onChange={(e) => {
-                              const newFeatures = [...formData.topFeatures];
-                              newFeatures[index] = {
-                                ...feature,
-                                client_voters: e.target.value.split(';').map(s => s.trim()).filter(Boolean)
-                              };
-                              setFormData({ ...formData, topFeatures: newFeatures });
-                            }}
-                            placeholder="Client A; Client B; Client C"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                          />
-                        </div>
-                      </div>
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-6">
+                    <h4 className="text-md font-medium text-blue-900 mb-2">Top 10 Requested Features</h4>
+                    <p className="text-sm text-blue-700">
+                      Manage the top requested features for Q3 and Q4. These features will be displayed in the quarterly trends comparison chart.
+                    </p>
+                  </div>
+
+                  {/* Q3 Features */}
+                  <div className="space-y-4">
+                    <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                      <h4 className="text-lg font-medium text-purple-900 mb-2">Q3 Features (Previous Quarter)</h4>
+                      <p className="text-sm text-purple-700 mb-4">
+                        Features from the previous quarter for comparison analysis
+                      </p>
                     </div>
-                    );
-                  })}
+                    
+                    {Array.from({ length: 5 }).map((_, index) => {
+                      const feature = (formData.previousQuarterFeatures || [])[index] || {
+                        feature_name: '',
+                        vote_count: 0,
+                        status: 'Under Review' as const,
+                        status_updated_at: new Date().toISOString(),
+                        client_voters: []
+                      };
+                      return (
+                        <div key={`q3-${index}`} className="bg-purple-25 border border-purple-200 p-4 rounded-lg">
+                          <h5 className="text-sm font-medium text-gray-700 mb-4">
+                            Q3 Feature #{index + 1}
+                          </h5>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Feature Name
+                              </label>
+                              <input
+                                type="text"
+                                value={feature.feature_name}
+                                onChange={(e) => {
+                                  const newFeatures = [...(formData.previousQuarterFeatures || [])];
+                                  newFeatures[index] = { ...feature, feature_name: e.target.value };
+                                  setFormData({ ...formData, previousQuarterFeatures: newFeatures });
+                                }}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                placeholder="Enter Q3 feature name"
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  Q3 Vote Count
+                                </label>
+                                <input
+                                  type="number"
+                                  value={feature.vote_count}
+                                  onChange={(e) => {
+                                    const newFeatures = [...(formData.previousQuarterFeatures || [])];
+                                    newFeatures[index] = { ...feature, vote_count: Number(e.target.value) };
+                                    setFormData({ ...formData, previousQuarterFeatures: newFeatures });
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                  placeholder="0"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  Status
+                                </label>
+                                <select
+                                  value={feature.status}
+                                  onChange={(e) => {
+                                    const newFeatures = [...(formData.previousQuarterFeatures || [])];
+                                    newFeatures[index] = { 
+                                      ...feature, 
+                                      status: e.target.value as 'Delivered' | 'Under Review' | 'Committed'
+                                    };
+                                    setFormData({ ...formData, previousQuarterFeatures: newFeatures });
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                >
+                                  <option value="Under Review">Under Review</option>
+                                  <option value="Committed">Committed</option>
+                                  <option value="Delivered">Delivered</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Contributing Clients (separate with semicolon)
+                              </label>
+                              <input
+                                type="text"
+                                value={feature.client_voters.join('; ')}
+                                onChange={(e) => {
+                                  const newFeatures = [...(formData.previousQuarterFeatures || [])];
+                                  newFeatures[index] = {
+                                    ...feature,
+                                    client_voters: e.target.value.split(';').map(s => s.trim()).filter(Boolean)
+                                  };
+                                  setFormData({ ...formData, previousQuarterFeatures: newFeatures });
+                                }}
+                                placeholder="Client A; Client B; Client C"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Q4 Features */}
+                  <div className="space-y-4">
+                    <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                      <h4 className="text-lg font-medium text-green-900 mb-2">Q4 Features (Current Quarter)</h4>
+                      <p className="text-sm text-green-700 mb-4">
+                        Features from the current quarter for trend analysis
+                      </p>
+                    </div>
+                    
+                    {Array.from({ length: 5 }).map((_, index) => {
+                      const feature = formData.topFeatures[index] || {
+                        feature_name: '',
+                        vote_count: 0,
+                        status: 'Under Review' as const,
+                        status_updated_at: new Date().toISOString(),
+                        client_voters: []
+                      };
+                      return (
+                        <div key={`q4-${index}`} className="bg-green-25 border border-green-200 p-4 rounded-lg">
+                          <h5 className="text-sm font-medium text-gray-700 mb-4">
+                            Q4 Feature #{index + 1}
+                          </h5>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Feature Name
+                              </label>
+                              <input
+                                type="text"
+                                value={feature.feature_name}
+                                onChange={(e) => {
+                                  const newFeatures = [...formData.topFeatures];
+                                  newFeatures[index] = { ...feature, feature_name: e.target.value };
+                                  setFormData({ ...formData, topFeatures: newFeatures });
+                                }}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                placeholder="Enter Q4 feature name"
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  Q4 Vote Count
+                                </label>
+                                <input
+                                  type="number"
+                                  value={feature.vote_count}
+                                  onChange={(e) => {
+                                    const newFeatures = [...formData.topFeatures];
+                                    newFeatures[index] = { ...feature, vote_count: Number(e.target.value) };
+                                    setFormData({ ...formData, topFeatures: newFeatures });
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                  placeholder="0"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  Status
+                                </label>
+                                <select
+                                  value={feature.status}
+                                  onChange={(e) => {
+                                    const newFeatures = [...formData.topFeatures];
+                                    newFeatures[index] = { 
+                                      ...feature, 
+                                      status: e.target.value as 'Delivered' | 'Under Review' | 'Committed'
+                                    };
+                                    setFormData({ ...formData, topFeatures: newFeatures });
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                >
+                                  <option value="Under Review">Under Review</option>
+                                  <option value="Committed">Committed</option>
+                                  <option value="Delivered">Delivered</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Contributing Clients (separate with semicolon)
+                              </label>
+                              <input
+                                type="text"
+                                value={feature.client_voters.join('; ')}
+                                onChange={(e) => {
+                                  const newFeatures = [...formData.topFeatures];
+                                  newFeatures[index] = {
+                                    ...feature,
+                                    client_voters: e.target.value.split(';').map(s => s.trim()).filter(Boolean)
+                                  };
+                                  setFormData({ ...formData, topFeatures: newFeatures });
+                                }}
+                                placeholder="Client A; Client B; Client C"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
