@@ -955,3 +955,5 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
     });
   });
 };
+
+export { parseCSV, validateCSVHeaders, CSVError, parseTopFeaturesCSV, topFeaturesRequiredHeaders, parseResponsivenessTrendCSV, responsivenessTrendRequiredHeaders, parseCommitmentTrendsCSV, commitmentTrendsRequiredHeaders }
