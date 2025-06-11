@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Briefcase, X, HelpCircle } from 'lucide-react';
+import { Briefcase, X, HelpCircle, Upload } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -10,6 +10,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+
+import { useData } from '../../contexts/DataContext';
 
 interface CommitmentTrendsCardProps {
   value: { committed: number; total: number };
@@ -38,6 +40,8 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
     label: string;
     ideas: Array<{ id: string; summary: string }>;
   } | null>(null);
+  const { uploadCommitmentTrendsCSV, isLoading } = useData();
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
   // Generate default data if none provided
   const defaultCommitmentTrends = [
@@ -125,6 +129,27 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
         label: `${quarterLabel} Delivered Ideas`,
         ideas: generateIdeasForDataPoint('quarterly', quarterLabel, delivered)
       });
+    }
+  };
+
+  // Handle commitment trends CSV upload
+  const handleCommitmentTrendsUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadStatus('Uploading...');
+      await uploadCommitmentTrendsCSV(file);
+      setUploadStatus('Upload successful!');
+      
+      // Clear the file input
+      event.target.value = '';
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setUploadStatus(null), 3000);
+    } catch (error) {
+      setUploadStatus('Upload failed. Please check the file format.');
+      setTimeout(() => setUploadStatus(null), 5000);
     }
   };
 
@@ -220,6 +245,52 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                 </div>
 
                 <div className="space-y-6 max-h-[80vh] overflow-y-auto">
+                  {/* CSV Upload Section */}
+                  <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                    <h4 className="text-md font-medium text-purple-900 mb-2">Upload Commitment Trends CSV</h4>
+                    <p className="text-sm text-purple-700 mb-3">
+                      Upload a CSV file containing annual commitment and delivery data with columns: year, committed, delivered, quarter (optional), quarterly_delivered (optional).
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="file"
+                        accept=".csv"
+                        onChange={handleCommitmentTrendsUpload}
+                        className="hidden"
+                        id="commitment-trends-csv-upload"
+                        disabled={isLoading}
+                      />
+                      <label
+                        htmlFor="commitment-trends-csv-upload"
+                        className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                          isLoading 
+                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                            : 'bg-purple-600 text-white hover:bg-purple-700'
+                        }`}
+                      >
+                        <Upload className="h-4 w-4 mr-2" />
+                        {isLoading ? 'Uploading...' : 'Upload Commitment CSV'}
+                      </label>
+                      {uploadStatus && (
+                        <span className={`text-sm ${
+                          uploadStatus.includes('successful') ? 'text-green-600' : 
+                          uploadStatus.includes('failed') ? 'text-red-600' : 'text-purple-600'
+                        }`}>
+                          {uploadStatus}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-2 text-xs text-purple-600">
+                      <a 
+                        href="data:text/csv;charset=utf-8,year,committed,delivered,quarter,quarterly_delivered%0A2020,45,42,Q1,12%0A2021,52,48,Q2,15%0A2022,48,45,Q3,13%0A2023,55,52,Q4,12%0A2024,60,57,Q1,14"
+                        download="commitment_trends_template.csv"
+                        className="hover:underline"
+                      >
+                        Download sample CSV template
+                      </a>
+                    </div>
+                  </div>
+
                   {/* Current Status Summary */}
                   <div className="bg-purple-50 rounded-lg p-6">
                     <div className="grid grid-cols-3 gap-4">
