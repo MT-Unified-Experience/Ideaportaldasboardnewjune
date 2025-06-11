@@ -920,3 +920,12 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
 
             const clients = row.client_names ? 
               row.client_names.split(',').map
+          }
+          )
+        }
+      }
+    }
+    )
+  }
+  )
+}
