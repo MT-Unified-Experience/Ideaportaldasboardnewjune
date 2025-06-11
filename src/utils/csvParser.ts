@@ -55,6 +55,13 @@ export const continuedEngagementRequiredHeaders = [
   // Optional: idea_id, idea_name, initial_status_change, subsequent_changes, days_between, included
 ];
 
+// Required headers for client submissions CSV validation
+export const clientSubmissionsRequiredHeaders = [
+  'quarter',
+  'clients_representing',
+  'client_names' // Optional: comma-separated list of client names
+];
+
 interface ResponsivenessTrendCSVRow {
   quarter: string;
   percentage: string;
@@ -93,6 +100,12 @@ interface ContinuedEngagementCSVRow {
   included?: string;
 }
 
+interface ClientSubmissionsCSVRow {
+  quarter: string;
+  clients_representing: string;
+  client_names?: string;
+}
+
 interface CommitmentTrendsData {
   commitmentTrends: Array<{
     year: string;
@@ -123,6 +136,14 @@ interface ContinuedEngagementData {
     }>;
     daysBetween: number;
     included: boolean;
+  }>;
+}
+
+interface ClientSubmissionsData {
+  lineChartData: Array<{
+    quarter: string;
+    clientsRepresenting: number;
+    clients?: string[];
   }>;
 }
 
@@ -775,7 +796,7 @@ export const parseContinuedEngagementCSV = (csvData: string): Promise<ContinuedE
             subsequentChanges: Array<{
               date: string;
               status: string;
-    }>;
+            }>;
             daysBetween: number;
             included: boolean;
           }> = [];
@@ -865,3 +886,37 @@ export const parseContinuedEngagementCSV = (csvData: string): Promise<ContinuedE
     });
   });
 };
+
+// Function to parse client submissions CSV data
+export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmissionsData> => {
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvData, {
+      header: true,
+      dynamicTyping: false,
+      skipEmptyLines: true,
+      complete: (results) => {
+        try {
+          // Validate data structure
+          if (!Array.isArray(results.data) || results.data.length === 0) {
+            throw new CSVError(
+              'Invalid data structure',
+              'data',
+              ['The CSV file must contain at least one row of data']
+            );
+          }
+
+          const rows = results.data as ClientSubmissionsCSVRow[];
+          const lineChartData: Array<{
+            quarter: string;
+            clientsRepresenting: number;
+            clients?: string[];
+          }> = [];
+
+          rows.forEach(row => {
+            // Validate required fields
+            if (!row.quarter || !row.clients_representing) {
+              return; // Skip invalid rows
+            }
+
+            const clients = row.client_names ? 
+              row.client_names.split(',').map

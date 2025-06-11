@@ -24,6 +24,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({
   widgetSettings
 }) => {
   const { dashboardData, updateDashboardData, uploadTopFeaturesCSV, currentProduct, currentQuarter, isLoading } = useData();
+  const { uploadClientSubmissionsCSV } = useData();
   const [activeTab, setActiveTab] = useState('metrics');
   const [activeSubTab, setActiveSubTab] = useState('current');
   const [isLocalLoading, setIsLocalLoading] = useState(false);
@@ -66,6 +67,27 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({
     try {
       setUploadStatus('Uploading...');
       await uploadTopFeaturesCSV(file);
+      setUploadStatus('Upload successful!');
+      
+      // Clear the file input
+      event.target.value = '';
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setUploadStatus(null), 3000);
+    } catch (error) {
+      setUploadStatus('Upload failed. Please check the file format.');
+      setTimeout(() => setUploadStatus(null), 5000);
+    }
+  };
+
+  // Handle client submissions CSV upload
+  const handleClientSubmissionsUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadStatus('Uploading...');
+      await uploadClientSubmissionsCSV(file);
       setUploadStatus('Upload successful!');
       
       // Clear the file input
@@ -476,6 +498,52 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({
             {/* Client Submissions Tab */}
             {activeTab === 'submissions' && (
               <div className="space-y-6">
+                {/* CSV Upload Section */}
+                <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                  <h4 className="text-md font-medium text-purple-900 mb-2">Upload Client Submissions CSV</h4>
+                  <p className="text-sm text-purple-700 mb-3">
+                    Upload a CSV file containing quarterly client submission data with columns: quarter, clients_representing, client_names (optional).
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleClientSubmissionsUpload}
+                      className="hidden"
+                      id="client-submissions-csv-upload"
+                      disabled={isLoading}
+                    />
+                    <label
+                      htmlFor="client-submissions-csv-upload"
+                      className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                        isLoading 
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                          : 'bg-purple-600 text-white hover:bg-purple-700'
+                      }`}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {isLoading ? 'Uploading...' : 'Upload Client Submissions CSV'}
+                    </label>
+                    {uploadStatus && (
+                      <span className={`text-sm ${
+                        uploadStatus.includes('successful') ? 'text-green-600' : 
+                        uploadStatus.includes('failed') ? 'text-red-600' : 'text-purple-600'
+                      }`}>
+                        {uploadStatus}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-2 text-xs text-purple-600">
+                    <a 
+                      href="data:text/csv;charset=utf-8,quarter,clients_representing,client_names%0AFY25%20Q1,8,%22Client%20A,Client%20B,Client%20C,Client%20D,Client%20E,Client%20F,Client%20G,Client%20H%22%0AFY25%20Q2,10,%22Client%20A,Client%20B,Client%20C,Client%20D,Client%20E,Client%20F,Client%20G,Client%20H,Client%20I,Client%20J%22%0AFY25%20Q3,12,%22Client%20A,Client%20B,Client%20C,Client%20D,Client%20E,Client%20F,Client%20G,Client%20H,Client%20I,Client%20J,Client%20K,Client%20L%22%0AFY25%20Q4,15,%22Client%20A,Client%20B,Client%20C,Client%20D,Client%20E,Client%20F,Client%20G,Client%20H,Client%20I,Client%20J,Client%20K,Client%20L,Client%20M,Client%20N,Client%20O%22"
+                      download="client_submissions_template.csv"
+                      className="hover:underline"
+                    >
+                      Download sample CSV template
+                    </a>
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-medium text-gray-900">Client Submissions by Quarter</h3>
                   <button

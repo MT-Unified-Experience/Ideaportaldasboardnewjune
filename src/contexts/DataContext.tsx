@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { DashboardData, Product, Quarter, ProductData, ProductQuarterlyData } from '../types';
 import { parseCSV, validateCSVHeaders, CSVError, parseTopFeaturesCSV, topFeaturesRequiredHeaders, parseResponsivenessTrendCSV, responsivenessTrendRequiredHeaders, parseCommitmentTrendsCSV, commitmentTrendsRequiredHeaders } from '../utils/csvParser';
-import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders } from '../utils/csvParser';
+import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders, parseClientSubmissionsCSV, clientSubmissionsRequiredHeaders } from '../utils/csvParser';
 import { supabase, checkSupabaseConnection } from '../utils/supabaseClient';
 import { useEffect, useMemo } from 'react';
 
@@ -21,6 +21,7 @@ interface DataContextType {
   uploadResponsivenessTrendCSV: (file: File) => Promise<void>;
   uploadCommitmentTrendsCSV: (file: File) => Promise<void>;
   uploadContinuedEngagementCSV: (file: File) => Promise<void>;
+  uploadClientSubmissionsCSV: (file: File) => Promise<void>;
   fetchProductQuarterlyData: (filters?: { product_id?: string; product_name?: string; quarter?: string; year?: string; page?: number; limit?: number; orderBy?: string; orderDirection?: 'asc' | 'desc'; }) => Promise<ProductQuarterlyData[]>;
   updateDashboardData: (data: DashboardData) => Promise<void>;
   isLoading: boolean;
@@ -523,6 +524,76 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Function to handle client submissions CSV upload
+  const uploadClientSubmissionsCSV = async (file: File): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Check if file is CSV
+      if (!file.name.endsWith('.csv')) {
+        throw new CSVError(
+          'Invalid file format',
+          'file',
+          ['Only CSV files are supported', 'Please upload a file with .csv extension']
+        );
+      }
+      
+      // Read file contents
+      const fileContent = await file.text();
+      
+      // Validate CSV headers
+      await validateCSVHeaders(fileContent, clientSubmissionsRequiredHeaders);
+      
+      // Parse client submissions CSV data
+      const submissionsData = await parseClientSubmissionsCSV(fileContent);
+      
+      // Get current dashboard data
+      const currentData = allProductsData[currentProduct]?.[currentQuarter] || defaultDashboardData;
+      
+      // Update the line chart data
+      const updatedData: DashboardData = {
+        ...currentData,
+        lineChartData: submissionsData.lineChartData
+      };
+
+      // Store data in Supabase
+      const { error: upsertError } = await supabase
+        .from('dashboards')
+        .upsert({
+          product: currentProduct,
+          quarter: currentQuarter,
+          data: updatedData
+        }, {
+          onConflict: 'product,quarter'
+        });
+      
+      if (upsertError) throw upsertError;
+      
+      // Update local state
+      setAllProductsData(prevData => ({
+        ...prevData,
+        [currentProduct]: {
+          ...prevData[currentProduct],
+          [currentQuarter]: updatedData
+        }
+      }));
+      
+    } catch (err) {
+      if (err instanceof CSVError) {
+        setError(err);
+      } else {
+        setError(new CSVError(
+          'An unexpected error occurred while uploading client submissions data',
+          'application',
+          [(err as Error)?.message || 'Please try again or contact support']
+        ));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Function to fetch product quarterly data with filters
   const fetchProductQuarterlyData = async (filters?: {
     product_id?: string;
@@ -871,6 +942,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     uploadResponsivenessTrendCSV,
     uploadCommitmentTrendsCSV,
     uploadContinuedEngagementCSV,
+    uploadClientSubmissionsCSV,
     updateDashboardData,
     fetchProductQuarterlyData,
     isLoading,
