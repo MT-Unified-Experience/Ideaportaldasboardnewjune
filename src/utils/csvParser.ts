@@ -38,6 +38,14 @@ export const responsivenessTrendRequiredHeaders = [
   'ideas_list' // Optional: comma-separated list of idea names
 ];
 
+// Required headers for commitment trends CSV validation
+export const commitmentTrendsRequiredHeaders = [
+  'year',
+  'committed',
+  'delivered'
+  // Optional: quarter, quarterly_delivered
+];
+
 interface ResponsivenessTrendCSVRow {
   quarter: string;
   percentage: string;
@@ -53,6 +61,27 @@ interface FeatureCSVRow {
   status_updated_at: string;
   client_voters: string;
   feature_quarter: string; // 'current' or 'previous'
+}
+
+interface CommitmentTrendsCSVRow {
+  year: string;
+  committed: string;
+  delivered: string;
+  quarter?: string;
+  quarterly_delivered?: string;
+}
+
+interface CommitmentTrendsData {
+  commitmentTrends: Array<{
+    year: string;
+    committed: number;
+    delivered: number;
+  }>;
+  quarterlyDeliveries: Array<{
+    quarter: string;
+    year: string;
+    delivered: number;
+  }>;
 }
 
 interface TopFeaturesData {
@@ -550,6 +579,113 @@ export const parseResponsivenessTrendCSV = (csvData: string): Promise<Array<{
           });
 
           resolve(responsivenessData);
+        } catch (error) {
+          reject(error);
+        }
+      },
+      error: (error) => {
+        reject(new CSVError(
+          'Failed to parse CSV file',
+          'file',
+          [error.message]
+        ));
+      }
+    });
+  });
+};
+
+// Function to parse commitment trends CSV data
+export const parseCommitmentTrendsCSV = (csvData: string): Promise<CommitmentTrendsData> => {
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvData, {
+      header: true,
+      dynamicTyping: false,
+      skipEmptyLines: true,
+      complete: (results) => {
+        try {
+          // Validate data structure
+          if (!Array.isArray(results.data) || results.data.length === 0) {
+            throw new CSVError(
+              'Invalid data structure',
+              'data',
+              ['The CSV file must contain at least one row of data']
+            );
+          }
+
+          const rows = results.data as CommitmentTrendsCSVRow[];
+          const commitmentTrends: Array<{
+            year: string;
+            committed: number;
+            delivered: number;
+          }> = [];
+          const quarterlyDeliveries: Array<{
+            quarter: string;
+            year: string;
+            delivered: number;
+          }> = [];
+
+          rows.forEach(row => {
+            // Validate required fields for annual data
+            if (!row.year || !row.committed || !row.delivered) {
+              return; // Skip invalid rows
+            }
+
+            // Add annual commitment data
+            const annualData = {
+              year: row.year.trim(),
+              committed: safeNumberConversion(row.committed),
+              delivered: safeNumberConversion(row.delivered)
+            };
+
+            // Check if this year already exists
+            const existingIndex = commitmentTrends.findIndex(item => item.year === annualData.year);
+            if (existingIndex === -1) {
+              commitmentTrends.push(annualData);
+            } else {
+              // Update existing entry
+              commitmentTrends[existingIndex] = annualData;
+            }
+
+            // Add quarterly data if available
+            if (row.quarter && row.quarterly_delivered) {
+              const quarterlyData = {
+                quarter: row.quarter.trim(),
+                year: row.year.trim(),
+                delivered: safeNumberConversion(row.quarterly_delivered)
+              };
+
+              // Check if this quarter-year combination already exists
+              const existingQuarterIndex = quarterlyDeliveries.findIndex(
+                item => item.quarter === quarterlyData.quarter && item.year === quarterlyData.year
+              );
+              if (existingQuarterIndex === -1) {
+                quarterlyDeliveries.push(quarterlyData);
+              } else {
+                // Update existing entry
+                quarterlyDeliveries[existingQuarterIndex] = quarterlyData;
+              }
+            }
+          });
+
+          // Sort by year
+          commitmentTrends.sort((a, b) => parseInt(a.year) - parseInt(b.year));
+          
+          // Sort quarterly data by year and quarter
+          quarterlyDeliveries.sort((a, b) => {
+            const yearDiff = parseInt(a.year) - parseInt(b.year);
+            if (yearDiff !== 0) return yearDiff;
+            
+            const getQuarterNum = (quarter: string) => {
+              const match = quarter.match(/Q(\d+)/);
+              return match ? parseInt(match[1]) : 0;
+            };
+            return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
+          });
+
+          resolve({
+            commitmentTrends,
+            quarterlyDeliveries
+          });
         } catch (error) {
           reject(error);
         }
