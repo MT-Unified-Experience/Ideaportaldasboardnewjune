@@ -10,7 +10,6 @@ export { default as ResponsivenessCard } from './ResponsivenessCard';
 export { default as CommitmentTrendsCard } from './CommitmentTrendsCard';
 export { default as ContinuedEngagementCard } from './ContinuedEngagementCard';
 export { default as CrossClientCollaborationTrend } from './CrossClientCollaborationTrend';
-export { default as HorizontalStackedBarChart } from './HorizontalStackedBarChart';
 export { default as LineChart } from './LineChart';
 export { TopFeaturesChart } from './TopFeaturesChart';
 export { default as DataSocializationCard } from './DataSocializationCard';
