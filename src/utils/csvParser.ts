@@ -19,6 +19,30 @@ const requiredHeaders = [
   'status_updated_at', 'client_voters'
 ];
 
+// Required headers for top features CSV validation
+export const topFeaturesRequiredHeaders = [
+  'feature_name',
+  'vote_count', 
+  'status',
+  'status_updated_at',
+  'client_voters',
+  'feature_quarter' // To distinguish between current and previous quarter
+];
+
+interface FeatureCSVRow {
+  feature_name: string;
+  vote_count: string;
+  status: string;
+  status_updated_at: string;
+  client_voters: string;
+  feature_quarter: string; // 'current' or 'previous'
+}
+
+interface TopFeaturesData {
+  currentQuarterFeatures: Feature[];
+  previousQuarterFeatures: Feature[];
+}
+
 interface CSVRow {
   product: string;
   quarter: string;
@@ -377,4 +401,72 @@ const transformCSVData = (data: CSVRow[]): DashboardData => {
     collaborationTrendData,
     data_socialization_forums: forums
   };
+};
+
+// Function to parse top features CSV data
+export const parseTopFeaturesCSV = (csvData: string): Promise<TopFeaturesData> => {
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvData, {
+      header: true,
+      dynamicTyping: false,
+      skipEmptyLines: true,
+      complete: (results) => {
+        try {
+          // Validate data structure
+          if (!Array.isArray(results.data) || results.data.length === 0) {
+            throw new CSVError(
+              'Invalid data structure',
+              'data',
+              ['The CSV file must contain at least one row of data']
+            );
+          }
+
+          const rows = results.data as FeatureCSVRow[];
+          const currentQuarterFeatures: Feature[] = [];
+          const previousQuarterFeatures: Feature[] = [];
+
+          rows.forEach(row => {
+            // Validate required fields
+            if (!row.feature_name || !row.vote_count || !row.status || !row.status_updated_at || !row.client_voters || !row.feature_quarter) {
+              return; // Skip invalid rows
+            }
+
+            const feature: Feature = {
+              feature_name: row.feature_name.trim(),
+              vote_count: safeNumberConversion(row.vote_count),
+              status: row.status.trim() as 'Delivered' | 'Under Review' | 'Committed',
+              status_updated_at: row.status_updated_at.trim(),
+              client_voters: row.client_voters.split(',').map(s => s.trim()).filter(s => s.length > 0)
+            };
+
+            // Categorize by quarter
+            const quarter = row.feature_quarter.trim().toLowerCase();
+            if (quarter === 'current' || quarter === 'q4') {
+              currentQuarterFeatures.push(feature);
+            } else if (quarter === 'previous' || quarter === 'q3') {
+              previousQuarterFeatures.push(feature);
+            }
+          });
+
+          // Sort by vote count (descending)
+          currentQuarterFeatures.sort((a, b) => b.vote_count - a.vote_count);
+          previousQuarterFeatures.sort((a, b) => b.vote_count - a.vote_count);
+
+          resolve({
+            currentQuarterFeatures,
+            previousQuarterFeatures
+          });
+        } catch (error) {
+          reject(error);
+        }
+      },
+      error: (error) => {
+        reject(new CSVError(
+          'Failed to parse CSV file',
+          'file',
+          [error.message]
+        ));
+      }
+    });
+  });
 };
