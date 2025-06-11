@@ -693,56 +693,100 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
               {/* Forums Tab */}
               {activeTab === 'forums' && (
                 <div className="space-y-6">
-                  {(formData.data_socialization_forums || [
-                    { name: 'CSC' },
-                    { name: 'Sprint Reviews' },
-                    { name: 'Customer Advisory Board (CAB)' },
-                    { name: 'CWG' },
-                    { name: 'Quarterly Product Reviews (QBRs)' }
-                  ]).map((forum, index) => (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Forum Name
-                        </label>
-                        <input
-                          type="text"
-                          value={forum.name}
-                          onChange={(e) => {
-                            const newForums = [...(formData.data_socialization_forums || [
-                              { name: 'CSC' },
-                              { name: 'Sprint Reviews' },
-                              { name: 'Customer Advisory Board (CAB)' },
-                              { name: 'CWG' },
-                              { name: 'Quarterly Product Reviews (QBRs)' }
-                            ])];
-                            newForums[index] = { 
-                              name: e.target.value 
-                            };
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-6">
+                    <h4 className="text-md font-medium text-blue-900 mb-2">Data Socialization Forums</h4>
+                    <p className="text-sm text-blue-700">
+                      Select which forums are actively used for data socialization and insights sharing. 
+                      Selected forums will show a checkmark (✓) on the dashboard, while unselected forums will show an X (✗).
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {[
+                      { name: 'CSC', description: 'Client Success Committee - Product Managers, Leadership, Client Success' },
+                      { name: 'Sprint Reviews', description: 'Product, Engineering, Design Teams - Share progress on idea implementation' },
+                      { name: 'Customer Advisory Board (CAB)', description: 'Strategic Clients, Product Leadership - Validate roadmap decisions' },
+                      { name: 'CWG', description: 'Client Working Group Members - Deep dive into specific feature requirements' },
+                      { name: 'Quarterly Product Reviews (QBRs)', description: 'Executive Leadership, Product Teams - Strategic product planning' }
+                    ].map((forumOption, index) => {
+                      const isSelected = (formData.data_socialization_forums || []).some(
+                        forum => forum.name === forumOption.name
+                      );
+                      
+                      return (
+                        <div
+                          key={index}
+                          className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                            isSelected 
+                              ? 'border-green-300 bg-green-50 hover:bg-green-100' 
+                              : 'border-gray-200 bg-white hover:bg-gray-50'
+                          }`}
+                          onClick={() => {
+                            const currentForums = formData.data_socialization_forums || [];
+                            let newForums;
+                            
+                            if (isSelected) {
+                              // Remove forum if currently selected
+                              newForums = currentForums.filter(forum => forum.name !== forumOption.name);
+                            } else {
+                              // Add forum if not currently selected
+                              newForums = [...currentForums, { name: forumOption.name }];
+                            }
+                            
                             setFormData({ ...formData, data_socialization_forums: newForums });
                           }}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        />
-                      </div>
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start space-x-3">
+                              <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                                isSelected 
+                                  ? 'border-green-500 bg-green-500' 
+                                  : 'border-gray-300 bg-white'
+                              }`}>
+                                {isSelected && (
+                                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                  </svg>
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <h5 className="text-sm font-medium text-gray-900 mb-1">
+                                  {forumOption.name}
+                                </h5>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                  {forumOption.description}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex-shrink-0 ml-4">
+                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                isSelected 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : 'bg-gray-100 text-gray-600'
+                              }`}>
+                                {isSelected ? 'Active' : 'Inactive'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h5 className="text-sm font-medium text-gray-900 mb-2">Selection Summary</h5>
+                    <div className="text-sm text-gray-600">
+                      <p className="mb-1">
+                        <span className="font-medium">
+                          {(formData.data_socialization_forums || []).length} of 5
+                        </span> forums selected for data socialization
+                      </p>
+                      <p className="text-xs">
+                        Selected forums will display with a checkmark (✓) on the dashboard card, 
+                        while unselected forums will show an X (✗).
+                      </p>
                     </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newForums = [...(formData.data_socialization_forums || [
-                        { name: 'CSC' },
-                        { name: 'Sprint Reviews' },
-                        { name: 'Customer Advisory Board (CAB)' },
-                        { name: 'CWG' },
-                        { name: 'Quarterly Product Reviews (QBRs)' }
-                      ])];
-                      newForums.push({ name: '' });
-                      setFormData({ ...formData, data_socialization_forums: newForums });
-                    }}
-                    className="w-full px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    Add Forum
-                  </button>
+                  </div>
                 </div>
               )}
 
