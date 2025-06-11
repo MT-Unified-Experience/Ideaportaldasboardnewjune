@@ -994,3 +994,5 @@ export const useData = (): DataContextType => {
 };
 
 export { DataProvider }
+
+export { useData }
