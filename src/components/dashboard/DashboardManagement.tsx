@@ -546,6 +546,52 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({
             {/* Top 10 Requested Features Tab */}
             {activeTab === 'features' && (
               <div className="space-y-6">
+                {/* CSV Upload Section - Outside of sub-tabs */}
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <h4 className="text-md font-medium text-blue-900 mb-2">Upload Features CSV</h4>
+                  <p className="text-sm text-blue-700 mb-3">
+                    Upload a CSV file containing both current and previous quarter features. The CSV should include a 'feature_quarter' column with values 'current' or 'previous'.
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleTopFeaturesUpload}
+                      className="hidden"
+                      id="top-features-csv-upload"
+                      disabled={isLoading}
+                    />
+                    <label
+                      htmlFor="top-features-csv-upload"
+                      className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                        isLoading 
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {isLoading ? 'Uploading...' : 'Upload Features CSV'}
+                    </label>
+                    {uploadStatus && (
+                      <span className={`text-sm ${
+                        uploadStatus.includes('successful') ? 'text-green-600' : 
+                        uploadStatus.includes('failed') ? 'text-red-600' : 'text-blue-600'
+                      }`}>
+                        {uploadStatus}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-2 text-xs text-blue-600">
+                    <a 
+                      href="data:text/csv;charset=utf-8,feature_name,vote_count,status,status_updated_at,client_voters,feature_quarter%0AAI%20Integration,35,Committed,2025-01-15,%22Client%20A,Client%20B,Client%20C%22,current%0AMobile%20App,25,Under%20Review,2025-02-01,%22Client%20D,Client%20E%22,current%0AReporting%20Tools,20,Delivered,2025-01-30,%22Client%20F,Client%20G%22,previous%0AAPI%20Enhancements,18,Under%20Review,2025-02-15,%22Client%20H,Client%20I%22,previous"
+                      download="top_features_template.csv"
+                      className="hover:underline"
+                    >
+                      Download sample CSV template
+                    </a>
+                  </div>
+                </div>
+
                 {/* Sub-tabs for Q3 and Q4 Features */}
                 <div className="border-b border-gray-200">
                   <nav className="-mb-px flex space-x-8">
@@ -582,51 +628,6 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({
                       </p>
                     </div>
 
-                    {/* CSV Upload Section */}
-                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <h4 className="text-md font-medium text-blue-900 mb-2">Upload Features CSV</h4>
-                      <p className="text-sm text-blue-700 mb-3">
-                        Upload a CSV file containing both current and previous quarter features. The CSV should include a 'feature_quarter' column with values 'current' or 'previous'.
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="file"
-                          accept=".csv"
-                          onChange={handleTopFeaturesUpload}
-                          className="hidden"
-                          id="top-features-csv-upload"
-                          disabled={isLoading}
-                        />
-                        <label
-                          htmlFor="top-features-csv-upload"
-                          className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
-                            isLoading 
-                              ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                              : 'bg-blue-600 text-white hover:bg-blue-700'
-                          }`}
-                        >
-                          <Upload className="h-4 w-4 mr-2" />
-                          {isLoading ? 'Uploading...' : 'Upload Features CSV'}
-                        </label>
-                        {uploadStatus && (
-                          <span className={`text-sm ${
-                            uploadStatus.includes('successful') ? 'text-green-600' : 
-                            uploadStatus.includes('failed') ? 'text-red-600' : 'text-blue-600'
-                          }`}>
-                            {uploadStatus}
-                          </span>
-                        )}
-                      </div>
-                      <div className="mt-2 text-xs text-blue-600">
-                        <a 
-                          href="data:text/csv;charset=utf-8,feature_name,vote_count,status,status_updated_at,client_voters,feature_quarter%0AAI%20Integration,35,Committed,2025-01-15,%22Client%20A,Client%20B,Client%20C%22,current%0AMobile%20App,25,Under%20Review,2025-02-01,%22Client%20D,Client%20E%22,current%0AReporting%20Tools,20,Delivered,2025-01-30,%22Client%20F,Client%20G%22,previous%0AAPI%20Enhancements,18,Under%20Review,2025-02-15,%22Client%20H,Client%20I%22,previous"
-                          download="top_features_template.csv"
-                          className="hover:underline"
-                        >
-                          Download sample CSV template
-                        </a>
-                      </div>
-                    </div>
                     <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
                       <h4 className="text-md font-medium text-blue-900 mb-2">Top 10 Requested Features</h4>
                       <p className="text-sm text-blue-700">
