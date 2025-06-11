@@ -16,3 +16,4 @@ export { default as DataSocializationCard } from './DataSocializationCard';
 export { default as DashboardManagement } from './DashboardManagement';
 export { default as ActionItemsPanel } from './ActionItemsPanel';
 export { default as QuarterlyTrendsComparison } from './QuarterlyTrendsComparison';
+export { default as CrossClientCollaborationDetailsModal } from './CrossClientCollaborationDetailsModal';
