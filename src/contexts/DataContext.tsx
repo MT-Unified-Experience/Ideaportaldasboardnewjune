@@ -79,13 +79,6 @@ const safelyMergeNestedObjects = (defaultObj: any, incomingObj: any | null): any
   };
 };
 
-// Required headers for client submissions CSV validation
-export const clientSubmissionsRequiredHeaders = [
-  'quarter',
-  'clients_representing',
-  'client_names' // Optional: comma-separated list of client names
-];
-
 // Required headers for cross-client collaboration CSV validation
 const crossClientCollaborationRequiredHeaders = [
   'quarter',
@@ -97,7 +90,6 @@ const crossClientCollaborationRequiredHeaders = [
 ];
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-
   const [currentProduct, setCurrentProduct] = useState<Product>('TeamConnect');
   const [currentQuarter, setCurrentQuarter] = useState<Quarter>('FY25 Q1');
   const [allProductsData, setAllProductsData] = useState<Record<Product, ProductData>>({} as Record<Product, ProductData>);
@@ -1000,3 +992,5 @@ export const useData = (): DataContextType => {
   }
   return context;
 };
+
+export { DataProvider }
