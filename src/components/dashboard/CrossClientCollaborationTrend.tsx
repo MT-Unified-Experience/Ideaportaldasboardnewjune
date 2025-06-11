@@ -168,9 +168,10 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
               </div>
             )}
             {!embedded && (
-            <div className="pt-2 border-t border-gray-100">
-              <p className="text-xs text-gray-500">Click to view detailed metrics</p>
-            </div>
+              <div className="pt-2 border-t border-gray-100">
+                <p className="text-xs text-gray-500">Click to view detailed metrics</p>
+              </div>
+            )}
           </div>
         </div>
       );
