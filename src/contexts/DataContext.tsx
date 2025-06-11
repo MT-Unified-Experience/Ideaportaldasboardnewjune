@@ -901,3 +901,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           parsedData.metricSummary?.roadmapAlignment
         ),
         ide
+      }
+    }
+  }
+}
