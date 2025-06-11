@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { DashboardData, Product, Quarter, ProductData, ProductQuarterlyData } from '../types';
 import { parseCSV, validateCSVHeaders, CSVError, parseTopFeaturesCSV, topFeaturesRequiredHeaders, parseResponsivenessTrendCSV, responsivenessTrendRequiredHeaders, parseCommitmentTrendsCSV, commitmentTrendsRequiredHeaders } from '../utils/csvParser';
-import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders, parseClientSubmissionsCSV, clientSubmissionsRequiredHeaders } from '../utils/csvParser';
+import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders, parseClientSubmissionsCSV, clientSubmissionsRequiredHeaders, parseCrossClientCollaborationCSV } from '../utils/csvParser';
 import { supabase, checkSupabaseConnection } from '../utils/supabaseClient';
 import { useEffect, useMemo } from 'react';
 
@@ -906,4 +906,97 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       // Update local state
       setAllProductsData(prevData => ({
-        ...
+        ...prevData,
+        [currentProduct]: {
+          ...prevData[currentProduct],
+          [currentQuarter]: parsedData
+        }
+      }));
+      
+    } catch (err) {
+      if (err instanceof CSVError) {
+        setError(err);
+      } else {
+        setError(new CSVError(
+          'An unexpected error occurred while uploading the CSV file',
+          'application',
+          [(err as Error)?.message || 'Please try again or contact support']
+        ));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Function to update dashboard data
+  const updateDashboardData = async (data: DashboardData): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Store data in Supabase
+      const { error: upsertError } = await supabase
+        .from('dashboards')
+        .upsert({
+          product: currentProduct,
+          quarter: currentQuarter,
+          data: data
+        }, {
+          onConflict: 'product,quarter'
+        });
+      
+      if (upsertError) throw upsertError;
+      
+      // Update local state
+      setAllProductsData(prevData => ({
+        ...prevData,
+        [currentProduct]: {
+          ...prevData[currentProduct],
+          [currentQuarter]: data
+        }
+      }));
+      
+    } catch (err) {
+      console.error('Error updating dashboard data:', err);
+      setError(parseError(err));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const contextValue: DataContextType = {
+    currentProduct,
+    currentQuarter,
+    dashboardData,
+    allProductsData,
+    setCurrentProduct,
+    setCurrentQuarter,
+    uploadCSV,
+    uploadProductQuarterlyCSV,
+    uploadTopFeaturesCSV,
+    uploadResponsivenessTrendCSV,
+    uploadCommitmentTrendsCSV,
+    uploadContinuedEngagementCSV,
+    uploadClientSubmissionsCSV,
+    uploadCrossClientCollaborationCSV,
+    fetchProductQuarterlyData,
+    updateDashboardData,
+    isLoading,
+    error
+  };
+
+  return (
+    <DataContext.Provider value={contextValue}>
+      {children}
+    </DataContext.Provider>
+  );
+};
+
+// Custom hook to use the DataContext
+export const useData = (): DataContextType => {
+  const context = useContext(DataContext);
+  if (!context) {
+    throw new Error('useData must be used within a DataProvider');
+  }
+  return context;
+};
