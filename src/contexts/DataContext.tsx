@@ -22,6 +22,7 @@ interface DataContextType {
   uploadCommitmentTrendsCSV: (file: File) => Promise<void>;
   uploadContinuedEngagementCSV: (file: File) => Promise<void>;
   uploadClientSubmissionsCSV: (file: File) => Promise<void>;
+  uploadCrossClientCollaborationCSV: (file: File) => Promise<void>;
   fetchProductQuarterlyData: (filters?: { product_id?: string; product_name?: string; quarter?: string; year?: string; page?: number; limit?: number; orderBy?: string; orderDirection?: 'asc' | 'desc'; }) => Promise<ProductQuarterlyData[]>;
   updateDashboardData: (data: DashboardData) => Promise<void>;
   isLoading: boolean;
@@ -77,6 +78,23 @@ const safelyMergeNestedObjects = (defaultObj: any, incomingObj: any | null): any
     ...incomingObj
   };
 };
+
+// Required headers for client submissions CSV validation
+export const clientSubmissionsRequiredHeaders = [
+  'quarter',
+  'clients_representing',
+  'client_names' // Optional: comma-separated list of client names
+];
+
+// Required headers for cross-client collaboration CSV validation
+const crossClientCollaborationRequiredHeaders = [
+  'quarter',
+  'year',
+  'collaborative_ideas',
+  'total_ideas',
+  'collaboration_rate'
+  // Optional: significant_change, change_direction, change_percentage
+];
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
@@ -594,6 +612,76 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Function to handle cross-client collaboration CSV upload
+  const uploadCrossClientCollaborationCSV = async (file: File): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Check if file is CSV
+      if (!file.name.endsWith('.csv')) {
+        throw new CSVError(
+          'Invalid file format',
+          'file',
+          ['Only CSV files are supported', 'Please upload a file with .csv extension']
+        );
+      }
+      
+      // Read file contents
+      const fileContent = await file.text();
+      
+      // Validate CSV headers
+      await validateCSVHeaders(fileContent, crossClientCollaborationRequiredHeaders);
+      
+      // Parse cross-client collaboration CSV data
+      const collaborationData = await parseCrossClientCollaborationCSV(fileContent);
+      
+      // Get current dashboard data
+      const currentData = allProductsData[currentProduct]?.[currentQuarter] || defaultDashboardData;
+      
+      // Update the collaboration trend data
+      const updatedData: DashboardData = {
+        ...currentData,
+        collaborationTrendData: collaborationData.collaborationTrendData
+      };
+
+      // Store data in Supabase
+      const { error: upsertError } = await supabase
+        .from('dashboards')
+        .upsert({
+          product: currentProduct,
+          quarter: currentQuarter,
+          data: updatedData
+        }, {
+          onConflict: 'product,quarter'
+        });
+      
+      if (upsertError) throw upsertError;
+      
+      // Update local state
+      setAllProductsData(prevData => ({
+        ...prevData,
+        [currentProduct]: {
+          ...prevData[currentProduct],
+          [currentQuarter]: updatedData
+        }
+      }));
+      
+    } catch (err) {
+      if (err instanceof CSVError) {
+        setError(err);
+      } else {
+        setError(new CSVError(
+          'An unexpected error occurred while uploading cross-client collaboration data',
+          'application',
+          [(err as Error)?.message || 'Please try again or contact support']
+        ));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Function to fetch product quarterly data with filters
   const fetchProductQuarterlyData = async (filters?: {
     product_id?: string;
@@ -812,150 +900,4 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           defaultDashboardData.metricSummary.roadmapAlignment,
           parsedData.metricSummary?.roadmapAlignment
         ),
-        ideaVolume: safelyMergeNestedObjects(
-          defaultDashboardData.metricSummary.ideaVolume,
-          parsedData.metricSummary?.ideaVolume
-        )
-      };
-
-      // Merge parsed data with default values
-      const mergedData: DashboardData = {
-        metricSummary: mergedMetricSummary,
-        lineChartData: parsedData.lineChartData || defaultDashboardData.lineChartData,
-        topFeatures: parsedData.topFeatures || defaultDashboardData.topFeatures,
-      };
-
-      // Log the merged data for debugging
-      console.log('Uploading dashboard data:', {
-        product: currentProduct,
-        quarter: currentQuarter,
-        data: mergedData
-      });
-
-      // Store data in Supabase with onConflict option to handle duplicate keys
-      const { error: upsertError } = await supabase
-        .from('dashboards')
-        .upsert({
-          product: currentProduct,
-          quarter: currentQuarter,
-          data: mergedData
-        }, {
-          onConflict: 'product,quarter'
-        })
-        .select();
-      
-      if (upsertError) {
-        console.error('Supabase upsert error:', upsertError);
-      if (upsertError) throw upsertError;
-      }
-      
-      // Update data for the current product and quarter
-      setAllProductsData(prevData => ({
-        ...prevData,
-        [currentProduct]: {
-          ...prevData[currentProduct],
-          [currentQuarter]: mergedData
-        }
-      }));
-      
-    } catch (err) {
-      if (err instanceof CSVError) {
-        setError(err);
-      } else {
-        setError(new CSVError(
-          'An unexpected error occurred',
-          'application',
-          [(err as Error)?.message || 'Please try again or contact support']
-        ));
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Function to update dashboard data
-  const updateDashboardData = async (data: DashboardData): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      // Ensure we have all required fields
-      const updatedData = {
-        ...defaultDashboardData,
-        ...data,
-        metricSummary: {
-          ...defaultDashboardData.metricSummary,
-          ...(data.metricSummary || {}),
-          roadmapAlignment: {
-            ...defaultDashboardData.metricSummary.roadmapAlignment,
-            ...(data.metricSummary?.roadmapAlignment || {})
-          },
-          ideaVolume: {
-            ...defaultDashboardData.metricSummary.ideaVolume,
-            ...(data.metricSummary?.ideaVolume || {})
-          },
-        },
-        lineChartData: [...(data.lineChartData || defaultDashboardData.lineChartData)],
-        topFeatures: [...(data.topFeatures || defaultDashboardData.topFeatures)],
-        previousQuarterFeatures: [...(data.previousQuarterFeatures || [])],
-        data_socialization_forums: data.data_socialization_forums || []
-      };
-
-      // Store data in Supabase
-      const { error: upsertError } = await supabase
-        .from('dashboards')
-        .upsert({
-          product: currentProduct,
-          quarter: currentQuarter,
-          data: updatedData
-        }, {
-          onConflict: 'product,quarter'
-        });
-      
-      if (upsertError) throw upsertError;
-      
-      // Update local state
-      setAllProductsData(prevData => ({
-        ...prevData,
-        [currentProduct]: {
-          ...prevData[currentProduct],
-          [currentQuarter]: updatedData
-        }
-      }));
-    } catch (err) {
-      setError(parseError(err));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const value = {
-    currentProduct,
-    currentQuarter,
-    dashboardData,
-    allProductsData,
-    setCurrentProduct,
-    setCurrentQuarter,
-    uploadCSV,
-    uploadProductQuarterlyCSV,
-    uploadTopFeaturesCSV,
-    uploadResponsivenessTrendCSV,
-    uploadCommitmentTrendsCSV,
-    uploadContinuedEngagementCSV,
-    uploadClientSubmissionsCSV,
-    updateDashboardData,
-    fetchProductQuarterlyData,
-    isLoading,
-    error
-  };
-
-  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
-};
-
-export const useData = (): DataContextType => {
-  const context = useContext(DataContext);
-  if (context === null || context === undefined) {
-    throw new Error('useData must be used within a DataProvider');
-  }
-  return context;
-};
+        ide
