@@ -15,7 +15,6 @@ export class CSVError extends Error {
 // Required headers for CSV validation
 const requiredHeaders = [
   'product', 'quarter', 'responsiveness', 'responsiveness_trend', 'roadmap_alignment_committed', 'roadmap_alignment_total',
-  'year', 'candidate_ideas', 'in_development', 'archived_ideas', 'flagged_for_future',
   'active_quarter', 'active_clients_representing', 'feature_name', 'vote_count', 'status',
   'status_updated_at', 'client_voters'
 ];
@@ -41,11 +40,6 @@ interface CSVRow {
  responsiveness_q4_percentage: string;
  responsiveness_q4_moved_out: string;
  responsiveness_q4_total: string;
-  year: string;
-  candidate_ideas: string;
-  in_development: string;
-  archived_ideas: string;
-  flagged_for_future: string;
   active_quarter: string;
   active_clients_representing: string;
   feature_name: string;
@@ -343,18 +337,6 @@ const transformCSVData = (data: CSVRow[]): DashboardData => {
     },
   };
 
-  // Transform stacked bar data
-  const stackedBarData = data
-    .filter((row, index, self) => 
-      self.findIndex(r => r.year === row.year && r.product === row.product) === index
-    )
-    .map(row => ({
-      year: row.year,
-      candidateIdeas: safeNumberConversion(row.candidate_ideas),
-      inDevelopment: safeNumberConversion(row.in_development),
-      archivedIdeas: safeNumberConversion(row.archived_ideas),
-      flaggedForFuture: safeNumberConversion(row.flagged_for_future),
-    }));
 
   // Transform line chart data
   const lineChartData = data
@@ -391,7 +373,6 @@ const transformCSVData = (data: CSVRow[]): DashboardData => {
 
   return {
     metricSummary,
-    stackedBarData,
     lineChartData,
     topFeatures: features,
     collaborationTrendData,

@@ -8,7 +8,6 @@ interface WidgetSettings {
   collaborationTrend: boolean;
   continuedEngagement: boolean;
   agingIdeas: boolean;
-  ideaDistribution: boolean;
   clientSubmissions: boolean;
   topFeatures: boolean;
   dataSocialization: boolean;
@@ -42,7 +41,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     { key: 'responsiveness' as keyof WidgetSettings, label: 'Responsiveness Card', description: 'Shows response time metrics' },
     { key: 'commitment' as keyof WidgetSettings, label: 'Idea Portal Commitment Card', description: 'Displays commitment progress' },
     { key: 'continuedEngagement' as keyof WidgetSettings, label: 'Continued Engagement Rate Card', description: 'Tracks follow-up on reviewed ideas' },
-    { key: 'ideaDistribution' as keyof WidgetSettings, label: 'Idea Status Distribution Chart', description: 'Yearly breakdown by status' },
     { key: 'clientSubmissions' as keyof WidgetSettings, label: 'Client Submissions Chart', description: 'Quarterly submission trends' },
     { key: 'topFeatures' as keyof WidgetSettings, label: 'Top Features Chart', description: 'Most requested features' },
     { key: 'dataSocialization' as keyof WidgetSettings, label: 'Data Socialization Forums', description: 'Discussion forums overview' },

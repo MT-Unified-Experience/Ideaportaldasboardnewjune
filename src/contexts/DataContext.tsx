@@ -43,13 +43,6 @@ const defaultDashboardData: DashboardData = {
       total: 0
     },
   },
-  stackedBarData: EXPECTED_YEARS.map(year => ({
-    year,
-    candidateIdeas: 0,
-    inDevelopment: 0,
-    archivedIdeas: 0,
-    flaggedForFuture: 0
-  })),
   lineChartData: [],
   topFeatures: [],
 };
@@ -79,28 +72,6 @@ const safelyMergeNestedObjects = (defaultObj: any, incomingObj: any | null): any
 };
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Helper function to merge stacked bar data
-  const mergeStackedBarData = (existingData: DashboardData['stackedBarData'], newData: DashboardData['stackedBarData']) => {
-    const mergedData = [...defaultDashboardData.stackedBarData];
-    
-    // Update values from existing data
-    existingData.forEach(item => {
-      const index = mergedData.findIndex(d => d.year === item.year);
-      if (index !== -1) {
-        mergedData[index] = { ...mergedData[index], ...item };
-      }
-    });
-    
-    // Update values from new data
-    newData.forEach(item => {
-      const index = mergedData.findIndex(d => d.year === item.year);
-      if (index !== -1) {
-        mergedData[index] = { ...mergedData[index], ...item };
-      }
-    });
-    
-    return mergedData;
-  };
 
   const [currentProduct, setCurrentProduct] = useState<Product>('TeamConnect');
   const [currentQuarter, setCurrentQuarter] = useState<Quarter>('FY25 Q1');
@@ -134,7 +105,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             roadmapAlignment: { ...defaultDashboardData.metricSummary.roadmapAlignment },
             ideaVolume: { ...defaultDashboardData.metricSummary.ideaVolume },
           },
-          stackedBarData: [...defaultDashboardData.stackedBarData],
           lineChartData: [...defaultDashboardData.lineChartData],
           topFeatures: [...defaultDashboardData.topFeatures],
           previousQuarterFeatures: [],
@@ -321,10 +291,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const mergedData = {
             ...defaultDashboardData,
             ...fetchedData,
-            stackedBarData: mergeStackedBarData(
-              defaultDashboardData.stackedBarData,
-              fetchedData.stackedBarData || []
-            ),
             metricSummary: {
               ...defaultDashboardData.metricSummary,
               ...(fetchedData.metricSummary || {}),
@@ -397,7 +363,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Required headers for CSV validation
   const requiredHeaders = [
     'product', 'quarter', 'responsiveness', 'responsiveness_trend', 'roadmap_alignment_committed', 'roadmap_alignment_total',
-    'year', 'candidate_ideas', 'in_development', 'archived_ideas', 'flagged_for_future',
     'active_quarter', 'active_clients_representing', 'feature_name', 'vote_count', 'status',
     'status_updated_at', 'client_voters'
   ];
@@ -444,10 +409,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Merge parsed data with default values
       const mergedData: DashboardData = {
         metricSummary: mergedMetricSummary,
-        stackedBarData: mergeStackedBarData(
-          defaultDashboardData.stackedBarData,
-          parsedData.stackedBarData || []
-        ),
         lineChartData: parsedData.lineChartData || defaultDashboardData.lineChartData,
         topFeatures: parsedData.topFeatures || defaultDashboardData.topFeatures,
       };
@@ -510,10 +471,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const updatedData = {
         ...defaultDashboardData,
         ...data,
-        stackedBarData: mergeStackedBarData(
-          defaultDashboardData.stackedBarData,
-          data.stackedBarData || []
-        ),
         metricSummary: {
           ...defaultDashboardData.metricSummary,
           ...(data.metricSummary || {}),
@@ -526,7 +483,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             ...(data.metricSummary?.ideaVolume || {})
           },
         },
-        stackedBarData: [...(data.stackedBarData || defaultDashboardData.stackedBarData)],
         lineChartData: [...(data.lineChartData || defaultDashboardData.lineChartData)],
         topFeatures: [...(data.topFeatures || defaultDashboardData.topFeatures)],
         previousQuarterFeatures: [...(data.previousQuarterFeatures || [])],

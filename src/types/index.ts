@@ -96,7 +96,6 @@ export interface Forum {
 
 export interface DashboardData {
   metricSummary: MetricSummary;
-  stackedBarData: StackedBarData[];
   lineChartData: LineChartData[];
   topFeatures: Feature[];
   previousQuarterFeatures?: Feature[];

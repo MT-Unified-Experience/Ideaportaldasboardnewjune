@@ -2,7 +2,6 @@ import React from 'react';
 import { DashboardData } from '../../types';
 import DashboardSection from './DashboardSection';
 import MetricCardsSection from './MetricCardsSection';
-import ChartsSection from './ChartsSection';
 import FeaturesAndForumsSection from './FeaturesAndForumsSection';
 import DataSocializationCard from './DataSocializationCard';
 import LineChart from './LineChart';
@@ -13,7 +12,6 @@ interface WidgetSettings {
   responsiveness: boolean;
   commitment: boolean;
   continuedEngagement: boolean;
-  ideaDistribution: boolean;
   clientSubmissions: boolean;
   topFeatures: boolean;
   dataSocialization: boolean;
@@ -30,7 +28,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
   currentQuarter, 
   widgetSettings 
 }) => {
-  const { metricSummary, stackedBarData, lineChartData, topFeatures } = data;
+  const { metricSummary, lineChartData, topFeatures } = data;
 
   return (
     <div className="space-y-6">

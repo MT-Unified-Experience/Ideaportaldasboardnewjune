@@ -7,7 +7,6 @@ interface WidgetSettings {
   responsiveness: boolean;
   commitment: boolean;
   continuedEngagement: boolean;
-  ideaDistribution: boolean;
   clientSubmissions: boolean;
   topFeatures: boolean;
   dataSocialization: boolean;
@@ -24,13 +23,11 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
   const { currentProduct, currentQuarter } = useData();
   const [formData, setFormData] = useState<DashboardData>(dashboardData || {} as DashboardData);
   const [activeTab, setActiveTab] = useState('metrics');
-  const expectedYears = ['FY22', 'FY23', 'FY24', 'FY25'];
   
   const tooltips = {
     responsiveness: "Measures how quickly Mitratech responds to client ideas. A higher percentage indicates better engagement and faster feedback loops with clients.",
     roadmapAlignment: "Shows cumulative progress towards the yearly planning goal by tracking the total number of ideas committed versus the annual target.",
     continuedEngagement: "Percentage of ideas that received at least one additional status update within 90 days after being moved out of 'Needs Review'",
-    distribution: "Shows the distribution of ideas across different statuses by year",
     submissions: "Tracks client submission trends over time",
     features: "Manages top requested features and their details"
   };
@@ -38,7 +35,6 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
   // Filter tabs based on widget settings
   const allTabs = [
     { id: 'metrics', name: 'Key Metrics', icon: BarChart2 },
-    { id: 'distribution', name: 'Idea Status Distribution by Year', icon: Users, requiresSetting: 'ideaDistribution' },
     { id: 'submissions', name: 'Client Submissions by Quarter', icon: LineChartIcon, requiresSetting: 'clientSubmissions' },
     { id: 'features', name: 'Top 10 Requested Features', icon: Clock, requiresSetting: 'topFeatures' },
     { id: 'forums', name: 'Data Socialization Forums', icon: Users, requiresSetting: 'dataSocialization' }
@@ -57,33 +53,11 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
 
   useEffect(() => {
     if (dashboardData) {
-      // Ensure all expected years are present in stackedBarData
-      const updatedStackedBarData = expectedYears.map(year => {
-        const existingData = dashboardData.stackedBarData.find(item => item.year === year);
-        return existingData || {
-          year,
-          candidateIdeas: 0,
-          inDevelopment: 0,
-          archivedIdeas: 0,
-          flaggedForFuture: 0
-        };
-      });
-
       setFormData({
         ...dashboardData,
-        stackedBarData: updatedStackedBarData
       });
     }
   }, [dashboardData]);
-
-  const handleStackedBarDataChange = (index: number, field: string, value: number) => {
-    setFormData(prev => ({
-      ...prev,
-      stackedBarData: (prev.stackedBarData || []).map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
-      )
-    }));
-  };
 
   const handleLineChartDataChange = (index: number, value: number) => {
     const quarters = ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'];
@@ -565,68 +539,6 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                 </div>
               )}
 
-              {/* Distribution Tab */}
-              {activeTab === 'distribution' && (
-                <div className="space-y-6">
-                  {(formData.stackedBarData || expectedYears.map(year => ({
-                    year,
-                    candidateIdeas: 0,
-                    inDevelopment: 0,
-                    archivedIdeas: 0,
-                    flaggedForFuture: 0
-                  }))).map((item, index) => (
-                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                      <h4 className="text-sm font-medium text-gray-700 mb-4">{item.year}</h4>
-                      <div className="flex flex-wrap gap-4 mb-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Candidate Ideas
-                          </label>
-                          <input
-                            type="number"
-                            value={item.candidateIdeas}
-                            onChange={(e) => handleStackedBarDataChange(index, 'candidateIdeas', Number(e.target.value))}
-                            className="w-32 px-3 py-2 border border-gray-300 rounded-md"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            In Development
-                          </label>
-                          <input
-                            type="number"
-                            value={item.inDevelopment}
-                            onChange={(e) => handleStackedBarDataChange(index, 'inDevelopment', Number(e.target.value))}
-                            className="w-32 px-3 py-2 border border-gray-300 rounded-md"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Archived
-                          </label>
-                          <input
-                            type="number"
-                            value={item.archivedIdeas}
-                            onChange={(e) => handleStackedBarDataChange(index, 'archivedIdeas', Number(e.target.value))}
-                            className="w-32 px-3 py-2 border border-gray-300 rounded-md"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Flagged for Future
-                          </label>
-                          <input
-                            type="number"
-                            value={item.flaggedForFuture}
-                            onChange={(e) => handleStackedBarDataChange(index, 'flaggedForFuture', Number(e.target.value))}
-                            className="w-32 px-3 py-2 border border-gray-300 rounded-md"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
 
               {/* Submissions Tab */}
               {activeTab === 'submissions' && (
