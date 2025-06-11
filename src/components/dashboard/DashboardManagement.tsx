@@ -1094,3 +1094,5 @@ export default DashboardManagement
 export default DashboardManagement
 
 export default DashboardManagement
+
+export default DashboardManagement
