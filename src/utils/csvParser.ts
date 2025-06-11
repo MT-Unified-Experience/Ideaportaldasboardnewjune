@@ -14,7 +14,7 @@ export class CSVError extends Error {
 
 // Required headers for CSV validation
 const requiredHeaders = [
-  'product', 'quarter', 'responsiveness', 'responsiveness_trend', 'roadmap_alignment_committed', 'roadmap_alignment_total',
+  'product', 'quarter', 'responsiveness', 'roadmap_alignment_committed', 'roadmap_alignment_total',
   'active_quarter', 'active_clients_representing', 'feature_name', 'vote_count', 'status',
   'status_updated_at', 'client_voters'
 ];
@@ -25,7 +25,6 @@ interface CSVRow {
   quarterly_ideas: string;
   total_ideas: string;
   responsiveness: string;
-  responsiveness_trend: string;
   roadmap_alignment_committed: string;
   roadmap_alignment_total: string;
  responsiveness_q1_percentage: string;
