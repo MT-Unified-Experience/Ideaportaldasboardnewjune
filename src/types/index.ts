@@ -39,6 +39,12 @@ export interface MetricSummary {
     rate: number;
     numerator: number;
     denominator: number;
+    quarterlyTrends?: Array<{
+      quarter: string;
+      rate: number;
+      numerator: number;
+      denominator: number;
+    }>;
     ideas?: Array<{
       id: string;
       name: string;

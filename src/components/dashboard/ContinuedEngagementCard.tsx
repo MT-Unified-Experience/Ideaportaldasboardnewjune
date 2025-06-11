@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RefreshCw, X, HelpCircle, CheckCircle, Clock } from 'lucide-react';
+import { RefreshCw, X, HelpCircle, CheckCircle, Clock, Upload } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -9,6 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { useData } from '../../contexts/DataContext';
 
 interface ContinuedEngagementCardProps {
   value: number;
@@ -46,6 +47,8 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
   const [activeTab, setActiveTab] = useState<'trend' | 'included' | 'excluded'>('trend');
   const [selectedQuarterIdeas, setSelectedQuarterIdeas] = useState<Array<{ id: string; summary: string }> | null>(null);
   const [selectedQuarterName, setSelectedQuarterName] = useState<string | null>(null);
+  const { uploadContinuedEngagementCSV, isLoading } = useData();
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
   // Generate default quarterly trends if none provided
   const defaultQuarterlyTrends = [
@@ -120,6 +123,27 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
       return `Q${match[2]}`;
     }
     return quarter;
+  };
+
+  // Handle continued engagement CSV upload
+  const handleContinuedEngagementUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadStatus('Uploading...');
+      await uploadContinuedEngagementCSV(file);
+      setUploadStatus('Upload successful!');
+      
+      // Clear the file input
+      event.target.value = '';
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setUploadStatus(null), 3000);
+    } catch (error) {
+      setUploadStatus('Upload failed. Please check the file format.');
+      setTimeout(() => setUploadStatus(null), 5000);
+    }
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -248,6 +272,52 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
             </div>
 
             <div className="space-y-6">
+              {/* CSV Upload Section */}
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <h4 className="text-md font-medium text-green-900 mb-2">Upload Continued Engagement CSV</h4>
+                <p className="text-sm text-green-700 mb-3">
+                  Upload a CSV file containing quarterly engagement data and individual idea tracking. Required columns: quarter, rate, numerator, denominator. Optional: idea_id, idea_name, initial_status_change, subsequent_changes, days_between, included.
+                </p>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={handleContinuedEngagementUpload}
+                    className="hidden"
+                    id="continued-engagement-csv-upload"
+                    disabled={isLoading}
+                  />
+                  <label
+                    htmlFor="continued-engagement-csv-upload"
+                    className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                      isLoading 
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                        : 'bg-green-600 text-white hover:bg-green-700'
+                    }`}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {isLoading ? 'Uploading...' : 'Upload Engagement CSV'}
+                  </label>
+                  {uploadStatus && (
+                    <span className={`text-sm ${
+                      uploadStatus.includes('successful') ? 'text-green-600' : 
+                      uploadStatus.includes('failed') ? 'text-red-600' : 'text-green-600'
+                    }`}>
+                      {uploadStatus}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-2 text-xs text-green-600">
+                  <a 
+                    href="data:text/csv;charset=utf-8,quarter,rate,numerator,denominator,idea_id,idea_name,initial_status_change,subsequent_changes,days_between,included%0AFY25%20Q1,72,18,25,ENG-001,AI%20Integration,2025-01-15,%222025-02-01:Under%20Review,2025-02-15:Committed%22,17,true%0AFY25%20Q2,68,17,25,ENG-002,Mobile%20App,2025-02-01,%222025-02-20:In%20Development%22,19,true%0AFY25%20Q3,75,21,28,ENG-003,Reporting%20Tools,2025-03-01,%222025-03-15:Delivered%22,14,true%0AFY25%20Q4,75,15,20,ENG-004,API%20Enhancements,2025-04-01,,0,false"
+                    download="continued_engagement_template.csv"
+                    className="hover:underline"
+                  >
+                    Download sample CSV template
+                  </a>
+                </div>
+              </div>
+
               {/* Quarterly Trends Tab */}
               {activeTab === 'trend' && (
                 <div>

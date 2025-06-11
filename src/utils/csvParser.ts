@@ -46,6 +46,15 @@ export const commitmentTrendsRequiredHeaders = [
   // Optional: quarter, quarterly_delivered
 ];
 
+// Required headers for continued engagement CSV validation
+export const continuedEngagementRequiredHeaders = [
+  'quarter',
+  'rate',
+  'numerator',
+  'denominator'
+  // Optional: idea_id, idea_name, initial_status_change, subsequent_changes, days_between, included
+];
+
 interface ResponsivenessTrendCSVRow {
   quarter: string;
   percentage: string;
@@ -71,6 +80,19 @@ interface CommitmentTrendsCSVRow {
   quarterly_delivered?: string;
 }
 
+interface ContinuedEngagementCSVRow {
+  quarter: string;
+  rate: string;
+  numerator: string;
+  denominator: string;
+  idea_id?: string;
+  idea_name?: string;
+  initial_status_change?: string;
+  subsequent_changes?: string;
+  days_between?: string;
+  included?: string;
+}
+
 interface CommitmentTrendsData {
   commitmentTrends: Array<{
     year: string;
@@ -81,6 +103,26 @@ interface CommitmentTrendsData {
     quarter: string;
     year: string;
     delivered: number;
+  }>;
+}
+
+interface ContinuedEngagementData {
+  quarterlyTrends: Array<{
+    quarter: string;
+    rate: number;
+    numerator: number;
+    denominator: number;
+  }>;
+  ideas: Array<{
+    id: string;
+    name: string;
+    initialStatusChange: string;
+    subsequentChanges: Array<{
+      date: string;
+      status: string;
+    }>;
+    daysBetween: number;
+    included: boolean;
   }>;
 }
 
@@ -685,6 +727,129 @@ export const parseCommitmentTrendsCSV = (csvData: string): Promise<CommitmentTre
           resolve({
             commitmentTrends,
             quarterlyDeliveries
+          });
+        } catch (error) {
+          reject(error);
+        }
+      },
+      error: (error) => {
+        reject(new CSVError(
+          'Failed to parse CSV file',
+          'file',
+          [error.message]
+        ));
+      }
+    });
+  });
+};
+
+// Function to parse continued engagement CSV data
+export const parseContinuedEngagementCSV = (csvData: string): Promise<ContinuedEngagementData> => {
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvData, {
+      header: true,
+      dynamicTyping: false,
+      skipEmptyLines: true,
+      complete: (results) => {
+        try {
+          // Validate data structure
+          if (!Array.isArray(results.data) || results.data.length === 0) {
+            throw new CSVError(
+              'Invalid data structure',
+              'data',
+              ['The CSV file must contain at least one row of data']
+            );
+          }
+
+          const rows = results.data as ContinuedEngagementCSVRow[];
+          const quarterlyTrends: Array<{
+            quarter: string;
+            rate: number;
+            numerator: number;
+            denominator: number;
+          }> = [];
+          const ideas: Array<{
+            id: string;
+            name: string;
+            initialStatusChange: string;
+            subsequentChanges: Array<{
+              date: string;
+              status: string;
+    }>;
+            daysBetween: number;
+            included: boolean;
+          }> = [];
+
+          // Track processed quarters to avoid duplicates
+          const processedQuarters = new Set<string>();
+
+          rows.forEach(row => {
+            // Validate required fields for quarterly data
+            if (!row.quarter || !row.rate || !row.numerator || !row.denominator) {
+              return; // Skip invalid rows
+            }
+
+            // Add quarterly trend data (avoid duplicates)
+            if (!processedQuarters.has(row.quarter)) {
+              const quarterlyData = {
+                quarter: row.quarter.trim(),
+                rate: safeNumberConversion(row.rate),
+                numerator: safeNumberConversion(row.numerator),
+                denominator: safeNumberConversion(row.denominator)
+              };
+              quarterlyTrends.push(quarterlyData);
+              processedQuarters.add(row.quarter);
+            }
+
+            // Add idea data if available
+            if (row.idea_id && row.idea_name && row.initial_status_change) {
+              const subsequentChanges: Array<{ date: string; status: string }> = [];
+              
+              // Parse subsequent changes if available
+              if (row.subsequent_changes) {
+                try {
+                  // Expected format: "date1:status1,date2:status2"
+                  const changes = row.subsequent_changes.split(',');
+                  changes.forEach(change => {
+                    const [date, status] = change.split(':');
+                    if (date && status) {
+                      subsequentChanges.push({
+                        date: date.trim(),
+                        status: status.trim()
+                      });
+                    }
+                  });
+                } catch (error) {
+                  // If parsing fails, continue without subsequent changes
+                  console.warn('Failed to parse subsequent changes:', error);
+                }
+              }
+
+              const ideaData = {
+                id: row.idea_id.trim(),
+                name: row.idea_name.trim(),
+                initialStatusChange: row.initial_status_change.trim(),
+                subsequentChanges,
+                daysBetween: safeNumberConversion(row.days_between),
+                included: row.included ? row.included.toLowerCase() === 'true' : subsequentChanges.length > 0
+              };
+
+              ideas.push(ideaData);
+            }
+          });
+
+          // Sort quarterly data by quarter
+          quarterlyTrends.sort((a, b) => {
+            const getQuarterNum = (quarter: string) => {
+              const match = quarter.match(/Q(\d+)/);
+              return match ? parseInt(match[1]) : 0;
+            };
+            return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
+          });
+
+          resolve({
+            quarterlyTrends,
+            ideas
           });
         } catch (error) {
           reject(error);

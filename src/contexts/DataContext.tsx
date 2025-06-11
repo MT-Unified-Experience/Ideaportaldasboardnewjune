@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { DashboardData, Product, Quarter, ProductData, ProductQuarterlyData } from '../types';
 import { parseCSV, validateCSVHeaders, CSVError, parseTopFeaturesCSV, topFeaturesRequiredHeaders, parseResponsivenessTrendCSV, responsivenessTrendRequiredHeaders, parseCommitmentTrendsCSV, commitmentTrendsRequiredHeaders } from '../utils/csvParser';
+import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders } from '../utils/csvParser';
 import { supabase, checkSupabaseConnection } from '../utils/supabaseClient';
 import { useEffect, useMemo } from 'react';
 
@@ -19,6 +20,7 @@ interface DataContextType {
   uploadTopFeaturesCSV: (file: File) => Promise<void>;
   uploadResponsivenessTrendCSV: (file: File) => Promise<void>;
   uploadCommitmentTrendsCSV: (file: File) => Promise<void>;
+  uploadContinuedEngagementCSV: (file: File) => Promise<void>;
   fetchProductQuarterlyData: (filters?: { product_id?: string; product_name?: string; quarter?: string; year?: string; page?: number; limit?: number; orderBy?: string; orderDirection?: 'asc' | 'desc'; }) => Promise<ProductQuarterlyData[]>;
   updateDashboardData: (data: DashboardData) => Promise<void>;
   isLoading: boolean;
@@ -435,6 +437,92 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Function to handle continued engagement CSV upload
+  const uploadContinuedEngagementCSV = async (file: File): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Check if file is CSV
+      if (!file.name.endsWith('.csv')) {
+        throw new CSVError(
+          'Invalid file format',
+          'file',
+          ['Only CSV files are supported', 'Please upload a file with .csv extension']
+        );
+      }
+      
+      // Read file contents
+      const fileContent = await file.text();
+      
+      // Validate CSV headers
+      await validateCSVHeaders(fileContent, continuedEngagementRequiredHeaders);
+      
+      // Parse continued engagement CSV data
+      const engagementData = await parseContinuedEngagementCSV(fileContent);
+      
+      // Get current dashboard data
+      const currentData = allProductsData[currentProduct]?.[currentQuarter] || defaultDashboardData;
+      
+      // Update the continued engagement data
+      const updatedData: DashboardData = {
+        ...currentData,
+        metricSummary: {
+          ...currentData.metricSummary,
+          continuedEngagement: {
+            // Update main values to the latest quarter's data
+            rate: engagementData.quarterlyTrends.length > 0 ? 
+              engagementData.quarterlyTrends[engagementData.quarterlyTrends.length - 1].rate : 
+              currentData.metricSummary.continuedEngagement?.rate || 0,
+            numerator: engagementData.quarterlyTrends.length > 0 ? 
+              engagementData.quarterlyTrends[engagementData.quarterlyTrends.length - 1].numerator : 
+              currentData.metricSummary.continuedEngagement?.numerator || 0,
+            denominator: engagementData.quarterlyTrends.length > 0 ? 
+              engagementData.quarterlyTrends[engagementData.quarterlyTrends.length - 1].denominator : 
+              currentData.metricSummary.continuedEngagement?.denominator || 0,
+            ideas: engagementData.ideas,
+            quarterlyTrends: engagementData.quarterlyTrends
+          }
+        }
+      };
+
+      // Store data in Supabase
+      const { error: upsertError } = await supabase
+        .from('dashboards')
+        .upsert({
+          product: currentProduct,
+          quarter: currentQuarter,
+          data: updatedData
+        }, {
+          onConflict: 'product,quarter'
+        });
+      
+      if (upsertError) throw upsertError;
+      
+      // Update local state
+      setAllProductsData(prevData => ({
+        ...prevData,
+        [currentProduct]: {
+          ...prevData[currentProduct],
+          [currentQuarter]: updatedData
+        }
+      }));
+      
+    } catch (err) {
+      if (err instanceof CSVError) {
+        setError(err);
+      } else {
+        setError(new CSVError(
+          'An unexpected error occurred while uploading continued engagement data',
+          'application',
+          [(err as Error)?.message || 'Please try again or contact support']
+        ));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Function to fetch product quarterly data with filters
   const fetchProductQuarterlyData = async (filters?: {
     product_id?: string;
@@ -782,6 +870,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     uploadTopFeaturesCSV,
     uploadResponsivenessTrendCSV,
     uploadCommitmentTrendsCSV,
+    uploadContinuedEngagementCSV,
     updateDashboardData,
     fetchProductQuarterlyData,
     isLoading,
