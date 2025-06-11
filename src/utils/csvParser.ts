@@ -919,13 +919,39 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
             }
 
             const clients = row.client_names ? 
-              row.client_names.split(',').map
-          }
-          )
+              row.client_names.split(',').map(s => s.trim()).filter(s => s.length > 0) : 
+              undefined;
+
+            const data = {
+              quarter: row.quarter.trim(),
+              clientsRepresenting: safeNumberConversion(row.clients_representing),
+              clients
+            };
+
+            lineChartData.push(data);
+          });
+
+          // Sort by quarter
+          lineChartData.sort((a, b) => {
+            const getQuarterNum = (quarter: string) => {
+              const match = quarter.match(/Q(\d+)/);
+              return match ? parseInt(match[1]) : 0;
+            };
+            return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
+          });
+
+          resolve({ lineChartData });
+        } catch (error) {
+          reject(error);
         }
+      },
+      error: (error) => {
+        reject(new CSVError(
+          'Failed to parse CSV file',
+          'file',
+          [error.message]
+        ));
       }
-    }
-    )
-  }
-  )
-}
+    });
+  });
+};
