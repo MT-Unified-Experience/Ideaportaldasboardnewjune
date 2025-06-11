@@ -38,16 +38,16 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
       totalIdeas: 45, 
       ideasMovedOutOfReview: 37,
       ideasList: [
-        'AI-Powered Document Analysis',
-        'Mobile App Enhancement',
-        'Reporting Dashboard Improvements',
-        'API Integration Updates',
-        'Custom Workflow Builder',
-        'Document Management System',
-        'Search Functionality Enhancement',
-        'Bulk Actions Feature',
-        'Dashboard Customization',
-        'Email Integration'
+        { id: 'ID-001', summary: 'AI-Powered Document Analysis' },
+        { id: 'ID-002', summary: 'Mobile App Enhancement' },
+        { id: 'ID-003', summary: 'Reporting Dashboard Improvements' },
+        { id: 'ID-004', summary: 'API Integration Updates' },
+        { id: 'ID-005', summary: 'Custom Workflow Builder' },
+        { id: 'ID-006', summary: 'Document Management System' },
+        { id: 'ID-007', summary: 'Search Functionality Enhancement' },
+        { id: 'ID-008', summary: 'Bulk Actions Feature' },
+        { id: 'ID-009', summary: 'Dashboard Customization' },
+        { id: 'ID-010', summary: 'Email Integration' }
       ]
     },
     { 
@@ -56,16 +56,16 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
       totalIdeas: 52, 
       ideasMovedOutOfReview: 41,
       ideasList: [
-        'Advanced Analytics Dashboard',
-        'Multi-language Support',
-        'Real-time Notifications',
-        'Data Export Enhancements',
-        'User Permission Management',
-        'Automated Workflow Templates',
-        'Integration with Third-party Tools',
-        'Mobile Responsive Design',
-        'Advanced Search Filters',
-        'Audit Trail Improvements'
+        { id: 'ID-011', summary: 'Advanced Analytics Dashboard' },
+        { id: 'ID-012', summary: 'Multi-language Support' },
+        { id: 'ID-013', summary: 'Real-time Notifications' },
+        { id: 'ID-014', summary: 'Data Export Enhancements' },
+        { id: 'ID-015', summary: 'User Permission Management' },
+        { id: 'ID-016', summary: 'Automated Workflow Templates' },
+        { id: 'ID-017', summary: 'Integration with Third-party Tools' },
+        { id: 'ID-018', summary: 'Mobile Responsive Design' },
+        { id: 'ID-019', summary: 'Advanced Search Filters' },
+        { id: 'ID-020', summary: 'Audit Trail Improvements' }
       ]
     },
     { 
@@ -74,16 +74,16 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
       totalIdeas: 38, 
       ideasMovedOutOfReview: 32,
       ideasList: [
-        'Cloud Storage Integration',
-        'Enhanced Security Features',
-        'Performance Optimization',
-        'Custom Report Builder',
-        'Collaboration Tools',
-        'Version Control System',
-        'Automated Backup Solutions',
-        'Single Sign-On (SSO)',
-        'Advanced User Analytics',
-        'Mobile App Offline Mode'
+        { id: 'ID-021', summary: 'Cloud Storage Integration' },
+        { id: 'ID-022', summary: 'Enhanced Security Features' },
+        { id: 'ID-023', summary: 'Performance Optimization' },
+        { id: 'ID-024', summary: 'Custom Report Builder' },
+        { id: 'ID-025', summary: 'Collaboration Tools' },
+        { id: 'ID-026', summary: 'Version Control System' },
+        { id: 'ID-027', summary: 'Automated Backup Solutions' },
+        { id: 'ID-028', summary: 'Single Sign-On (SSO)' },
+        { id: 'ID-029', summary: 'Advanced User Analytics' },
+        { id: 'ID-030', summary: 'Mobile App Offline Mode' }
       ]
     },
     { 
@@ -92,16 +92,16 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
       totalIdeas: 41, 
       ideasMovedOutOfReview: Math.round(41 * value / 100),
       ideasList: [
-        'Machine Learning Integration',
-        'Advanced Data Visualization',
-        'Cross-platform Synchronization',
-        'Enhanced Mobile Features',
-        'Automated Testing Framework',
-        'Real-time Collaboration',
-        'Advanced Security Protocols',
-        'Custom Integration APIs',
-        'Enhanced User Experience',
-        'Performance Monitoring Tools'
+        { id: 'ID-031', summary: 'Machine Learning Integration' },
+        { id: 'ID-032', summary: 'Advanced Data Visualization' },
+        { id: 'ID-033', summary: 'Cross-platform Synchronization' },
+        { id: 'ID-034', summary: 'Enhanced Mobile Features' },
+        { id: 'ID-035', summary: 'Automated Testing Framework' },
+        { id: 'ID-036', summary: 'Real-time Collaboration' },
+        { id: 'ID-037', summary: 'Advanced Security Protocols' },
+        { id: 'ID-038', summary: 'Custom Integration APIs' },
+        { id: 'ID-039', summary: 'Enhanced User Experience' },
+        { id: 'ID-040', summary: 'Performance Monitoring Tools' }
       ]
     }
   ];
@@ -356,10 +356,10 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                           {selectedQuarterIdeas.map((idea, index) => (
                             <tr key={index} className="hover:bg-gray-50">
                               <td className="px-4 py-3 text-sm font-medium text-blue-600 border-r border-gray-200">
-                                ID-{String(index + 1).padStart(3, '0')}
+                                {typeof idea === 'string' ? `ID-${String(index + 1).padStart(3, '0')}` : idea.id}
                               </td>
                               <td className="px-4 py-3 text-sm text-gray-900">
-                                {idea}
+                                {typeof idea === 'string' ? idea : idea.summary}
                               </td>
                             </tr>
                           ))}

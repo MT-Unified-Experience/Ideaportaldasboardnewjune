@@ -53,6 +53,8 @@ interface CSVRow {
   continued_engagement_rate: string;
   continued_engagement_numerator: string;
   continued_engagement_denominator: string;
+  idea_id: string;
+  idea_summary_title: string;
 }
 
 interface ProductQuarterlyData {
@@ -296,25 +298,53 @@ const transformCSVData = (data: CSVRow[]): DashboardData => {
      quarter: 'FY25 Q1',
      percentage: safeNumberConversion(firstRow.responsiveness_q1_percentage),
      totalIdeas: safeNumberConversion(firstRow.responsiveness_q1_total),
-     ideasMovedOutOfReview: safeNumberConversion(firstRow.responsiveness_q1_moved_out)
+      ideasMovedOutOfReview: safeNumberConversion(firstRow.responsiveness_q1_moved_out),
+      ideasList: data
+        .filter(row => row.idea_id && row.idea_summary_title)
+        .map(row => ({
+          id: row.idea_id,
+          summary: row.idea_summary_title
+        }))
+        .slice(0, safeNumberConversion(firstRow.responsiveness_q1_moved_out))
    },
    {
      quarter: 'FY25 Q2',
      percentage: safeNumberConversion(firstRow.responsiveness_q2_percentage),
      totalIdeas: safeNumberConversion(firstRow.responsiveness_q2_total),
-     ideasMovedOutOfReview: safeNumberConversion(firstRow.responsiveness_q2_moved_out)
+      ideasMovedOutOfReview: safeNumberConversion(firstRow.responsiveness_q2_moved_out),
+      ideasList: data
+        .filter(row => row.idea_id && row.idea_summary_title)
+        .map(row => ({
+          id: row.idea_id,
+          summary: row.idea_summary_title
+        }))
+        .slice(0, safeNumberConversion(firstRow.responsiveness_q2_moved_out))
    },
    {
      quarter: 'FY25 Q3',
      percentage: safeNumberConversion(firstRow.responsiveness_q3_percentage),
      totalIdeas: safeNumberConversion(firstRow.responsiveness_q3_total),
-     ideasMovedOutOfReview: safeNumberConversion(firstRow.responsiveness_q3_moved_out)
+      ideasMovedOutOfReview: safeNumberConversion(firstRow.responsiveness_q3_moved_out),
+      ideasList: data
+        .filter(row => row.idea_id && row.idea_summary_title)
+        .map(row => ({
+          id: row.idea_id,
+          summary: row.idea_summary_title
+        }))
+        .slice(0, safeNumberConversion(firstRow.responsiveness_q3_moved_out))
    },
    {
      quarter: 'FY25 Q4',
      percentage: safeNumberConversion(firstRow.responsiveness_q4_percentage),
      totalIdeas: safeNumberConversion(firstRow.responsiveness_q4_total),
-     ideasMovedOutOfReview: safeNumberConversion(firstRow.responsiveness_q4_moved_out)
+      ideasMovedOutOfReview: safeNumberConversion(firstRow.responsiveness_q4_moved_out),
+      ideasList: data
+        .filter(row => row.idea_id && row.idea_summary_title)
+        .map(row => ({
+          id: row.idea_id,
+          summary: row.idea_summary_title
+        }))
+        .slice(0, safeNumberConversion(firstRow.responsiveness_q4_moved_out))
    }
  ];
   // Safely extract metric summary from first row
