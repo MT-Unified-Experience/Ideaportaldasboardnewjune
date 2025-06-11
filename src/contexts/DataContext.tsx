@@ -18,6 +18,7 @@ interface DataContextType {
   uploadProductQuarterlyCSV: (file: File) => Promise<void>;
   uploadTopFeaturesCSV: (file: File) => Promise<void>;
   uploadResponsivenessTrendCSV: (file: File) => Promise<void>;
+  uploadCommitmentTrendsCSV: (file: File) => Promise<void>;
   fetchProductQuarterlyData: (filters?: { product_id?: string; product_name?: string; quarter?: string; year?: string; page?: number; limit?: number; orderBy?: string; orderDirection?: 'asc' | 'desc'; }) => Promise<ProductQuarterlyData[]>;
   updateDashboardData: (data: DashboardData) => Promise<void>;
   isLoading: boolean;
@@ -136,6 +137,23 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     'quarter',
     'year',
     'sales_data'
+  ];
+
+  // Required headers for responsiveness trend CSV validation
+  const responsivenessTrendRequiredHeaders = [
+    'quarter',
+    'percentage',
+    'total_ideas',
+    'ideas_moved_out_of_review',
+    'ideas_list' // Optional: comma-separated list of idea names
+  ];
+
+  // Required headers for commitment trends CSV validation
+  const commitmentTrendsRequiredHeaders = [
+    'year',
+    'committed',
+    'delivered'
+    // Optional: quarter, quarterly_delivered
   ];
 
   // Function to handle product quarterly CSV upload
@@ -324,6 +342,90 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } else {
         setError(new CSVError(
           'An unexpected error occurred while uploading responsiveness trend data',
+          'application',
+          [(err as Error)?.message || 'Please try again or contact support']
+        ));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Function to handle commitment trends CSV upload
+  const uploadCommitmentTrendsCSV = async (file: File): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Check if file is CSV
+      if (!file.name.endsWith('.csv')) {
+        throw new CSVError(
+          'Invalid file format',
+          'file',
+          ['Only CSV files are supported', 'Please upload a file with .csv extension']
+        );
+      }
+      
+      // Read file contents
+      const fileContent = await file.text();
+      
+      // Validate CSV headers
+      await validateCSVHeaders(fileContent, commitmentTrendsRequiredHeaders);
+      
+      // Parse commitment trends CSV data
+      const commitmentData = await parseCommitmentTrendsCSV(fileContent);
+      
+      // Get current dashboard data
+      const currentData = allProductsData[currentProduct]?.[currentQuarter] || defaultDashboardData;
+      
+      // Update the commitment data
+      const updatedData: DashboardData = {
+        ...currentData,
+        metricSummary: {
+          ...currentData.metricSummary,
+          roadmapAlignment: {
+            ...currentData.metricSummary.roadmapAlignment,
+            commitmentTrends: commitmentData.commitmentTrends,
+            quarterlyDeliveries: commitmentData.quarterlyDeliveries,
+            // Update main values to the latest year's data
+            committed: commitmentData.commitmentTrends.length > 0 ? 
+              commitmentData.commitmentTrends[commitmentData.commitmentTrends.length - 1].delivered : 
+              currentData.metricSummary.roadmapAlignment.committed,
+            total: commitmentData.commitmentTrends.length > 0 ? 
+              commitmentData.commitmentTrends[commitmentData.commitmentTrends.length - 1].committed : 
+              currentData.metricSummary.roadmapAlignment.total
+          }
+        }
+      };
+
+      // Store data in Supabase
+      const { error: upsertError } = await supabase
+        .from('dashboards')
+        .upsert({
+          product: currentProduct,
+          quarter: currentQuarter,
+          data: updatedData
+        }, {
+          onConflict: 'product,quarter'
+        });
+      
+      if (upsertError) throw upsertError;
+      
+      // Update local state
+      setAllProductsData(prevData => ({
+        ...prevData,
+        [currentProduct]: {
+          ...prevData[currentProduct],
+          [currentQuarter]: updatedData
+        }
+      }));
+      
+    } catch (err) {
+      if (err instanceof CSVError) {
+        setError(err);
+      } else {
+        setError(new CSVError(
+          'An unexpected error occurred while uploading commitment trends data',
           'application',
           [(err as Error)?.message || 'Please try again or contact support']
         ));
@@ -679,6 +781,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     uploadProductQuarterlyCSV,
     uploadTopFeaturesCSV,
     uploadResponsivenessTrendCSV,
+    uploadCommitmentTrendsCSV,
     updateDashboardData,
     fetchProductQuarterlyData,
     isLoading,
