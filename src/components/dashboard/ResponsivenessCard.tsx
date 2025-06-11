@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, X, HelpCircle } from 'lucide-react';
+import { TrendingUp, X, HelpCircle, Upload } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -9,6 +9,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { X, Users, HelpCircle } from 'lucide-react';
+import { LineChartData, Feature } from '../../types';
+import { useData } from '../../contexts/DataContext';
 
 interface ResponsivenessCardProps {
   value: number;
@@ -29,6 +32,8 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedQuarterIdeas, setSelectedQuarterIdeas] = useState<string[] | null>(null);
   const [selectedQuarterName, setSelectedQuarterName] = useState<string | null>(null);
+  const { uploadResponsivenessTrendCSV, isLoading } = useData();
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
   // Generate default quarterly data if none provided
   const defaultQuarterlyData = [
@@ -153,6 +158,27 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
     return null;
   };
 
+  // Handle responsiveness trend CSV upload
+  const handleResponsivenessTrendUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadStatus('Uploading...');
+      await uploadResponsivenessTrendCSV(file);
+      setUploadStatus('Upload successful!');
+      
+      // Clear the file input
+      event.target.value = '';
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setUploadStatus(null), 3000);
+    } catch (error) {
+      setUploadStatus('Upload failed. Please check the file format.');
+      setTimeout(() => setUploadStatus(null), 5000);
+    }
+  };
+
   return (
     <>
       <div
@@ -204,6 +230,52 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
             </div>
 
             <div className="space-y-6">
+              {/* CSV Upload Section */}
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <h4 className="text-md font-medium text-blue-900 mb-2">Upload Responsiveness Trend CSV</h4>
+                <p className="text-sm text-blue-700 mb-3">
+                  Upload a CSV file containing quarterly responsiveness data with columns: quarter, percentage, total_ideas, ideas_moved_out_of_review, ideas_list (optional).
+                </p>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={handleResponsivenessTrendUpload}
+                    className="hidden"
+                    id="responsiveness-trend-csv-upload"
+                    disabled={isLoading}
+                  />
+                  <label
+                    htmlFor="responsiveness-trend-csv-upload"
+                    className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                      isLoading 
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {isLoading ? 'Uploading...' : 'Upload Responsiveness CSV'}
+                  </label>
+                  {uploadStatus && (
+                    <span className={`text-sm ${
+                      uploadStatus.includes('successful') ? 'text-green-600' : 
+                      uploadStatus.includes('failed') ? 'text-red-600' : 'text-blue-600'
+                    }`}>
+                      {uploadStatus}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-2 text-xs text-blue-600">
+                  <a 
+                    href="data:text/csv;charset=utf-8,quarter,percentage,total_ideas,ideas_moved_out_of_review,ideas_list%0AFY25%20Q1,82,45,37,%22AI%20Integration,Mobile%20App,Reporting%20Tools%22%0AFY25%20Q2,78,52,41,%22API%20Enhancements,Custom%20Workflows,Document%20Management%22%0AFY25%20Q3,85,38,32,%22Search%20Improvements,Bulk%20Actions,Dashboard%20Customization%22%0AFY25%20Q4,95,41,39,%22Email%20Integration,Advanced%20Analytics,Performance%20Optimization%22"
+                    download="responsiveness_trend_template.csv"
+                    className="hover:underline"
+                  >
+                    Download sample CSV template
+                  </a>
+                </div>
+              </div>
+
               {/* Current Quarter Summary */}
               <div className="bg-blue-50 rounded-lg p-6">
                 <div className="grid grid-cols-3 gap-4">
