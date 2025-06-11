@@ -25,6 +25,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({
 }) => {
   const { dashboardData, updateDashboardData, uploadTopFeaturesCSV, currentProduct, currentQuarter, isLoading } = useData();
   const { uploadClientSubmissionsCSV } = useData();
+  const { uploadCrossClientCollaborationCSV } = useData();
   const [activeTab, setActiveTab] = useState('metrics');
   const [activeSubTab, setActiveSubTab] = useState('current');
   const [isLocalLoading, setIsLocalLoading] = useState(false);
@@ -88,6 +89,27 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({
     try {
       setUploadStatus('Uploading...');
       await uploadClientSubmissionsCSV(file);
+      setUploadStatus('Upload successful!');
+      
+      // Clear the file input
+      event.target.value = '';
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setUploadStatus(null), 3000);
+    } catch (error) {
+      setUploadStatus('Upload failed. Please check the file format.');
+      setTimeout(() => setUploadStatus(null), 5000);
+    }
+  };
+
+  // Handle cross-client collaboration CSV upload
+  const handleCollaborationUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploadStatus('Uploading...');
+      await uploadCrossClientCollaborationCSV(file);
       setUploadStatus('Upload successful!');
       
       // Clear the file input
@@ -277,6 +299,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({
     { id: 'metrics', name: 'Key Metrics', icon: BarChart3 },
     { id: 'submissions', name: 'Client Submissions by Quarter', icon: TrendingUp },
     { id: 'features', name: 'Top 10 Requested Features', icon: Users },
+    { id: 'collaboration', name: 'Cross-Client Collaboration Trend', icon: Users },
     { id: 'forums', name: 'Data Socialization Forums', icon: MessageSquare }
   ];
 
@@ -288,6 +311,8 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({
         return widgetSettings.clientSubmissions;
       case 'features':
         return widgetSettings.topFeatures;
+      case 'collaboration':
+        return true; // Always show collaboration tab since it's part of the charts section
       case 'forums':
         return widgetSettings.dataSocialization;
       default:
@@ -614,7 +639,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({
             {/* Top 10 Requested Features Tab */}
             {activeTab === 'features' && (
               <div className="space-y-6">
-                {/* CSV Upload Section - Outside of sub-tabs */}
+                {/* CSV Upload Section */}
                 <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
                   <h4 className="text-md font-medium text-blue-900 mb-2">Upload Features CSV</h4>
                   <p className="text-sm text-blue-700 mb-3">
@@ -697,285 +722,4 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({
                     </div>
 
                     <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <h4 className="text-md font-medium text-blue-900 mb-2">Top 10 Requested Features</h4>
-                      <p className="text-sm text-blue-700">
-                        Manage the top requested features for Q4. These features will be displayed in the quarterly trends comparison chart.
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-lg font-medium text-gray-900">Current Quarter Features</h4>
-                      <button
-                        onClick={() => addFeature(true)}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Feature
-                      </button>
-                    </div>
-
-                    <div className="space-y-4">
-                      {localData.topFeatures.map((feature, index) => (
-                        <div key={index} className="bg-gray-50 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-4">
-                            <h5 className="text-md font-medium text-gray-900">Feature {index + 1}</h5>
-                            <button
-                              onClick={() => removeFeature(index, true)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Feature Name
-                              </label>
-                              <input
-                                type="text"
-                                value={feature.feature_name}
-                                onChange={(e) => updateFeature(index, 'feature_name', e.target.value, true)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter feature name"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Vote Count
-                              </label>
-                              <input
-                                type="number"
-                                value={feature.vote_count}
-                                onChange={(e) => updateFeature(index, 'vote_count', parseInt(e.target.value) || 0, true)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                min="0"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Status
-                              </label>
-                              <select
-                                value={feature.status}
-                                onChange={(e) => updateFeature(index, 'status', e.target.value as 'Delivered' | 'Under Review' | 'Committed', true)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              >
-                                <option value="Under Review">Under Review</option>
-                                <option value="Committed">Committed</option>
-                                <option value="Delivered">Delivered</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Status Updated Date
-                              </label>
-                              <input
-                                type="date"
-                                value={feature.status_updated_at ? feature.status_updated_at.split('T')[0] : ''}
-                                onChange={(e) => updateFeature(index, 'status_updated_at', e.target.value ? new Date(e.target.value).toISOString() : '', true)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              />
-                            </div>
-                            <div className="md:col-span-2">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Client Voters (comma-separated)
-                              </label>
-                              <input
-                                type="text"
-                                value={feature.client_voters.join(', ')}
-                                onChange={(e) => updateFeature(index, 'client_voters', e.target.value, true)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Client A, Client B, Client C"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Q3 Features (Previous Quarter) */}
-                {activeSubTab === 'previous' && (
-                  <div className="space-y-6">
-                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <h3 className="text-lg font-medium text-blue-900 mb-2">Q3 Features (Previous Quarter)</h3>
-                      <p className="text-sm text-blue-700">
-                        Features from the previous quarter for comparison analysis.
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-lg font-medium text-gray-900">Previous Quarter Features</h4>
-                      <button
-                        onClick={() => addFeature(false)}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Feature
-                      </button>
-                    </div>
-
-                    <div className="space-y-4">
-                      {(localData.previousQuarterFeatures || []).map((feature, index) => (
-                        <div key={index} className="bg-gray-50 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-4">
-                            <h5 className="text-md font-medium text-gray-900">Feature {index + 1}</h5>
-                            <button
-                              onClick={() => removeFeature(index, false)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Feature Name
-                              </label>
-                              <input
-                                type="text"
-                                value={feature.feature_name}
-                                onChange={(e) => updateFeature(index, 'feature_name', e.target.value, false)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Enter feature name"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Vote Count
-                              </label>
-                              <input
-                                type="number"
-                                value={feature.vote_count}
-                                onChange={(e) => updateFeature(index, 'vote_count', parseInt(e.target.value) || 0, false)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                min="0"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Status
-                              </label>
-                              <select
-                                value={feature.status}
-                                onChange={(e) => updateFeature(index, 'status', e.target.value as 'Delivered' | 'Under Review' | 'Committed', false)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              >
-                                <option value="Under Review">Under Review</option>
-                                <option value="Committed">Committed</option>
-                                <option value="Delivered">Delivered</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Status Updated Date
-                              </label>
-                              <input
-                                type="date"
-                                value={feature.status_updated_at ? feature.status_updated_at.split('T')[0] : ''}
-                                onChange={(e) => updateFeature(index, 'status_updated_at', e.target.value ? new Date(e.target.value).toISOString() : '', false)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              />
-                            </div>
-                            <div className="md:col-span-2">
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Client Voters (comma-separated)
-                              </label>
-                              <input
-                                type="text"
-                                value={feature.client_voters.join(', ')}
-                                onChange={(e) => updateFeature(index, 'client_voters', e.target.value, false)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Client A, Client B, Client C"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Data Socialization Forums Tab */}
-            {activeTab === 'forums' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-gray-900">Data Socialization Forums</h3>
-                  <button
-                    onClick={addForum}
-                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Forum
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {(localData.data_socialization_forums || []).map((forum, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-md font-medium text-gray-900">Forum {index + 1}</h4>
-                        <button
-                          onClick={() => removeForum(index)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                      <div className="grid grid-cols-1 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Forum Name
-                          </label>
-                          <input
-                            type="text"
-                            value={forum.name}
-                            onChange={(e) => updateForum(index, 'name', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter forum name"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Footer */}
-          <div className="bg-gray-50 px-6 py-4 flex justify-end space-x-3">
-            <button
-              onClick={handleCancel}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-             disabled={isLocalLoading || isLoading}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-             {isLocalLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default DashboardManagement;
+                      <h4 className="text
