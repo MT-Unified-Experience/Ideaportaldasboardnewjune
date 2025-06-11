@@ -29,6 +29,23 @@ export const topFeaturesRequiredHeaders = [
   'feature_quarter' // To distinguish between current and previous quarter
 ];
 
+// Required headers for responsiveness trend CSV validation
+export const responsivenessTrendRequiredHeaders = [
+  'quarter',
+  'percentage',
+  'total_ideas',
+  'ideas_moved_out_of_review',
+  'ideas_list' // Optional: comma-separated list of idea names
+];
+
+interface ResponsivenessTrendCSVRow {
+  quarter: string;
+  percentage: string;
+  total_ideas: string;
+  ideas_moved_out_of_review: string;
+  ideas_list?: string;
+}
+
 interface FeatureCSVRow {
   feature_name: string;
   vote_count: string;
@@ -456,6 +473,83 @@ export const parseTopFeaturesCSV = (csvData: string): Promise<TopFeaturesData> =
             currentQuarterFeatures,
             previousQuarterFeatures
           });
+        } catch (error) {
+          reject(error);
+        }
+      },
+      error: (error) => {
+        reject(new CSVError(
+          'Failed to parse CSV file',
+          'file',
+          [error.message]
+        ));
+      }
+    });
+  });
+};
+
+// Function to parse responsiveness trend CSV data
+export const parseResponsivenessTrendCSV = (csvData: string): Promise<Array<{
+  quarter: string;
+  percentage: number;
+  totalIdeas: number;
+  ideasMovedOutOfReview: number;
+  ideasList?: string[];
+}>> => {
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvData, {
+      header: true,
+      dynamicTyping: false,
+      skipEmptyLines: true,
+      complete: (results) => {
+        try {
+          // Validate data structure
+          if (!Array.isArray(results.data) || results.data.length === 0) {
+            throw new CSVError(
+              'Invalid data structure',
+              'data',
+              ['The CSV file must contain at least one row of data']
+            );
+          }
+
+          const rows = results.data as ResponsivenessTrendCSVRow[];
+          const responsivenessData: Array<{
+            quarter: string;
+            percentage: number;
+            totalIdeas: number;
+            ideasMovedOutOfReview: number;
+            ideasList?: string[];
+          }> = [];
+
+          rows.forEach(row => {
+            // Validate required fields
+            if (!row.quarter || !row.percentage || !row.total_ideas || !row.ideas_moved_out_of_review) {
+              return; // Skip invalid rows
+            }
+
+            const data = {
+              quarter: row.quarter.trim(),
+              percentage: safeNumberConversion(row.percentage),
+              totalIdeas: safeNumberConversion(row.total_ideas),
+              ideasMovedOutOfReview: safeNumberConversion(row.ideas_moved_out_of_review),
+              ideasList: row.ideas_list ? 
+                row.ideas_list.split(',').map(s => s.trim()).filter(s => s.length > 0) : 
+                undefined
+            };
+
+            responsivenessData.push(data);
+          });
+
+          // Sort by quarter (assuming FY format)
+          responsivenessData.sort((a, b) => {
+            const getQuarterNum = (quarter: string) => {
+              const match = quarter.match(/Q(\d+)/);
+              return match ? parseInt(match[1]) : 0;
+            };
+            return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
+          });
+
+          resolve(responsivenessData);
         } catch (error) {
           reject(error);
         }
