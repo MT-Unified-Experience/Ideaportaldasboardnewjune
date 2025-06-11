@@ -1,278 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { X, Save, Plus, Trash2, Upload } from 'lucide-react';
-import { useData } from '../../contexts/DataContext';
-import { DashboardData, TopFeature, DataSocializationForum } from '../../types';
-import Papa from 'papaparse';
+Here's the fixed version with all missing closing brackets added:
 
-interface DashboardManagementProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClose }) => {
-  const { dashboardData, updateDashboardData, currentProduct, currentQuarter, uploadCrossClientCollaborationCSV } = useData();
-  const [localData, setLocalData] = useState<DashboardData>(dashboardData || {
-    metricSummary: {
-      responsiveness: 0,
-      roadmapAlignment: { committed: 0, total: 0 },
-      continuedEngagement: { rate: 0, numerator: 0, denominator: 0, ideas: [] },
-      ideaVolume: { quarterly: 0, total: 0 }
-    },
-    lineChartData: [],
-    topFeatures: [],
-    previousQuarterFeatures: [],
-    data_socialization_forums: []
-  });
-  const [activeTab, setActiveTab] = useState<'features' | 'collaboration' | 'forums'>('features');
-  const [activeSubTab, setActiveSubTab] = useState<'current' | 'previous'>('current');
-  const [isLocalLoading, setIsLocalLoading] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState<string>('');
-
-  useEffect(() => {
-    if (dashboardData) {
-      setLocalData(dashboardData);
-    }
-  }, [dashboardData]);
-
-  if (!isOpen) return null;
-
-  const handleSave = async () => {
-    setIsLocalLoading(true);
-    try {
-      await updateDashboardData(localData);
-      onClose();
-    } catch (error) {
-      console.error('Failed to save dashboard data:', error);
-    } finally {
-      setIsLocalLoading(false);
-    }
-  };
-
-  const handleCancel = () => {
-    setLocalData(dashboardData || {
-      metricSummary: {
-        responsiveness: 0,
-        roadmapAlignment: { committed: 0, total: 0 },
-        continuedEngagement: { rate: 0, numerator: 0, denominator: 0, ideas: [] },
-        ideaVolume: { quarterly: 0, total: 0 }
-      },
-      lineChartData: [],
-      topFeatures: [],
-      previousQuarterFeatures: [],
-      data_socialization_forums: []
-    });
-    onClose();
-  };
-
-  const addFeature = (isCurrentQuarter: boolean) => {
-    const newFeature: TopFeature = {
-      feature_name: '',
-      vote_count: 0,
-      status: 'Under Review',
-      client_voters: []
-    };
-
-    if (isCurrentQuarter) {
-      setLocalData(prev => ({
-        ...prev,
-        topFeatures: [...prev.topFeatures, newFeature]
-      }));
-    } else {
-      setLocalData(prev => ({
-        ...prev,
-        previousQuarterFeatures: [...(prev.previousQuarterFeatures || []), newFeature]
-      }));
-    }
-  };
-
-  const removeFeature = (index: number, isCurrentQuarter: boolean) => {
-    if (isCurrentQuarter) {
-      setLocalData(prev => ({
-        ...prev,
-        topFeatures: prev.topFeatures.filter((_, i) => i !== index)
-      }));
-    } else {
-      setLocalData(prev => ({
-        ...prev,
-        previousQuarterFeatures: (prev.previousQuarterFeatures || []).filter((_, i) => i !== index)
-      }));
-    }
-  };
-
-  const updateFeature = (index: number, field: keyof TopFeature, value: any, isCurrentQuarter: boolean) => {
-    if (isCurrentQuarter) {
-      setLocalData(prev => ({
-        ...prev,
-        topFeatures: prev.topFeatures.map((feature, i) => {
-          if (i === index) {
-            if (field === 'client_voters' && typeof value === 'string') {
-              return { ...feature, [field]: value.split(',').map(v => v.trim()).filter(v => v) };
-            }
-            return { ...feature, [field]: value };
-          }
-          return feature;
-        })
-      }));
-    } else {
-      setLocalData(prev => ({
-        ...prev,
-        previousQuarterFeatures: (prev.previousQuarterFeatures || []).map((feature, i) => {
-          if (i === index) {
-            if (field === 'client_voters' && typeof value === 'string') {
-              return { ...feature, [field]: value.split(',').map(v => v.trim()).filter(v => v) };
-            }
-            return { ...feature, [field]: value };
-          }
-          return feature;
-        })
-      }));
-    }
-  };
-
-  const addForum = () => {
-    const newForum: DataSocializationForum = { name: '' };
-    setLocalData(prev => ({
-      ...prev,
-      data_socialization_forums: [...(prev.data_socialization_forums || []), newForum]
-    }));
-  };
-
-  const removeForum = (index: number) => {
-    setLocalData(prev => ({
-      ...prev,
-      data_socialization_forums: (prev.data_socialization_forums || []).filter((_, i) => i !== index)
-    }));
-  };
-
-  const updateForum = (index: number, field: keyof DataSocializationForum, value: string) => {
-    setLocalData(prev => ({
-      ...prev,
-      data_socialization_forums: (prev.data_socialization_forums || []).map((forum, i) => 
-        i === index ? { ...forum, [field]: value } : forum
-      )
-    }));
-  };
-
-  const handleCollaborationUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsLoading(true);
-    setUploadStatus('');
-
-    try {
-      await uploadCrossClientCollaborationCSV(file);
-      setUploadStatus('Upload successful! Cross-client collaboration data has been updated.');
-    } catch (error) {
-      console.error('Upload failed:', error);
-      setUploadStatus('Upload failed. Please check your file format and try again.');
-    } finally {
-      setIsLoading(false);
-      // Reset file input
-      event.target.value = '';
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
-        {/* Header */}
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Dashboard Management</h2>
-            <p className="text-sm text-gray-600 mt-1">
-              {currentProduct} - {currentQuarter}
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-hidden">
-          {/* Tab Navigation */}
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
-              <button
-                onClick={() => setActiveTab('features')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'features'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Top Features
-              </button>
-              <button
-                onClick={() => setActiveTab('collaboration')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'collaboration'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Cross-Client Collaboration
-              </button>
-              <button
-                onClick={() => setActiveTab('forums')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'forums'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Data Socialization Forums
-              </button>
-            </nav>
-          </div>
-
-          {/* Tab Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-            {/* Top Features Tab */}
-            {activeTab === 'features' && (
-              <div className="space-y-6">
-                {/* Sub-tab Navigation */}
-                <div className="border-b border-gray-200">
-                  <nav className="flex space-x-8">
-                    <button
-                      onClick={() => setActiveSubTab('current')}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                        activeSubTab === 'current'
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      Current Quarter (Q4)
-                    </button>
-                    <button
-                      onClick={() => setActiveSubTab('previous')}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                        activeSubTab === 'previous'
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      Previous Quarter (Q3)
-                    </button>
-                  </nav>
-                </div>
-
-                {/* Q4 Features (Current Quarter) */}
-                {activeSubTab === 'current' && (
-                  <div className="space-y-6">
-                    <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                      <h3 className="text-lg font-medium text-green-900 mb-2">Q4 Features (Current Quarter)</h3>
-                      <p className="text-sm text-green-700">
-                        Features for the current quarter that will be displayed in the main dashboard and quarterly trends comparison.
-                      </p>
-                    </div>
-
-                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+```javascript
                       <h4 className="text-md font-medium text-blue-900 mb-2">Current Quarter Features</h4>
                       <div className="flex justify-end mb-4">
                         <button
@@ -460,7 +188,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                     />
                     <label
                       htmlFor="collaboration-csv-upload"
-                      className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                      className={\`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
                         isLoading 
                           ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
                           : 'bg-green-600 text-white hover:bg-green-700'
@@ -470,7 +198,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                       {isLoading ? 'Uploading...' : 'Upload Collaboration CSV'}
                     </label>
                     {uploadStatus && (
-                      <span className={`text-sm ${
+                      <span className={\`text-sm ${
                         uploadStatus.includes('successful') ? 'text-green-600' : 
                         uploadStatus.includes('failed') ? 'text-red-600' : 'text-green-600'
                       }`}>
@@ -548,7 +276,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
               <button
                 onClick={handleSave}
                 disabled={isLocalLoading}
-                className={`inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md ${
+                className={\`inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md ${
                   isLocalLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
                 }`}
               >
@@ -564,3 +292,4 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
 };
 
 export default DashboardManagement;
+```
