@@ -22,7 +22,8 @@ interface DataContextType {
   error: Error | null;
 }
 
-export const DataContext = createContext<DataContextType | undefined>(undefined);
+// Create context with a default value to prevent undefined context errors
+const DataContext = createContext<DataContextType | null>(null);
 
 // Default values for the dashboard data structure
 const defaultDashboardData: DashboardData = {
@@ -537,7 +538,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useData = (): DataContextType => {
   const context = useContext(DataContext);
-  if (context === undefined) {
+  if (context === null || context === undefined) {
     throw new Error('useData must be used within a DataProvider');
   }
   return context;
