@@ -891,17 +891,19 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Parse CSV data
       const parsedData = await parseCSV(fileContent, currentProduct);
       
-      // Safely merge nested objects with defaults
-      const mergedMetricSummary = {
-        ...defaultDashboardData.metricSummary,
-        ...(parsedData.metricSummary || {}),
-        // Explicitly handle nested objects to prevent null values
-        roadmapAlignment: safelyMergeNestedObjects(
-          defaultDashboardData.metricSummary.roadmapAlignment,
-          parsedData.metricSummary?.roadmapAlignment
-        ),
-        ide
-      }
-    }
-  }
-}
+      // Store data in Supabase
+      const { error: upsertError } = await supabase
+        .from('dashboards')
+        .upsert({
+          product: currentProduct,
+          quarter: currentQuarter,
+          data: parsedData
+        }, {
+          onConflict: 'product,quarter'
+        });
+      
+      if (upsertError) throw upsertError;
+      
+      // Update local state
+      setAllProductsData(prevData => ({
+        ...
