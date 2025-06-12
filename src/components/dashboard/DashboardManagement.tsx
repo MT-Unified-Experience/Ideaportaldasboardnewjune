@@ -510,7 +510,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                 <div className="bg-green-50 rounded-lg p-4 border border-green-200">
                   <h4 className="text-md font-medium text-green-900 mb-2">Upload Cross-Client Collaboration CSV</h4>
                   <p className="text-sm text-green-700 mb-3">
-                    Upload a CSV file containing quarterly cross-client collaboration data with columns: quarter, collaboration_count.
+                    Upload a CSV file containing quarterly cross-client collaboration data with columns: quarter, year, collaborative_ideas, total_ideas, collaboration_rate.
                   </p>
                   <div className="flex items-center gap-3">
                     <input
@@ -543,7 +543,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                   </div>
                   <div className="mt-2 text-xs text-green-600">
                     <a 
-                      href="data:text/csv;charset=utf-8,quarter,collaboration_count%0AFY25%20Q1,5%0AFY25%20Q2,8%0AFY25%20Q3,12%0AFY25%20Q4,15"
+                      href="data:text/csv;charset=utf-8,quarter,year,collaborative_ideas,total_ideas,collaboration_rate%0AFY25%20Q1,2025,5,25,20%0AFY25%20Q2,2025,8,30,27%0AFY25%20Q3,2025,12,35,34%0AFY25%20Q4,2025,15,40,38"
                       download="collaboration_template.csv"
                       className="hover:underline"
                     >
