@@ -90,7 +90,7 @@ export const CsvUploader: React.FC = () => {
           {isLoading ? 'Uploading...' : 'Upload CSV'}
         </button>
         <a 
-          href={`${import.meta.env.BASE_URL}template.csv`} 
+          href={`${import.meta.env.BASE_URL}template.csv?t=${Date.now()}`}
           className="block mt-2 text-[10px] text-blue-600 hover:text-blue-800 text-right"
         > 
           Download sample CSV<br />template
