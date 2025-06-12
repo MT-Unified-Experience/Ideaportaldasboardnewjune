@@ -33,7 +33,13 @@ const supabaseOptions: SupabaseClientOptions<any> = {
   },
   global: {
     headers: {
-      'apikey': supabaseAnonKey
+      'apikey': supabaseAnonKey,
+      'Authorization': `Bearer ${supabaseAnonKey}`
+    }
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
     }
   }
 };
@@ -42,6 +48,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, supabaseOptio
 
 export const checkSupabaseConnection = async (): Promise<boolean> => {
   try {
+    // Test connection with a simple query
     const { data, error } = await supabase
       .from('dashboards')
       .select('id')
@@ -49,12 +56,42 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
       
     if (error) {
       console.error('Database connection error:', error.message);
+      
+      // If it's an RLS error, try to handle it gracefully
+      if (error.message.includes('RLS') || error.message.includes('policy')) {
+        console.warn('RLS policy issue detected, but connection is working');
+        return true;
+      }
+      
       return false;
     }
     
+    console.log('Supabase connection successful');
     return true;
   } catch (error) {
     console.error('Failed to connect to Supabase:', error);
     return false;
+  }
+};
+
+// Helper function to check if user is authenticated
+export const isAuthenticated = async (): Promise<boolean> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    return !!session;
+  } catch (error) {
+    console.error('Error checking authentication:', error);
+    return false;
+  }
+};
+
+// Helper function to get current user
+export const getCurrentUser = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
   }
 };

@@ -36,11 +36,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('Password must be at least 8 characters long');
       }
 
+      console.log('Attempting to sign up user:', data.email);
+
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
-          emailRedirectTo: `${window.location.origin}`,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             full_name: data.fullName || '',
           },
@@ -48,8 +50,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
 
       if (error) {
+        console.error('Supabase sign up error:', error);
         throw error;
       }
+
+      console.log('Sign up response:', authData);
 
       if (authData.user && !authData.session) {
         // Email confirmation required
@@ -60,6 +65,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }));
       } else if (authData.user && authData.session) {
         // User is immediately signed in
+        console.log('User signed up and logged in:', authData.user);
         setAuthState(prev => ({
           ...prev,
           user: authData.user as User,
@@ -67,6 +73,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }));
       }
     } catch (error) {
+      console.error('Sign up error:', error);
       setAuthState(prev => ({
         ...prev,
         loading: false,
@@ -86,16 +93,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('Only @mitratech.com email addresses are allowed');
       }
 
+      console.log('Attempting to sign in user:', data.email);
+
       const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
       if (error) {
+        console.error('Supabase sign in error:', error);
         throw error;
       }
 
+      console.log('Sign in response:', authData);
+
       if (authData.user) {
+        console.log('User signed in successfully:', authData.user);
         setAuthState(prev => ({
           ...prev,
           user: authData.user as User,
@@ -103,6 +116,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }));
       }
     } catch (error) {
+      console.error('Sign in error:', error);
       setAuthState(prev => ({
         ...prev,
         loading: false,
@@ -142,13 +156,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     let mounted = true;
     
+    console.log('Setting up auth state listener');
+    
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
         
+        console.log('Auth state change:', event, session?.user?.email);
+        
         if (session?.user) {
           // Validate that the user has a Mitratech email
           if (!validateMitratechEmail(session.user.email || '')) {
+            console.warn('Invalid email domain, signing out:', session.user.email);
             await supabase.auth.signOut();
             setAuthState({
               user: null,
@@ -158,12 +177,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return;
           }
 
+          console.log('Setting authenticated user:', session.user.email);
           setAuthState({
             user: session.user as User,
             loading: false,
             error: null,
           });
         } else {
+          console.log('No session, setting user to null');
           setAuthState({
             user: null,
             loading: false,
@@ -175,6 +196,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     return () => {
       mounted = false;
+      console.log('Cleaning up auth state listener');
       subscription.unsubscribe();
     };
   }, []);
@@ -185,9 +207,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     const getInitialSession = async () => {
       try {
+        console.log('Getting initial session');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
+          console.error('Error getting initial session:', error);
           throw error;
         }
 
@@ -196,6 +220,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (session?.user) {
           // Validate that the user has a Mitratech email
           if (!validateMitratechEmail(session.user.email || '')) {
+            console.warn('Invalid email domain in initial session, signing out:', session.user.email);
             await supabase.auth.signOut();
             setAuthState({
               user: null,
@@ -205,17 +230,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return;
           }
 
+          console.log('Initial session found for user:', session.user.email);
           setAuthState({
             user: session.user as User,
             loading: false,
             error: null,
           });
         } else {
+          console.log('No initial session found');
           setAuthState(prev => ({ ...prev, loading: false }));
         }
       } catch (error) {
         if (!mounted) return;
         
+        console.error('Error in getInitialSession:', error);
         setAuthState({
           user: null,
           loading: false,

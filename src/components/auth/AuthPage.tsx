@@ -93,9 +93,9 @@ const AuthPage: React.FC = () => {
               <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
               <div>
                 <p className="text-red-800 text-sm font-medium">
-                  {error.includes('Account created successfully') ? 'Success' : 'Authentication Error'}
+                  {error.includes('Account created successfully') || error.includes('successful') ? 'Success' : 'Authentication Error'}
                 </p>
-                <p className={`text-sm mt-1 ${error.includes('Account created successfully') ? 'text-green-700' : 'text-red-700'}`}>{error}</p>
+                <p className={`text-sm mt-1 ${error.includes('Account created successfully') || error.includes('successful') ? 'text-green-700' : 'text-red-700'}`}>{error}</p>
               </div>
             </div>
           )}
