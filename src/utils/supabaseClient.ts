@@ -25,10 +25,16 @@ const supabaseOptions: SupabaseClientOptions<any> = {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storageKey: 'mitratech-dashboard-auth'
+    storageKey: 'mitratech-dashboard-auth',
+    flowType: 'pkce'
   },
   db: {
     schema: 'public'
+  },
+  global: {
+    headers: {
+      'apikey': supabaseAnonKey
+    }
   }
 };
 

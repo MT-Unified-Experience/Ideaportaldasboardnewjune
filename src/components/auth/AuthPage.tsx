@@ -93,9 +93,9 @@ const AuthPage: React.FC = () => {
               <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
               <div>
                 <p className="text-red-800 text-sm font-medium">
-                  {error.includes('check your email') ? 'Email Confirmation Required' : 'Authentication Error'}
+                  {error.includes('Account created successfully') ? 'Success' : 'Authentication Error'}
                 </p>
-                <p className="text-red-700 text-sm mt-1">{error}</p>
+                <p className={`text-sm mt-1 ${error.includes('Account created successfully') ? 'text-green-700' : 'text-red-700'}`}>{error}</p>
               </div>
             </div>
           )}
@@ -207,7 +207,7 @@ const AuthPage: React.FC = () => {
             <button
               type="submit"
               disabled={!isFormValid || isSubmitting}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
             >
               {isSubmitting ? (
                 <div className="flex items-center">

@@ -40,6 +40,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         email: data.email,
         password: data.password,
         options: {
+          emailRedirectTo: `${window.location.origin}`,
           data: {
             full_name: data.fullName || '',
           },
@@ -55,7 +56,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setAuthState(prev => ({
           ...prev,
           loading: false,
-          error: 'Please check your email and click the confirmation link to complete your registration.',
+          error: 'Account created successfully! You can now sign in with your credentials.',
+        }));
+      } else if (authData.user && authData.session) {
+        // User is immediately signed in
+        setAuthState(prev => ({
+          ...prev,
+          user: authData.user as User,
+          loading: false,
         }));
       }
     } catch (error) {
@@ -132,8 +140,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Listen for auth state changes
   useEffect(() => {
+    let mounted = true;
+    
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+        
         if (session?.user) {
           // Validate that the user has a Mitratech email
           if (!validateMitratechEmail(session.user.email || '')) {
@@ -161,11 +173,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Check initial session
   useEffect(() => {
+    let mounted = true;
+    
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -174,6 +191,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           throw error;
         }
 
+        if (!mounted) return;
+        
         if (session?.user) {
           // Validate that the user has a Mitratech email
           if (!validateMitratechEmail(session.user.email || '')) {
@@ -195,6 +214,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setAuthState(prev => ({ ...prev, loading: false }));
         }
       } catch (error) {
+        if (!mounted) return;
+        
         setAuthState({
           user: null,
           loading: false,
@@ -204,6 +225,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     getInitialSession();
+    
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const value: AuthContextType = {
