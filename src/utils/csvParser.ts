@@ -919,3 +919,159 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
           }
 
           const rows = results.data as ClientSubmissionsCSVRow[];
+          const lineChartData: Array<{
+            quarter: string;
+            clientsRepresenting: number;
+            clients?: string[];
+          }> = [];
+
+          rows.forEach(row => {
+            // Validate required fields
+            if (!row.quarter || !row.clients_representing) {
+              return; // Skip invalid rows
+            }
+
+            const clients = row.client_names ? 
+              row.client_names.split(',').map(s => s.trim()).filter(s => s.length > 0) : 
+              undefined;
+
+            const chartData = {
+              quarter: row.quarter.trim(),
+              clientsRepresenting: safeNumberConversion(row.clients_representing),
+              clients: clients
+            };
+
+            lineChartData.push(chartData);
+          });
+
+          // Sort by quarter (assuming FY format)
+          lineChartData.sort((a, b) => {
+            const getQuarterNum = (quarter: string) => {
+              const match = quarter.match(/Q(\d+)/);
+              return match ? parseInt(match[1]) : 0;
+            };
+            return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
+          });
+
+          resolve({
+            lineChartData
+          });
+        } catch (error) {
+          reject(error);
+        }
+      },
+      error: (error) => {
+        reject(new CSVError(
+          'Failed to parse CSV file',
+          'file',
+          [error.message]
+        ));
+      }
+    });
+  });
+};
+
+// Function to parse cross-client collaboration CSV data
+export const parseCrossClientCollaborationCSV = (csvData: string): Promise<{
+  collaborationTrendData: CollaborationTrendQuarterlyData[];
+}> => {
+  return new Promise((resolve, reject) => {
+    Papa.parse(csvData, {
+      header: true,
+      dynamicTyping: false,
+      skipEmptyLines: true,
+      complete: (results) => {
+        try {
+          // Validate data structure
+          if (!Array.isArray(results.data) || results.data.length === 0) {
+            throw new CSVError(
+              'Invalid data structure',
+              'data',
+              ['The CSV file must contain at least one row of data']
+            );
+          }
+
+          const rows = results.data as Array<{
+            quarter: string;
+            year?: string;
+            collaborative_ideas?: string;
+            total_ideas?: string;
+            collaboration_rate?: string;
+            collaboration_count?: string;
+          }>;
+          
+          const collaborationTrendData: CollaborationTrendQuarterlyData[] = [];
+
+          rows.forEach(row => {
+            // Handle both old format (quarter, collaboration_count) and new format
+            if (!row.quarter) {
+              return; // Skip invalid rows
+            }
+
+            let collaborativeIdeas = 0;
+            let totalIdeas = 0;
+            let collaborationRate = 0;
+            let year = new Date().getFullYear();
+
+            // Check if we have the new format with all required fields
+            if (row.collaborative_ideas && row.total_ideas) {
+              collaborativeIdeas = safeNumberConversion(row.collaborative_ideas);
+              totalIdeas = safeNumberConversion(row.total_ideas);
+              collaborationRate = row.collaboration_rate ? 
+                safeNumberConversion(row.collaboration_rate) : 
+                (totalIdeas > 0 ? Math.round((collaborativeIdeas / totalIdeas) * 100) : 0);
+            } else if (row.collaboration_count) {
+              // Handle old format - use collaboration_count as collaborative ideas
+              collaborativeIdeas = safeNumberConversion(row.collaboration_count);
+              totalIdeas = Math.max(collaborativeIdeas * 2, 20); // Estimate total ideas
+              collaborationRate = totalIdeas > 0 ? Math.round((collaborativeIdeas / totalIdeas) * 100) : 0;
+            }
+
+            // Parse year if provided
+            if (row.year) {
+              if (row.year.startsWith('FY')) {
+                const fyYear = parseInt(row.year.substring(2));
+                year = fyYear < 50 ? 2000 + fyYear : 1900 + fyYear;
+              } else {
+                year = parseInt(row.year);
+              }
+            }
+
+            const trendData: CollaborationTrendQuarterlyData = {
+              quarter: row.quarter.trim(),
+              year: year,
+              collaborativeIdeas: collaborativeIdeas,
+              totalIdeas: totalIdeas,
+              collaborationRate: collaborationRate
+            };
+
+            collaborationTrendData.push(trendData);
+          });
+
+          // Sort by year and quarter
+          collaborationTrendData.sort((a, b) => {
+            if (a.year !== b.year) return a.year - b.year;
+            const getQuarterNum = (quarter: string) => {
+              const match = quarter.match(/Q(\d+)/);
+              return match ? parseInt(match[1]) : 0;
+            };
+            return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
+          });
+
+          resolve({
+            collaborationTrendData
+          });
+        } catch (error) {
+          reject(error);
+        }
+      },
+      error: (error) => {
+        reject(new CSVError(
+          'Failed to parse CSV file',
+          'file',
+          [error.message]
+        ));
+      }
+    });
+  });
+};
