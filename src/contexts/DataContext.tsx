@@ -856,7 +856,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const requiredHeaders = [
     'product', 'quarter', 'responsiveness', 'roadmap_alignment_committed', 'roadmap_alignment_total',
     'active_quarter', 'active_clients_representing', 'feature_name', 'vote_count', 'status',
-    'status_updated_at', 'client_voters'
+    'status_updated_at', 'client_voters', 'year'
   ];
 
   // Function to handle CSV upload
