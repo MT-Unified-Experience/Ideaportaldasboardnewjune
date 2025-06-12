@@ -982,5 +982,3 @@ export const useData = (): DataContextType => {
   }
   return context;
 };
-
-export { useData }
