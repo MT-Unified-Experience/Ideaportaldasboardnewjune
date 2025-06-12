@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { useData } from '../contexts/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 import ProductTabs from '../components/navigation/ProductTabs';
 import ActionItemsPanel from '../components/dashboard/ActionItemsPanel';
 import QuarterTabs from '../components/navigation/QuarterTabs';
@@ -10,6 +11,7 @@ import { DashboardGrid } from '../components/dashboard';
 import { BarChart2, Edit, ListTodo, Settings } from 'lucide-react';
 import ShareButton from '../components/common/ShareButton';
 import SettingsModal from '../components/common/SettingsModal';
+import UserMenu from '../components/auth/UserMenu';
 
 interface WidgetSettings {
   responsiveness: boolean;
@@ -53,6 +55,7 @@ const saveSettings = (settings: WidgetSettings): void => {
 
 const DashboardLayout: React.FC = () => {
   const { currentProduct, currentQuarter, dashboardData } = useData();
+  const { user } = useAuth();
   const [isManagementOpen, setIsManagementOpen] = useState(false);
   const [isActionItemsOpen, setIsActionItemsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -78,7 +81,10 @@ const DashboardLayout: React.FC = () => {
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center">
               <BarChart2 className="h-8 w-8 text-blue-600 mr-3" />
-              <h1 className="text-xl font-bold text-gray-900">Idea Portal Dashboard</h1>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">Idea Portal Dashboard</h1>
+                <p className="text-sm text-gray-600">Welcome back, {user?.user_metadata?.full_name || user?.email?.split('@')[0]}</p>
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -89,6 +95,7 @@ const DashboardLayout: React.FC = () => {
                 Settings
               </button>
               <ShareButton />
+              <UserMenu />
             </div>
           </div>
         </div>

@@ -1,5 +1,4 @@
 import { createClient, SupabaseClientOptions } from '@supabase/supabase-js';
-import type { Database } from '../types/supabase'; 
 
 // Helper function to validate and format Supabase URL
 const validateSupabaseUrl = (url: string): string => {
@@ -21,19 +20,19 @@ if (!supabaseAnonKey.trim()) {
   throw new Error('VITE_SUPABASE_ANON_KEY is empty in environment variables');
 }
 
-const supabaseOptions: SupabaseClientOptions<Database> = {
+const supabaseOptions: SupabaseClientOptions<any> = {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: false,
-    storageKey: 'supabase.auth.token'
+    detectSessionInUrl: true,
+    storageKey: 'mitratech-dashboard-auth'
   },
   db: {
     schema: 'public'
   }
 };
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, supabaseOptions);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, supabaseOptions);
 
 export const checkSupabaseConnection = async (): Promise<boolean> => {
   try {
