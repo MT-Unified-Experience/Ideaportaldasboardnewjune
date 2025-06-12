@@ -65,8 +65,11 @@ export const clientSubmissionsRequiredHeaders = [
 // Required headers for cross-client collaboration CSV validation
 export const crossClientCollaborationRequiredHeaders = [
   'quarter',
-  'collaboration_count'
-  // Optional: year, collaborative_ideas, total_ideas, collaboration_rate
+  'year',
+  'collaborative_ideas',
+  'total_ideas',
+  'collaboration_rate'
+  // Optional: collaboration_count (for backward compatibility)
 ];
 
 interface ResponsivenessTrendCSVRow {
