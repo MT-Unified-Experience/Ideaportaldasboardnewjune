@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { DashboardData, Product, Quarter, ProductData, ProductQuarterlyData } from '../types';
 import { parseCSV, validateCSVHeaders, CSVError, parseTopFeaturesCSV, topFeaturesRequiredHeaders, parseResponsivenessTrendCSV, responsivenessTrendRequiredHeaders, parseCommitmentTrendsCSV, commitmentTrendsRequiredHeaders } from '../utils/csvParser';
-import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders, parseClientSubmissionsCSV, clientSubmissionsRequiredHeaders, parseCrossClientCollaborationCSV } from '../utils/csvParser';
+import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders, parseClientSubmissionsCSV, clientSubmissionsRequiredHeaders, parseCrossClientCollaborationCSV, crossClientCollaborationRequiredHeaders } from '../utils/csvParser';
 import { supabase, checkSupabaseConnection } from '../utils/supabaseClient';
 import { useEffect, useMemo } from 'react';
 
@@ -78,16 +78,6 @@ const safelyMergeNestedObjects = (defaultObj: any, incomingObj: any | null): any
     ...incomingObj
   };
 };
-
-// Required headers for cross-client collaboration CSV validation
-const crossClientCollaborationRequiredHeaders = [
-  'quarter',
-  'year',
-  'collaborative_ideas',
-  'total_ideas',
-  'collaboration_rate'
-  // Optional: significant_change, change_direction, change_percentage
-];
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentProduct, setCurrentProduct] = useState<Product>('TeamConnect');
