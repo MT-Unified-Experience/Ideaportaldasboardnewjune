@@ -902,4 +902,4 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setError(new CSVError(
           'An unexpected error occurred while uploading the CSV file',
           'application',
-          [(err as Error)?.message || 'Please try
+          [(err as Error)?.message || 'Please try again or contact support']
