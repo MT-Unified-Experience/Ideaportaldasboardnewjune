@@ -153,14 +153,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Required headers for CSV validation
   const requiredHeaders = [
-    'idea_id',
-    'idea_title',
-    'idea_description',
-    'status',
-    'priority',
-    'created_date',
-    'updated_date',
-    'client_name'
+    'product', 'quarter', 'quarterly_ideas', 'total_ideas', 'responsiveness', 'roadmap_alignment_committed', 'roadmap_alignment_total',
+    'active_quarter', 'active_clients_representing', 'feature_name', 'vote_count', 'status',
+    'status_updated_at', 'client_voters', 'forum_name', 'forum_audience', 'forum_purpose'
   ];
 
   // Required headers for responsiveness trend CSV validation

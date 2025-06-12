@@ -14,9 +14,9 @@ export class CSVError extends Error {
 
 // Required headers for CSV validation
 const requiredHeaders = [
-  'product', 'quarter', 'responsiveness', 'roadmap_alignment_committed', 'roadmap_alignment_total',
+  'product', 'quarter', 'quarterly_ideas', 'total_ideas', 'responsiveness', 'roadmap_alignment_committed', 'roadmap_alignment_total',
   'active_quarter', 'active_clients_representing', 'feature_name', 'vote_count', 'status',
-  'status_updated_at', 'client_voters'
+  'status_updated_at', 'client_voters', 'forum_name', 'forum_audience', 'forum_purpose'
 ];
 
 // Required headers for top features CSV validation
