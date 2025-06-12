@@ -28,6 +28,33 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
   const [isLocalLoading, setIsLocalLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
 
+  // Handle top features CSV upload
+  const handleTopFeaturesUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadStatus('Uploading...');
+    try {
+      await uploadTopFeaturesCSV(file);
+      setUploadStatus('Upload successful!');
+      
+      // Clear the file input
+      event.target.value = '';
+      
+      // Refresh local data after successful upload
+      if (dashboardData) {
+        setLocalData(dashboardData);
+      }
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setUploadStatus(''), 3000);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      setUploadStatus('Upload failed. Please try again.');
+      setTimeout(() => setUploadStatus(''), 5000);
+    }
+  };
+
   useEffect(() => {
     if (dashboardData) {
       setLocalData(dashboardData);
@@ -226,6 +253,52 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
             {/* Top Features Tab */}
             {activeTab === 'features' && (
               <div className="space-y-6">
+                {/* CSV Upload Section */}
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <h4 className="text-md font-medium text-blue-900 mb-2">Upload Top Features CSV</h4>
+                  <p className="text-sm text-blue-700 mb-3">
+                    Upload a CSV file containing top features data with columns: feature_name, vote_count, status, status_updated_at, client_voters, feature_quarter (current/previous).
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleTopFeaturesUpload}
+                      className="hidden"
+                      id="top-features-csv-upload"
+                      disabled={isLoading}
+                    />
+                    <label
+                      htmlFor="top-features-csv-upload"
+                      className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                        isLoading 
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {isLoading ? 'Uploading...' : 'Upload Top Features CSV'}
+                    </label>
+                    {uploadStatus && (
+                      <span className={`text-sm ${
+                        uploadStatus.includes('successful') ? 'text-green-600' : 
+                        uploadStatus.includes('failed') ? 'text-red-600' : 'text-blue-600'
+                      }`}>
+                        {uploadStatus}
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-2 text-xs text-blue-600">
+                    <a 
+                      href="data:text/csv;charset=utf-8,feature_name,vote_count,status,status_updated_at,client_voters,feature_quarter%0AAI%20Integration,35,Committed,2025-01-15,%22Client%20A,Client%20B,Client%20C%22,current%0AMobile%20App,25,Under%20Review,2025-02-01,%22Client%20D,Client%20E%22,current%0AReporting%20Tools,20,Delivered,2025-01-30,%22Client%20F,Client%20G%22,previous%0AAPI%20Enhancements,18,Under%20Review,2025-02-15,%22Client%20H,Client%20I%22,previous"
+                      download="top_features_template.csv"
+                      className="hover:underline"
+                    >
+                      Download sample CSV template
+                    </a>
+                  </div>
+                </div>
+
                 {/* Sub-tab Navigation */}
                 <div className="border-b border-gray-200">
                   <nav className="flex space-x-8">
