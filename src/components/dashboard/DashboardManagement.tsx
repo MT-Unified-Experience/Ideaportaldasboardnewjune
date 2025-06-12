@@ -10,7 +10,7 @@ interface DashboardManagementProps {
 }
 
 const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClose }) => {
-  const { dashboardData, updateDashboardData, uploadCrossClientCollaborationCSV, isLoading } = useData();
+  const { dashboardData, updateDashboardData, uploadCrossClientCollaborationCSV, uploadTopFeaturesCSV, isLoading } = useData();
   const [activeTab, setActiveTab] = useState<'features' | 'collaboration' | 'forums'>('features');
   const [activeSubTab, setActiveSubTab] = useState<'current' | 'previous'>('current');
   const [localData, setLocalData] = useState<DashboardData>(dashboardData || {
