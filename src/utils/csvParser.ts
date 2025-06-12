@@ -16,7 +16,7 @@ export class CSVError extends Error {
 const requiredHeaders = [
   'product', 'quarter', 'quarterly_ideas', 'total_ideas', 'responsiveness', 'roadmap_alignment_committed', 'roadmap_alignment_total',
   'active_quarter', 'active_clients_representing', 'feature_name', 'vote_count', 'status',
-  'status_updated_at', 'client_voters', 'forum_name', 'forum_audience', 'forum_purpose'
+  'status_updated_at', 'client_voters', 'forum_name'
 ];
 
 // Required headers for top features CSV validation
@@ -190,8 +190,6 @@ interface CSVRow {
   status_updated_at: string;
   client_voters: string;
   forum_name: string;
-  forum_audience: string;
-  forum_purpose: string;
   continued_engagement_rate: string;
   continued_engagement_numerator: string;
   continued_engagement_denominator: string;
@@ -512,11 +510,9 @@ const transformCSVData = (data: CSVRow[]): DashboardData => {
 
   // Transform forums data
   const forums = data
-    .filter(row => row.forum_name && row.forum_audience && row.forum_purpose)
+    .filter(row => row.forum_name)
     .map(row => ({
-      name: row.forum_name,
-      audience: row.forum_audience,
-      purpose: row.forum_purpose
+      name: row.forum_name
     }));
 
   return {
