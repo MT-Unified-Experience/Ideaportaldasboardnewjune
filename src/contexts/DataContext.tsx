@@ -664,190 +664,16 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  // Function to fetch product quarterly data with filters
-  const fetchProductQuarterlyData = async (filters?: {
-    product_id?: string;
-    product_name?: string;
-    quarter?: string;
-    year?: string;
-    page?: number;
-    limit?: number;
-    orderBy?: string;
-    orderDirection?: 'asc' | 'desc';
-  }): Promise<ProductQuarterlyData[]> => {
-    try {
-      let query = supabase
-        .from('product_quarterly_data')
-        .select('*');
-      
-      // Apply filters
-      if (filters?.product_id) {
-        query = query.eq('product_id', filters.product_id);
-      }
-      if (filters?.product_name) {
-        query = query.ilike('product_name', `%${filters.product_name}%`);
-      }
-      if (filters?.quarter) {
-        query = query.eq('quarter', filters.quarter);
-      }
-      if (filters?.year) {
-        query = query.eq('year', filters.year);
-      }
-      
-      // Apply sorting
-      if (filters?.orderBy) {
-        query = query.order(filters.orderBy, {
-          ascending: filters.orderDirection !== 'desc'
-        });
-      }
-      
-      // Apply pagination
-      if (filters?.page !== undefined && filters?.limit !== undefined) {
-        const start = filters.page * filters.limit;
-        const end = start + filters.limit - 1;
-        query = query.range(start, end);
-      }
-      
-      const { data, error } = await query;
-      
-      if (error) throw error;
-      
-      return data || [];
-      
-    } catch (err) {
-      console.error('Error fetching product quarterly data:', err);
-      throw err;
-    }
+  // Transform product quarterly CSV data
+  const transformProductQuarterlyCSVData = (data: any[]) => {
+    return data.map(row => ({
+      product_id: row.product_id,
+      product_name: row.product_name,
+      quarter: row.quarter,
+      year: row.year,
+      sales_data: row.sales_data
+    }));
   };
-
-  // Check Supabase connection on mount
-  useEffect(() => {
-    const checkConnection = async () => {
-      try {
-        // Add a small delay before first connection attempt
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const isConnected = await checkSupabaseConnection();
-        if (!isConnected) {
-          setError(new Error('Unable to connect to Supabase. Please check your connection settings.'));
-          return false;
-        }
-        return true;
-      } catch (error) {
-        console.error('Connection check failed:', error);
-        setError(error instanceof Error ? error : new Error('Connection check failed'));
-        return false;
-      }
-    };
-    
-    checkConnection();
-  }, []);
-
-  // Fetch data when product or quarter changes
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        // Check connection before fetching
-        const isConnected = await checkSupabaseConnection();
-        if (!isConnected) { 
-          throw new Error('Unable to establish database connection. Please try again later.');
-        }
-
-        const { data, error: fetchError } = await supabase
-          .from('dashboards')
-          .select('data')
-          .eq('product', currentProduct)
-          .eq('quarter', currentQuarter)
-          .maybeSingle();
-        
-        if (fetchError) throw fetchError;
-        
-        // If data exists
-        if (data) {
-          const fetchedData = data.data;
-
-          // Deep merge the fetched data with defaults
-          const mergedData = {
-            ...defaultDashboardData,
-            ...fetchedData,
-            metricSummary: {
-              ...defaultDashboardData.metricSummary,
-              ...(fetchedData.metricSummary || {}),
-              roadmapAlignment: {
-                ...defaultDashboardData.metricSummary.roadmapAlignment,
-                ...(fetchedData.metricSummary?.roadmapAlignment || {})
-              },
-              ideaVolume: {
-                ...defaultDashboardData.metricSummary.ideaVolume,
-                ...(fetchedData.metricSummary?.ideaVolume || {})
-              },
-              agingIdeas: {
-                ...defaultDashboardData.metricSummary.agingIdeas,
-                ...(fetchedData.metricSummary?.agingIdeas || {})
-              }
-            },
-            lineChartData: fetchedData.lineChartData || [...defaultDashboardData.lineChartData],
-            topFeatures: fetchedData.topFeatures || [...defaultDashboardData.topFeatures],
-            previousQuarterFeatures: fetchedData.previousQuarterFeatures || [],
-            data_socialization_forums: fetchedData.data_socialization_forums || [
-              { name: 'CSC' },
-              { name: 'Sprint Reviews' },
-              { name: 'Customer Advisory Board (CAB)' },
-              { name: 'CWG' },
-              { name: 'Quarterly Product Reviews (QBRs)' }
-            ]
-          };
-
-          setAllProductsData(prevData => ({
-            ...prevData,
-            [currentProduct]: {
-              ...prevData[currentProduct],
-              [currentQuarter]: mergedData
-            }
-          }));
-        } else {
-          // Use default data structure when no data exists
-          setAllProductsData(prevData => ({
-            ...prevData,
-            [currentProduct]: {
-              ...prevData[currentProduct],
-              [currentQuarter]: {
-                ...defaultDashboardData,
-                previousQuarterFeatures: [],
-                data_socialization_forums: [
-                  { name: 'CSC' },
-                  { name: 'Sprint Reviews' },
-                  { name: 'Customer Advisory Board (CAB)' },
-                  { name: 'CWG' },
-                  { name: 'Quarterly Product Reviews (QBRs)' }
-                ]
-              }
-            }
-          }));
-        }
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        setError(parseError(err));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchData();
-  }, [currentProduct, currentQuarter]);
-
-  // Get the current dashboard data based on selected product and quarter
-  const dashboardData = allProductsData[currentProduct]?.[currentQuarter] || defaultDashboardData;
-
-  // Required headers for CSV validation
-  const requiredHeaders = [
-    'product', 'quarter', 'responsiveness', 'roadmap_alignment_committed', 'roadmap_alignment_total',
-    'active_quarter', 'active_clients_representing', 'feature_name', 'vote_count', 'status',
-    'status_updated_at', 'client_voters'
-  ];
 
   // Function to handle CSV upload
   const uploadCSV = async (file: File): Promise<void> => {
@@ -903,9 +729,81 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           'An unexpected error occurred while uploading the CSV file',
           'application',
           [(err as Error)?.message || 'Please try again or contact support']
-        )
-        )
+        ));
       }
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  // Update dashboard data function
+  const updateDashboardData = async (data: DashboardData): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const { error: upsertError } = await supabase
+        .from('dashboards')
+        .upsert({
+          product: currentProduct,
+          quarter: currentQuarter,
+          data: data
+        }, {
+          onConflict: 'product,quarter'
+        });
+      
+      if (upsertError) throw upsertError;
+      
+      // Update local state
+      setAllProductsData(prevData => ({
+        ...prevData,
+        [currentProduct]: {
+          ...prevData[currentProduct],
+          [currentQuarter]: data
+        }
+      }));
+      
+    } catch (err) {
+      setError(parseError(err));
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const value: DataContextType = {
+    currentProduct,
+    currentQuarter,
+    dashboardData,
+    allProductsData,
+    setCurrentProduct,
+    setCurrentQuarter,
+    uploadCSV,
+    uploadProductQuarterlyCSV,
+    uploadTopFeaturesCSV,
+    uploadResponsivenessTrendCSV,
+    uploadCommitmentTrendsCSV,
+    uploadContinuedEngagementCSV,
+    uploadClientSubmissionsCSV,
+    uploadCrossClientCollaborationCSV,
+    fetchProductQuarterlyData,
+    updateDashboardData,
+    isLoading,
+    error,
+  };
+
+  return (
+    <DataContext.Provider value={value}>
+      {children}
+    </DataContext.Provider>
+  );
+};
+
+// Custom hook to use the DataContext
+export const useData = (): DataContextType => {
+  const context = useContext(DataContext);
+  if (!context) {
+    throw new Error('useData must be used within a DataProvider');
   }
-}
+  return context;
+};
