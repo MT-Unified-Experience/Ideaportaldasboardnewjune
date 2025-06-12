@@ -133,6 +133,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     initializeDefaultData();
   }, []);
 
+  // Compute dashboardData based on current product and quarter
+  const dashboardData = useMemo(() => {
+    const productData = allProductsData[currentProduct];
+    if (!productData) return null;
+    
+    const quarterData = productData[currentQuarter];
+    return quarterData || null;
+  }, [allProductsData, currentProduct, currentQuarter]);
+
   // Required headers for product quarterly CSV validation
   const productQuarterlyHeaders = [
     'product_id',
@@ -140,6 +149,18 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     'quarter',
     'year',
     'sales_data'
+  ];
+
+  // Required headers for CSV validation
+  const requiredHeaders = [
+    'idea_id',
+    'idea_title',
+    'idea_description',
+    'status',
+    'priority',
+    'created_date',
+    'updated_date',
+    'client_name'
   ];
 
   // Required headers for responsiveness trend CSV validation
@@ -662,6 +683,21 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Function to fetch product quarterly data
+  const fetchProductQuarterlyData = async (filters?: { 
+    product_id?: string; 
+    product_name?: string; 
+    quarter?: string; 
+    year?: string; 
+    page?: number; 
+    limit?: number; 
+    orderBy?: string; 
+    orderDirection?: 'asc' | 'desc'; 
+  }): Promise<ProductQuarterlyData[]> => {
+    // Implementation would go here - returning empty array for now
+    return [];
   };
 
   // Transform product quarterly CSV data
