@@ -579,7 +579,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                   </div>
                   <div className="mt-2 text-xs text-green-600">
                     <a 
-                      href="data:text/csv;charset=utf-8,quarter,year,collaborative_ideas,total_ideas,collaboration_rate%0AFY25%20Q1,2025,5,25,20%0AFY25%20Q2,2025,8,30,27%0AFY25%20Q3,2025,12,35,34%0AFY25%20Q4,2025,15,40,38"
+                      href="data:text/csv;charset=utf-8,quarter,year,collaborative_ideas,total_ideas,collaboration_rate%0AFY25%20Q1,FY25,5,25,20%0AFY25%20Q2,FY25,8,30,27%0AFY25%20Q3,FY25,12,35,34%0AFY25%20Q4,FY25,15,40,38"
                       download="collaboration_template.csv"
                       className="hover:underline"
                     >
