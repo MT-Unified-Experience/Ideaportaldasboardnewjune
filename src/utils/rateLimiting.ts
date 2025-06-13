@@ -8,7 +8,7 @@ import { supabase } from './supabaseClient';
 export const getClientIP = (): string => {
   // In a real production environment, you would get this from headers
   // For now, we'll use a fallback approach
-  return 'unknown-ip';
+  return 'localhost-dev';
 };
 
 /**
@@ -26,21 +26,23 @@ export const checkPasswordResetRateLimit = async (
 
     if (error) {
       console.error('Rate limit check error:', error);
-      // Allow the request if we can't check rate limits
+      // If the function doesn't exist or there's a database error, allow the request
+      // This ensures the app doesn't break if rate limiting isn't set up
       return { allowed: true };
     }
 
-    if (!data) {
+    // If data is false, rate limit is exceeded
+    if (data === false) {
       return {
         allowed: false,
-        message: 'Too many password reset attempts. Please try again later.'
+        message: 'Too many password reset attempts. Please try again in an hour.'
       };
     }
 
     return { allowed: true };
   } catch (error) {
     console.error('Rate limit check failed:', error);
-    // Allow the request if rate limiting fails
+    // Allow the request if rate limiting fails to prevent blocking users
     return { allowed: true };
   }
 };
@@ -62,9 +64,11 @@ export const logPasswordResetAttempt = async (
 
     if (error) {
       console.error('Failed to log password reset attempt:', error);
+      // Don't throw error - logging is not critical for user experience
     }
   } catch (error) {
     console.error('Failed to log password reset attempt:', error);
+    // Don't throw error - logging is not critical for user experience
   }
 };
 
