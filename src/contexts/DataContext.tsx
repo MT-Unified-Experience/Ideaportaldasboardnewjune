@@ -81,7 +81,7 @@ const safelyMergeNestedObjects = (defaultObj: any, incomingObj: any | null): any
   };
 };
 
-export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentProduct, setCurrentProduct] = useState<Product>('TeamConnect');
   const [currentQuarter, setCurrentQuarter] = useState<Quarter>('FY25 Q1');
   const [allProductsData, setAllProductsData] = useState<Record<Product, ProductData>>({} as Record<Product, ProductData>);
@@ -817,10 +817,13 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 };
 
 // Custom hook to use the DataContext
-export const useData = (): DataContextType => {
+const useData = (): DataContextType => {
   const context = useContext(DataContext);
   if (!context) {
     throw new Error('useData must be used within a DataProvider');
   }
   return context;
 };
+
+// Export both components
+export { DataProvider, useData };
