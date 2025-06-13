@@ -53,14 +53,21 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
       return false;
     }
     
+    // Add timeout to prevent hanging requests
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Connection timeout')), 5000);
+    });
+    
     // Test connection with a simple query
-    const { data, error } = await supabase
+    const connectionPromise = supabase
       .from('dashboards')
       .select('id')
       .limit(1);
       
+    const { data, error } = await Promise.race([connectionPromise, timeoutPromise]);
+      
     if (error) {
-      console.error('Database connection error:', error.message);
+      console.warn('Database connection issue:', error.message);
       
       // If it's an RLS error, try to handle it gracefully
       if (error.message.includes('RLS') || error.message.includes('policy')) {
@@ -68,13 +75,22 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
         return true;
       }
       
+      // For other errors, still consider connection as working but log the issue
+      console.warn('Supabase connection has issues but will continue in offline mode');
       return false;
     }
     
     console.log('Supabase connection successful');
     return true;
-  } catch (error) {
-    console.error('Failed to connect to Supabase:', error);
+  } catch (error: any) {
+    // Handle network errors gracefully
+    if (error.message === 'Connection timeout') {
+      console.warn('Supabase connection timed out. Working in offline mode.');
+    } else if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+      console.warn('Network error connecting to Supabase. Working in offline mode.');
+    } else {
+      console.warn('Failed to connect to Supabase:', error.message);
+    }
     return false;
   }
 };
@@ -86,7 +102,7 @@ export const isAuthenticated = async (): Promise<boolean> => {
     const { data: { session } } = await supabase.auth.getSession();
     return !!session;
   } catch (error) {
-    console.error('Error checking authentication:', error);
+    console.warn('Error checking authentication, assuming not authenticated:', error);
     return false;
   }
 };
@@ -98,7 +114,7 @@ export const getCurrentUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     return user;
   } catch (error) {
-    console.error('Error getting current user:', error);
+    console.warn('Error getting current user:', error);
     return null;
   }
 };

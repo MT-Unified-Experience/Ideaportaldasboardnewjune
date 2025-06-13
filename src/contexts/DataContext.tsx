@@ -99,7 +99,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           console.warn('Supabase is not available. Application will work in offline mode.');
         }
       } catch (error) {
-        console.error('Error checking Supabase connection:', error);
+        console.warn('Error checking Supabase connection, continuing in offline mode:', error);
         setIsSupabaseAvailable(false);
       }
     };
@@ -195,7 +195,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       if (upsertError) throw upsertError;
     } catch (error) {
-      console.error(`Failed to save to ${table}:`, error);
+      console.warn(`Failed to save to ${table}:`, error);
       // Don't throw error - allow local operation to continue
     }
   };
