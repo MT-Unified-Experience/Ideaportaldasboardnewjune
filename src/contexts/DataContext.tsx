@@ -190,7 +190,7 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
     try {
       // Use direct fetch for upsert operations
-      const response = await supabaseFetch(`rest/v1/${table}`, {
+      const response = await supabaseFetch(`rest/v1/${table}?on_conflict=${conflictColumns}`, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
