@@ -58,25 +58,64 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
       return false;
     }
     
-    // Test connection with a simple query
-    const { data, error } = await supabase
-      .from('dashboards')
-      .select('id')
-      .limit(1);
+    // Test connection with a simple query and timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
-    if (error) {
-      console.warn('Supabase connection error:', error.message);
-      return false;
+    try {
+      const { data, error } = await supabase
+        .from('dashboards')
+        .select('id')
+        .limit(1)
+        .abortSignal(controller.signal);
+      
+      clearTimeout(timeoutId);
+      
+      if (error) {
+        console.warn('Supabase connection error:', error.message);
+        return false;
+      }
+      
+      console.log('Supabase connection successful');
+      return true;
+      
+    } catch (fetchError: any) {
+      clearTimeout(timeoutId);
+      
+      // Handle specific network errors
+      if (fetchError.name === 'AbortError') {
+        console.warn('Supabase connection timeout. Please check your network connection.');
+        return false;
+      }
+      
+      if (fetchError.message?.includes('Failed to fetch')) {
+        console.warn('Network error connecting to Supabase. This might be due to:');
+        console.warn('1. CORS configuration - ensure your development URL is added to Supabase allowed origins');
+        console.warn('2. Network connectivity issues');
+        console.warn('3. Incorrect Supabase URL or API key');
+        console.warn('Working in offline mode.');
+        return false;
+      }
+      
+      throw fetchError; // Re-throw if it's not a network error
     }
     
-    console.log('Supabase connection successful');
-    return true;
-    
   } catch (error: any) {
-    // Handle all types of connection errors gracefully
+    // Handle all other types of errors gracefully
     const errorMessage = error?.message || 'Unknown error';
     
-    console.warn('Failed to connect to Supabase:', errorMessage, 'Working in offline mode.');
+    console.warn('Failed to connect to Supabase:', errorMessage);
+    
+    // Provide helpful debugging information
+    if (errorMessage.includes('Failed to fetch')) {
+      console.warn('💡 To fix this issue:');
+      console.warn('1. Go to your Supabase project dashboard');
+      console.warn('2. Navigate to Settings > API');
+      console.warn('3. Add "http://localhost:5173" to the CORS allowed origins');
+      console.warn('4. Save the settings and refresh this page');
+    }
+    
+    console.warn('Working in offline mode.');
     return false;
   }
 };
