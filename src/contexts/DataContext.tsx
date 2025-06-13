@@ -89,7 +89,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [error, setError] = useState<Error | null>(null);
   const [isSupabaseAvailable, setIsSupabaseAvailable] = useState<boolean>(false);
 
-  // Check Supabase connection on mount
+  // Check Supabase connection on mount with better error handling
   useEffect(() => {
     const checkConnection = async () => {
       try {
@@ -104,7 +104,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     };
 
-    checkConnection();
+    // Add a small delay to prevent immediate connection attempts
+    const timeoutId = setTimeout(checkConnection, 100);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   // Initialize default data for all products and quarters
@@ -179,7 +181,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     'status_updated_at', 'client_voters', 'forum_name', 'forum_audience', 'forum_purpose'
   ];
 
-  // Helper function to safely store data in Supabase
+  // Helper function to safely store data in Supabase with improved error handling
   const safeSupabaseUpsert = async (table: string, data: any, conflictColumns: string) => {
     if (!isSupabaseAvailable || !supabase) {
       console.warn('Supabase not available. Data saved locally only.');
@@ -194,8 +196,15 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         });
       
       if (upsertError) throw upsertError;
-    } catch (error) {
-      console.warn(`Failed to save to ${table}:`, error);
+    } catch (error: any) {
+      // More specific error handling
+      if (error?.message?.includes('Failed to fetch') || 
+          error?.name === 'TypeError' ||
+          error?.message?.includes('network')) {
+        console.warn(`Network error saving to ${table}. Data saved locally only.`);
+      } else {
+        console.warn(`Failed to save to ${table}:`, error);
+      }
       // Don't throw error - allow local operation to continue
     }
   };

@@ -60,51 +60,52 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
     
     // Create a more robust timeout mechanism
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Connection timeout')), 3000);
+      setTimeout(() => reject(new Error('Connection timeout')), 2000); // Reduced timeout
     });
     
     // Test connection with a simple query - wrap in comprehensive error handling
-    const connectionPromise = supabase
-      .from('dashboards')
-      .select('id')
-      .limit(1)
-      .then(result => {
-        // Even if there's an error, if we get a response structure, connection is working
-        return result;
-      })
-      .catch(error => {
-        // Handle different types of errors
-        if (error.message?.includes('Failed to fetch') || 
-            error.name === 'TypeError' || 
-            error.message?.includes('fetch') ||
-            error.message?.includes('NetworkError') ||
-            error.message?.includes('ERR_NETWORK')) {
-          throw new Error('Network connection failed');
-        }
-        // For other errors (like RLS), still consider connection working
-        return { data: null, error };
-      });
+    const connectionPromise = new Promise((resolve, reject) => {
+      supabase
+        .from('dashboards')
+        .select('id')
+        .limit(1)
+        .then(result => {
+          // Even if there's an error, if we get a response structure, connection is working
+          resolve(result);
+        })
+        .catch(error => {
+          // Reject all errors to be handled in the outer catch
+          reject(error);
+        });
+    });
       
-    const result = await Promise.race([connectionPromise, timeoutPromise]);
+    await Promise.race([connectionPromise, timeoutPromise]);
     
-    // If we got here, the connection worked (even if there were RLS or other errors)
+    // If we got here, the connection worked
     console.log('Supabase connection successful');
     return true;
     
   } catch (error: any) {
     // Handle all types of connection errors gracefully
     const errorMessage = error?.message || 'Unknown error';
+    const errorName = error?.name || '';
     
+    // More comprehensive error detection
     if (errorMessage.includes('Connection timeout')) {
       console.warn('Supabase connection timed out. Working in offline mode.');
-    } else if (errorMessage.includes('Network connection failed') || 
-               errorMessage.includes('Failed to fetch') ||
-               errorMessage.includes('NetworkError') ||
-               errorMessage.includes('ERR_NETWORK') ||
-               error?.name === 'TypeError') {
+    } else if (
+      errorMessage.includes('Failed to fetch') ||
+      errorMessage.includes('fetch') ||
+      errorMessage.includes('NetworkError') ||
+      errorMessage.includes('ERR_NETWORK') ||
+      errorMessage.includes('network') ||
+      errorName === 'TypeError' ||
+      errorName === 'NetworkError' ||
+      error?.code === 'NETWORK_ERROR'
+    ) {
       console.warn('Network error connecting to Supabase. Working in offline mode.');
     } else {
-      console.warn('Failed to connect to Supabase:', errorMessage);
+      console.warn('Failed to connect to Supabase:', errorMessage, 'Working in offline mode.');
     }
     
     return false;
