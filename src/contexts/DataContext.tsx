@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { DashboardData, Product, Quarter, ProductData, ProductQuarterlyData } from '../types';
 import { parseCSV, validateCSVHeaders, CSVError, parseTopFeaturesCSV, topFeaturesRequiredHeaders, parseResponsivenessTrendCSV, responsivenessTrendRequiredHeaders, parseCommitmentTrendsCSV, commitmentTrendsRequiredHeaders } from '../utils/csvParser';
 import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders, parseClientSubmissionsCSV, clientSubmissionsRequiredHeaders, parseCrossClientCollaborationCSV, crossClientCollaborationRequiredHeaders } from '../utils/csvParser';
-import { supabase, checkSupabaseConnection } from '../utils/supabaseClient';
+import { supabase, checkSupabaseConnection, supabaseFetch } from '../utils/supabaseClient';
 import { useEffect, useMemo } from 'react';
 import Papa from 'papaparse';
 
@@ -189,13 +189,18 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     try {
-      const { error: upsertError } = await supabase
-        .from(table)
-        .upsert(data, {
-          onConflict: conflictColumns
-        });
-      
-      if (upsertError) throw upsertError;
+      // Use direct fetch for upsert operations
+      const response = await supabaseFetch(`rest/v1/${table}`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Prefer': `resolution=merge-duplicates,return=minimal`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
     } catch (error: any) {
       // More specific error handling
       if (error?.message?.includes('Failed to fetch') || 

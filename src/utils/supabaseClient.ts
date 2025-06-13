@@ -10,7 +10,20 @@ const validateSupabaseUrl = (url: string): string => {
   return trimmedUrl;
 };
 
-const supabaseUrl = validateSupabaseUrl(import.meta.env.VITE_SUPABASE_URL || '');
+// Use proxy URL in development, direct URL in production
+const getSupabaseUrl = (): string => {
+  const envUrl = import.meta.env.VITE_SUPABASE_URL || '';
+  
+  // In development, use the proxy
+  if (import.meta.env.DEV) {
+    return '/api';
+  }
+  
+  // In production, use the direct URL
+  return validateSupabaseUrl(envUrl);
+};
+
+const supabaseUrl = getSupabaseUrl();
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -46,6 +59,59 @@ export const supabase = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey, supabaseOptions)
   : null as any; // Fallback for when Supabase is not configured
 
+// Helper function to get the correct API URL for direct fetch calls
+export const getApiUrl = (path: string): string => {
+  // Remove leading slash if present
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  if (import.meta.env.DEV) {
+    // In development, use the proxy
+    return `/api/${cleanPath}`;
+  } else {
+    // In production, use the direct Supabase URL
+    const directUrl = validateSupabaseUrl(import.meta.env.VITE_SUPABASE_URL || '');
+    return `${directUrl}/${cleanPath}`;
+  }
+};
+
+// Helper function to create headers for direct API calls
+export const getApiHeaders = (): HeadersInit => {
+  return {
+    'apikey': supabaseAnonKey,
+    'Authorization': `Bearer ${supabaseAnonKey}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=minimal'
+  };
+};
+
+// Enhanced fetch wrapper for Supabase REST API calls
+export const supabaseFetch = async (
+  path: string, 
+  options: RequestInit = {}
+): Promise<Response> => {
+  const url = getApiUrl(path);
+  const headers = {
+    ...getApiHeaders(),
+    ...options.headers
+  };
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response;
+  } catch (error) {
+    console.error('Supabase fetch error:', error);
+    throw error;
+  }
+};
+
 export const checkSupabaseConnection = async (): Promise<boolean> => {
   try {
     if (!supabase) {
@@ -53,7 +119,7 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
       return false;
     }
     
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabaseAnonKey) {
       console.warn('Supabase environment variables not configured');
       return false;
     }
@@ -63,18 +129,12 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
     try {
-      const { data, error } = await supabase
-        .from('dashboards')
-        .select('id')
-        .limit(1)
-        .abortSignal(controller.signal);
+      // Use the enhanced fetch for testing connection
+      const response = await supabaseFetch('rest/v1/dashboards?select=id&limit=1', {
+        signal: controller.signal
+      });
       
       clearTimeout(timeoutId);
-      
-      if (error) {
-        console.warn('Supabase connection error:', error.message);
-        return false;
-      }
       
       console.log('Supabase connection successful');
       return true;
