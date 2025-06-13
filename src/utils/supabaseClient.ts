@@ -33,15 +33,6 @@ const supabaseOptions: SupabaseClientOptions<any> = {
       'apikey': supabaseAnonKey,
       'Authorization': `Bearer ${supabaseAnonKey}`
     },
-    fetch: (url, options = {}) => {
-      return fetch(url, {
-        ...options,
-        headers: {
-          ...options.headers,
-          'Content-Type': 'application/json',
-        },
-      });
-    }
   },
   realtime: {
     params: {
