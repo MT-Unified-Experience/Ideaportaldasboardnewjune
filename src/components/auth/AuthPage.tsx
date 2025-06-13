@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { BarChart2, Mail, Lock, User, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 type AuthMode = 'signin' | 'signup';
 
 const AuthPage: React.FC = () => {
   const [mode, setMode] = useState<AuthMode>('signin');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -218,6 +220,19 @@ const AuthPage: React.FC = () => {
                 mode === 'signin' ? 'Sign In' : 'Create Account'
               )}
             </button>
+
+            {/* Forgot Password Link - Only show on sign in */}
+            {mode === 'signin' && (
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-blue-600 hover:text-blue-500 transition-colors font-medium"
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
           </form>
 
           {/* Toggle Mode */}
@@ -243,6 +258,12 @@ const AuthPage: React.FC = () => {
             Your data is protected and secure.
           </p>
         </div>
+
+        {/* Forgot Password Modal */}
+        <ForgotPasswordModal
+          isOpen={showForgotPassword}
+          onClose={() => setShowForgotPassword(false)}
+        />
       </div>
     </div>
   );
