@@ -14,9 +14,9 @@ const validateSupabaseUrl = (url: string): string => {
 const getSupabaseUrl = (): string => {
   const envUrl = import.meta.env.VITE_SUPABASE_URL || '';
   
-  // In development, use the proxy
+  // In development, use the proxy with absolute URL
   if (import.meta.env.DEV) {
-    return '/api';
+    return `${window.location.origin}/api`;
   }
   
   // In production, use the direct URL
