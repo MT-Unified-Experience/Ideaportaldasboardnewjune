@@ -45,30 +45,51 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen, onClo
         throw new Error('Only @mitratech.com email addresses are allowed');
       }
 
-      // Check rate limiting
-      const rateLimitCheck = await checkPasswordResetRateLimit(email);
-      if (!rateLimitCheck.allowed) {
-        throw new Error(rateLimitCheck.message || 'Too many attempts. Please try again later.');
+      // Check rate limiting (but don't fail if it's not available)
+      try {
+        const rateLimitCheck = await checkPasswordResetRateLimit(email);
+        if (!rateLimitCheck.allowed) {
+          throw new Error(rateLimitCheck.message || 'Too many attempts. Please try again later.');
+        }
+      } catch (rateLimitError) {
+        console.warn('Rate limiting check failed, proceeding with request:', rateLimitError);
       }
 
       // Send password reset email
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       });
 
-      if (error) {
-        // Log failed attempt
-        await logPasswordResetAttempt(email, false);
-        throw error;
+      if (resetError) {
+        // Log failed attempt (but don't fail if logging fails)
+        try {
+          await logPasswordResetAttempt(email, false);
+        } catch (logError) {
+          console.warn('Failed to log password reset attempt:', logError);
+        }
+        
+        // Handle specific Supabase errors
+        if (resetError.message?.includes('fetch')) {
+          throw new Error('Unable to connect to authentication service. Please check your internet connection and try again.');
+        } else if (resetError.message?.includes('rate limit')) {
+          throw new Error('Too many password reset attempts. Please try again later.');
+        } else {
+          throw new Error(resetError.message || 'Failed to send password reset email');
+        }
       }
 
-      // Log successful attempt
-      await logPasswordResetAttempt(email, true);
+      // Log successful attempt (but don't fail if logging fails)
+      try {
+        await logPasswordResetAttempt(email, true);
+      } catch (logError) {
+        console.warn('Failed to log password reset attempt:', logError);
+      }
 
       setCurrentStep('sent');
       setSuccess('Password reset instructions have been sent to your email');
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'An error occurred');
+      console.error('Password reset error:', error);
+      setError(error instanceof Error ? error.message : 'An error occurred while sending the password reset email');
     } finally {
       setIsLoading(false);
     }
@@ -101,7 +122,11 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen, onClo
       });
 
       if (error) {
-        throw error;
+        if (error.message?.includes('fetch')) {
+          throw new Error('Unable to connect to authentication service. Please check your internet connection and try again.');
+        } else {
+          throw error;
+        }
       }
 
       setSuccess('Password updated successfully! You can now sign in with your new password.');
@@ -111,7 +136,8 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen, onClo
         handleClose();
       }, 2000);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'An error occurred');
+      console.error('Password update error:', error);
+      setError(error instanceof Error ? error.message : 'An error occurred while updating your password');
     } finally {
       setIsLoading(false);
     }

@@ -19,6 +19,18 @@ export const checkPasswordResetRateLimit = async (
   ipAddress: string = getClientIP()
 ): Promise<{ allowed: boolean; message?: string }> => {
   try {
+    // First check if we can connect to Supabase
+    const { data: connectionTest } = await supabase
+      .from('dashboards')
+      .select('id')
+      .limit(1);
+
+    // If basic connection fails, allow the request
+    if (!connectionTest && connectionTest !== null) {
+      console.warn('Supabase connection issue, skipping rate limiting');
+      return { allowed: true };
+    }
+
     const { data, error } = await supabase.rpc('check_password_reset_rate_limit', {
       user_email: email.toLowerCase(),
       user_ip: ipAddress
@@ -33,7 +45,7 @@ export const checkPasswordResetRateLimit = async (
         return { allowed: true };
       }
       
-      // For other errors, be conservative and allow the request
+      // For network errors or other issues, be conservative and allow the request
       return { allowed: true };
     }
 
@@ -62,6 +74,18 @@ export const logPasswordResetAttempt = async (
   ipAddress: string = getClientIP()
 ): Promise<void> => {
   try {
+    // First check if we can connect to Supabase
+    const { data: connectionTest } = await supabase
+      .from('dashboards')
+      .select('id')
+      .limit(1);
+
+    // If basic connection fails, skip logging
+    if (!connectionTest && connectionTest !== null) {
+      console.warn('Supabase connection issue, skipping password reset logging');
+      return;
+    }
+
     const { error } = await supabase.rpc('log_password_reset_attempt', {
       user_email: email.toLowerCase(),
       user_ip: ipAddress,
