@@ -58,11 +58,19 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
       setTimeout(() => reject(new Error('Connection timeout')), 5000);
     });
     
-    // Test connection with a simple query
+    // Test connection with a simple query - wrap in additional error handling
     const connectionPromise = supabase
       .from('dashboards')
       .select('id')
-      .limit(1);
+      .limit(1)
+      .then(result => result)
+      .catch(error => {
+        // Handle fetch errors specifically
+        if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+          throw new Error('Network connection failed');
+        }
+        throw error;
+      });
       
     const { data, error } = await Promise.race([connectionPromise, timeoutPromise]);
       
@@ -86,8 +94,10 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
     // Handle network errors gracefully
     if (error.message === 'Connection timeout') {
       console.warn('Supabase connection timed out. Working in offline mode.');
-    } else if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+    } else if (error.message === 'Network connection failed' || error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
       console.warn('Network error connecting to Supabase. Working in offline mode.');
+    } else if (error.message.includes('fetch')) {
+      console.warn('Network fetch error connecting to Supabase. Working in offline mode.');
     } else {
       console.warn('Failed to connect to Supabase:', error.message);
     }
