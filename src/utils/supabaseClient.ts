@@ -3,21 +3,18 @@ import { createClient, SupabaseClientOptions } from '@supabase/supabase-js';
 // Helper function to validate and format Supabase URL
 const validateSupabaseUrl = (url: string): string => {
   if (!url) {
-    throw new Error('VITE_SUPABASE_URL is not defined in environment variables');
+    console.warn('VITE_SUPABASE_URL is not defined in environment variables');
+    return '';
   }
   const trimmedUrl = url.trim().replace(/\/+$/, '');
   return trimmedUrl;
 };
 
-const supabaseUrl = validateSupabaseUrl(import.meta.env.VITE_SUPABASE_URL);
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = validateSupabaseUrl(import.meta.env.VITE_SUPABASE_URL || '');
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
-}
-
-if (!supabaseAnonKey.trim()) {
-  throw new Error('VITE_SUPABASE_ANON_KEY is empty in environment variables');
+  console.warn('Missing Supabase environment variables. Application will work in offline mode.');
 }
 
 const supabaseOptions: SupabaseClientOptions<any> = {
@@ -44,10 +41,18 @@ const supabaseOptions: SupabaseClientOptions<any> = {
   }
 };
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, supabaseOptions);
+// Create a safe Supabase client that won't throw errors if env vars are missing
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey, supabaseOptions)
+  : null as any; // Fallback for when Supabase is not configured
 
 export const checkSupabaseConnection = async (): Promise<boolean> => {
   try {
+    if (!supabase) {
+      console.warn('Supabase client not initialized');
+      return false;
+    }
+    
     // Test connection with a simple query
     const { data, error } = await supabase
       .from('dashboards')
@@ -77,6 +82,7 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
 // Helper function to check if user is authenticated
 export const isAuthenticated = async (): Promise<boolean> => {
   try {
+    if (!supabase) return false;
     const { data: { session } } = await supabase.auth.getSession();
     return !!session;
   } catch (error) {
@@ -88,6 +94,7 @@ export const isAuthenticated = async (): Promise<boolean> => {
 // Helper function to get current user
 export const getCurrentUser = async () => {
   try {
+    if (!supabase) return null;
     const { data: { user } } = await supabase.auth.getUser();
     return user;
   } catch (error) {
