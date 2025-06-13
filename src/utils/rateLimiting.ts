@@ -26,11 +26,19 @@ export const checkPasswordResetRateLimit = async (
 
     if (error) {
       console.error('Rate limit check error:', error);
-      // Allow the request if we can't check rate limits
+      
+      // If the function doesn't exist, allow the request but log it
+      if (error.message?.includes('function') && error.message?.includes('does not exist')) {
+        console.warn('Rate limiting function not available, allowing request');
+        return { allowed: true };
+      }
+      
+      // For other errors, be conservative and allow the request
       return { allowed: true };
     }
 
-    if (!data) {
+    // If data is false, rate limit is exceeded
+    if (data === false) {
       return {
         allowed: false,
         message: 'Too many password reset attempts. Please try again later.'
@@ -62,9 +70,16 @@ export const logPasswordResetAttempt = async (
 
     if (error) {
       console.error('Failed to log password reset attempt:', error);
+      
+      // If the function doesn't exist, just log it but don't throw
+      if (error.message?.includes('function') && error.message?.includes('does not exist')) {
+        console.warn('Password reset logging function not available');
+        return;
+      }
     }
   } catch (error) {
     console.error('Failed to log password reset attempt:', error);
+    // Don't throw errors for logging failures
   }
 };
 
@@ -77,6 +92,11 @@ export const cleanupOldPasswordResetAttempts = async (): Promise<void> => {
 
     if (error) {
       console.error('Failed to cleanup old password reset attempts:', error);
+      
+      if (error.message?.includes('function') && error.message?.includes('does not exist')) {
+        console.warn('Password reset cleanup function not available');
+        return;
+      }
     }
   } catch (error) {
     console.error('Failed to cleanup old password reset attempts:', error);
