@@ -4,6 +4,7 @@ import { parseCSV, validateCSVHeaders, CSVError, parseTopFeaturesCSV, topFeature
 import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders, parseClientSubmissionsCSV, clientSubmissionsRequiredHeaders, parseCrossClientCollaborationCSV, crossClientCollaborationRequiredHeaders } from '../utils/csvParser';
 import { supabase, checkSupabaseConnection } from '../utils/supabaseClient';
 import { useEffect, useMemo } from 'react';
+import Papa from 'papaparse';
 
 // Define expected fiscal years
 const EXPECTED_YEARS = ['FY22', 'FY23', 'FY24', 'FY25'];
@@ -27,6 +28,7 @@ interface DataContextType {
   updateDashboardData: (data: DashboardData) => Promise<void>;
   isLoading: boolean;
   error: Error | null;
+  isSupabaseAvailable: boolean;
 }
 
 // Create context with a default value to prevent undefined context errors
@@ -85,6 +87,25 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [allProductsData, setAllProductsData] = useState<Record<Product, ProductData>>({} as Record<Product, ProductData>);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
+  const [isSupabaseAvailable, setIsSupabaseAvailable] = useState<boolean>(false);
+
+  // Check Supabase connection on mount
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const available = await checkSupabaseConnection();
+        setIsSupabaseAvailable(available);
+        if (!available) {
+          console.warn('Supabase is not available. Application will work in offline mode.');
+        }
+      } catch (error) {
+        console.error('Error checking Supabase connection:', error);
+        setIsSupabaseAvailable(false);
+      }
+    };
+
+    checkConnection();
+  }, []);
 
   // Initialize default data for all products and quarters
   const initializeDefaultData = () => {
@@ -158,22 +179,26 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     'status_updated_at', 'client_voters', 'forum_name', 'forum_audience', 'forum_purpose'
   ];
 
-  // Required headers for responsiveness trend CSV validation
-  const responsivenessTrendRequiredHeaders = [
-    'quarter',
-    'percentage',
-    'total_ideas',
-    'ideas_moved_out_of_review',
-    'ideas_list' // Optional: comma-separated list of idea names
-  ];
+  // Helper function to safely store data in Supabase
+  const safeSupabaseUpsert = async (table: string, data: any, conflictColumns: string) => {
+    if (!isSupabaseAvailable || !supabase) {
+      console.warn('Supabase not available. Data saved locally only.');
+      return;
+    }
 
-  // Required headers for commitment trends CSV validation
-  const commitmentTrendsRequiredHeaders = [
-    'year',
-    'committed',
-    'delivered'
-    // Optional: quarter, quarterly_delivered
-  ];
+    try {
+      const { error: upsertError } = await supabase
+        .from(table)
+        .upsert(data, {
+          onConflict: conflictColumns
+        });
+      
+      if (upsertError) throw upsertError;
+    } catch (error) {
+      console.error(`Failed to save to ${table}:`, error);
+      // Don't throw error - allow local operation to continue
+    }
+  };
 
   // Function to handle product quarterly CSV upload
   const uploadProductQuarterlyCSV = async (file: File): Promise<void> => {
@@ -199,13 +224,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       const quarterlyData = transformProductQuarterlyCSVData(parsedData);
       
-      const { error: upsertError } = await supabase
-        .from('product_quarterly_data')
-        .upsert(quarterlyData, {
-          onConflict: 'product_id,quarter,year'
-        });
-      
-      if (upsertError) throw upsertError;
+      await safeSupabaseUpsert('product_quarterly_data', quarterlyData, 'product_id,quarter,year');
       
     } catch (err) {
       if (err instanceof Error) {
@@ -257,17 +276,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
 
       // Store data in Supabase
-      const { error: upsertError } = await supabase
-        .from('dashboards')
-        .upsert({
-          product: currentProduct,
-          quarter: currentQuarter,
-          data: updatedData
-        }, {
-          onConflict: 'product,quarter'
-        });
-      
-      if (upsertError) throw upsertError;
+      await safeSupabaseUpsert('dashboards', {
+        product: currentProduct,
+        quarter: currentQuarter,
+        data: updatedData
+      }, 'product,quarter');
       
       // Update local state
       setAllProductsData(prevData => ({
@@ -334,17 +347,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
 
       // Store data in Supabase
-      const { error: upsertError } = await supabase
-        .from('dashboards')
-        .upsert({
-          product: currentProduct,
-          quarter: currentQuarter,
-          data: updatedData
-        }, {
-          onConflict: 'product,quarter'
-        });
-      
-      if (upsertError) throw upsertError;
+      await safeSupabaseUpsert('dashboards', {
+        product: currentProduct,
+        quarter: currentQuarter,
+        data: updatedData
+      }, 'product,quarter');
       
       // Update local state
       setAllProductsData(prevData => ({
@@ -418,17 +425,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
 
       // Store data in Supabase
-      const { error: upsertError } = await supabase
-        .from('dashboards')
-        .upsert({
-          product: currentProduct,
-          quarter: currentQuarter,
-          data: updatedData
-        }, {
-          onConflict: 'product,quarter'
-        });
-      
-      if (upsertError) throw upsertError;
+      await safeSupabaseUpsert('dashboards', {
+        product: currentProduct,
+        quarter: currentQuarter,
+        data: updatedData
+      }, 'product,quarter');
       
       // Update local state
       setAllProductsData(prevData => ({
@@ -504,17 +505,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
 
       // Store data in Supabase
-      const { error: upsertError } = await supabase
-        .from('dashboards')
-        .upsert({
-          product: currentProduct,
-          quarter: currentQuarter,
-          data: updatedData
-        }, {
-          onConflict: 'product,quarter'
-        });
-      
-      if (upsertError) throw upsertError;
+      await safeSupabaseUpsert('dashboards', {
+        product: currentProduct,
+        quarter: currentQuarter,
+        data: updatedData
+      }, 'product,quarter');
       
       // Update local state
       setAllProductsData(prevData => ({
@@ -574,17 +569,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
 
       // Store data in Supabase
-      const { error: upsertError } = await supabase
-        .from('dashboards')
-        .upsert({
-          product: currentProduct,
-          quarter: currentQuarter,
-          data: updatedData
-        }, {
-          onConflict: 'product,quarter'
-        });
-      
-      if (upsertError) throw upsertError;
+      await safeSupabaseUpsert('dashboards', {
+        product: currentProduct,
+        quarter: currentQuarter,
+        data: updatedData
+      }, 'product,quarter');
       
       // Update local state
       setAllProductsData(prevData => ({
@@ -644,17 +633,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
 
       // Store data in Supabase
-      const { error: upsertError } = await supabase
-        .from('dashboards')
-        .upsert({
-          product: currentProduct,
-          quarter: currentQuarter,
-          data: updatedData
-        }, {
-          onConflict: 'product,quarter'
-        });
-      
-      if (upsertError) throw upsertError;
+      await safeSupabaseUpsert('dashboards', {
+        product: currentProduct,
+        quarter: currentQuarter,
+        data: updatedData
+      }, 'product,quarter');
       
       // Update local state
       setAllProductsData(prevData => ({
@@ -731,17 +714,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const parsedData = await parseCSV(fileContent, currentProduct);
       
       // Store data in Supabase
-      const { error: upsertError } = await supabase
-        .from('dashboards')
-        .upsert({
-          product: currentProduct,
-          quarter: currentQuarter,
-          data: parsedData
-        }, {
-          onConflict: 'product,quarter'
-        });
-      
-      if (upsertError) throw upsertError;
+      await safeSupabaseUpsert('dashboards', {
+        product: currentProduct,
+        quarter: currentQuarter,
+        data: parsedData
+      }, 'product,quarter');
       
       // Update local state
       setAllProductsData(prevData => ({
@@ -773,17 +750,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setError(null);
     
     try {
-      const { error: upsertError } = await supabase
-        .from('dashboards')
-        .upsert({
-          product: currentProduct,
-          quarter: currentQuarter,
-          data: data
-        }, {
-          onConflict: 'product,quarter'
-        });
-      
-      if (upsertError) throw upsertError;
+      await safeSupabaseUpsert('dashboards', {
+        product: currentProduct,
+        quarter: currentQuarter,
+        data: data
+      }, 'product,quarter');
       
       // Update local state
       setAllProductsData(prevData => ({
@@ -821,6 +792,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     updateDashboardData,
     isLoading,
     error,
+    isSupabaseAvailable,
   };
 
   return (
@@ -838,5 +810,3 @@ export const useData = (): DataContextType => {
   }
   return context;
 };
-
-export { useData }
