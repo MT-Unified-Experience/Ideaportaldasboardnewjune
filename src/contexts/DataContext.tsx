@@ -91,6 +91,13 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [error, setError] = useState<Error | null>(null);
   const [isSupabaseAvailable, setIsSupabaseAvailable] = useState<boolean>(false);
 
+  // Auto-fetch data when product, quarter, or Supabase availability changes
+  useEffect(() => {
+    if (isSupabaseAvailable) {
+      fetchDashboardDataFromSupabase();
+    }
+  }, [currentProduct, currentQuarter, isSupabaseAvailable]);
+
   // Check Supabase connection on mount with better error handling
   useEffect(() => {
     const checkConnection = async () => {
