@@ -1,34 +1,34 @@
 quarter,clients_representing,client_names,idea_id,idea_summary,idea_client_name
 FY25 Q1,8,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H",FY25Q1-001,AI-Powered Document Analysis,Client A
-FY25 Q1,8,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H",FY25Q1-002,Mobile App Enhancement,Client A
-FY25 Q1,8,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H",FY25Q1-003,Reporting Dashboard Improvements,Client B
-FY25 Q1,8,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H",FY25Q1-004,API Integration Updates,Client B
-FY25 Q1,8,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H",FY25Q1-005,Custom Workflow Builder,Client C
-FY25 Q1,8,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H",FY25Q1-006,Document Management System,Client C
-FY25 Q1,8,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H",FY25Q1-007,Search Functionality Enhancement,Client D
-FY25 Q1,8,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H",FY25Q1-008,Bulk Actions Feature,Client E
+FY25 Q1,,,FY25Q1-002,Mobile App Enhancement,Client A
+FY25 Q1,,,FY25Q1-003,Reporting Dashboard Improvements,Client B
+FY25 Q1,,,FY25Q1-004,API Integration Updates,Client B
+FY25 Q1,,,FY25Q1-005,Custom Workflow Builder,Client C
+FY25 Q1,,,FY25Q1-006,Document Management System,Client C
+FY25 Q1,,,FY25Q1-007,Search Functionality Enhancement,Client D
+FY25 Q1,,,FY25Q1-008,Bulk Actions Feature,Client E
 FY25 Q2,10,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J",FY25Q2-001,Dashboard Customization,Client A
-FY25 Q2,10,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J",FY25Q2-002,Email Integration,Client A
-FY25 Q2,10,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J",FY25Q2-003,Advanced Analytics Dashboard,Client B
-FY25 Q2,10,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J",FY25Q2-004,Multi-language Support,Client C
-FY25 Q2,10,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J",FY25Q2-005,Real-time Notifications,Client D
-FY25 Q2,10,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J",FY25Q2-006,Data Export Enhancements,Client E
-FY25 Q2,10,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J",FY25Q2-007,User Permission Management,Client I
-FY25 Q2,10,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J",FY25Q2-008,Automated Workflow Templates,Client J
+FY25 Q2,,,FY25Q2-002,Email Integration,Client A
+FY25 Q2,,,FY25Q2-003,Advanced Analytics Dashboard,Client B
+FY25 Q2,,,FY25Q2-004,Multi-language Support,Client C
+FY25 Q2,,,FY25Q2-005,Real-time Notifications,Client D
+FY25 Q2,,,FY25Q2-006,Data Export Enhancements,Client E
+FY25 Q2,,,FY25Q2-007,User Permission Management,Client I
+FY25 Q2,,,FY25Q2-008,Automated Workflow Templates,Client J
 FY25 Q3,12,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L",FY25Q3-001,Integration with Third-party Tools,Client A
-FY25 Q3,12,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L",FY25Q3-002,Mobile Responsive Design,Client B
-FY25 Q3,12,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L",FY25Q3-003,Advanced Search Filters,Client C
-FY25 Q3,12,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L",FY25Q3-004,Audit Trail Improvements,Client D
-FY25 Q3,12,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L",FY25Q3-005,Cloud Storage Integration,Client E
-FY25 Q3,12,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L",FY25Q3-006,Enhanced Security Features,Client F
-FY25 Q3,12,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L",FY25Q3-007,Performance Optimization,Client K
-FY25 Q3,12,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L",FY25Q3-008,Custom Report Builder,Client L
+FY25 Q3,,,FY25Q3-002,Mobile Responsive Design,Client B
+FY25 Q3,,,FY25Q3-003,Advanced Search Filters,Client C
+FY25 Q3,,,FY25Q3-004,Audit Trail Improvements,Client D
+FY25 Q3,,,FY25Q3-005,Cloud Storage Integration,Client E
+FY25 Q3,,,FY25Q3-006,Enhanced Security Features,Client F
+FY25 Q3,,,FY25Q3-007,Performance Optimization,Client K
+FY25 Q3,,,FY25Q3-008,Custom Report Builder,Client L
 FY25 Q4,15,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L,Client M,Client N,Client O",FY25Q4-001,Collaboration Tools,Client A
-FY25 Q4,15,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L,Client M,Client N,Client O",FY25Q4-002,Version Control System,Client B
-FY25 Q4,15,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L,Client M,Client N,Client O",FY25Q4-003,Automated Backup Solutions,Client C
-FY25 Q4,15,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L,Client M,Client N,Client O",FY25Q4-004,Single Sign-On (SSO),Client D
-FY25 Q4,15,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L,Client M,Client N,Client O",FY25Q4-005,Advanced User Analytics,Client E
-FY25 Q4,15,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L,Client M,Client N,Client O",FY25Q4-006,Mobile App Offline Mode,Client F
-FY25 Q4,15,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L,Client M,Client N,Client O",FY25Q4-007,Machine Learning Integration,Client M
-FY25 Q4,15,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L,Client M,Client N,Client O",FY25Q4-008,Advanced Data Visualization,Client N
-FY25 Q4,15,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H,Client I,Client J,Client K,Client L,Client M,Client N,Client O",FY25Q4-009,Cross-platform Synchronization,Client O
+FY25 Q4,,,FY25Q4-002,Version Control System,Client B
+FY25 Q4,,,FY25Q4-003,Automated Backup Solutions,Client C
+FY25 Q4,,,FY25Q4-004,Single Sign-On (SSO),Client D
+FY25 Q4,,,FY25Q4-005,Advanced User Analytics,Client E
+FY25 Q4,,,FY25Q4-006,Mobile App Offline Mode,Client F
+FY25 Q4,,,FY25Q4-007,Machine Learning Integration,Client M
+FY25 Q4,,,FY25Q4-008,Advanced Data Visualization,Client N
+FY25 Q4,,,FY25Q4-009,Cross-platform Synchronization,Client O
