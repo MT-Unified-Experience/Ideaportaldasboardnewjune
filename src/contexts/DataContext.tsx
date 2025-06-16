@@ -885,7 +885,3 @@ const useData = (): DataContextType => {
 
 // Export both components
 export { DataProvider, useData };
-
-export { DataProvider }
-
-export { useData }
