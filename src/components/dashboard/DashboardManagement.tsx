@@ -181,27 +181,29 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
   };
 
   const addForum = () => {
-    const newForum: DataSocializationForum = { name: '' };
-    setLocalData(prev => ({
-      ...prev,
-      data_socialization_forums: [...(prev.data_socialization_forums || []), newForum]
-    }));
+    // Not needed anymore - using single input field
   };
 
   const removeForum = (index: number) => {
+    // Not needed anymore - using single input field
+  };
+
+  const updateForums = (value: string) => {
+    // Convert comma-separated string to array of forum objects
+    const forumNames = value.split(',').map(name => name.trim()).filter(name => name.length > 0);
+    const forums = forumNames.map(name => ({ name }));
+    
     setLocalData(prev => ({
       ...prev,
-      data_socialization_forums: (prev.data_socialization_forums || []).filter((_, i) => i !== index)
+      data_socialization_forums: forums
     }));
   };
 
-  const updateForum = (index: number, field: keyof DataSocializationForum, value: string) => {
-    setLocalData(prev => ({
-      ...prev,
-      data_socialization_forums: (prev.data_socialization_forums || []).map((forum, i) => 
-        i === index ? { ...forum, [field]: value } : forum
-      )
-    }));
+  // Helper function to get forums as comma-separated string
+  const getForumsAsString = () => {
+    return (localData.data_socialization_forums || [])
+      .map(forum => forum.name)
+      .join(', ');
   };
 
   const handleCollaborationUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -672,43 +674,57 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
             {/* Data Socialization Forums Tab */}
             {activeTab === 'forums' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-gray-900">Data Socialization Forums</h3>
-                  <button
-                    onClick={addForum}
-                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Forum
-                  </button>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Data Socialization Forums</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Enter forum names separated by commas (e.g., CSC, Sprint Reviews, Customer Advisory Board)
+                  </p>
                 </div>
 
-                <div className="space-y-4">
-                  {(localData.data_socialization_forums || []).map((forum, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <h4 className="text-md font-medium text-gray-900">Forum {index + 1}</h4>
-                        <button
-                          onClick={() => removeForum(index)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Forum Name
-                        </label>
-                        <input
-                          type="text"
-                          value={forum.name}
-                          onChange={(e) => updateForum(index, 'name', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Enter forum name"
-                        />
-                      </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Forum Names (comma-separated)
+                    </label>
+                    <textarea
+                      value={getForumsAsString()}
+                      onChange={(e) => updateForums(e.target.value)}
+                      className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      placeholder="CSC, Sprint Reviews, Customer Advisory Board (CAB), CWG, Quarterly Product Reviews (QBRs)"
+                      rows={3}
+                    />
+                    <div className="mt-2 text-xs text-gray-500">
+                      Current forums: {(localData.data_socialization_forums || []).length} forum(s)
                     </div>
-                  ))}
+                  </div>
+                </div>
+
+                {/* Preview of parsed forums */}
+                {(localData.data_socialization_forums || []).length > 0 && (
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <h4 className="text-sm font-medium text-blue-900 mb-2">Forum Preview</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {(localData.data_socialization_forums || []).map((forum, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                        >
+                          {forum.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Instructions */}
+                <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                  <h4 className="text-sm font-medium text-yellow-900 mb-2">Instructions</h4>
+                  <div className="text-sm text-yellow-700 space-y-1">
+                    <p>• Enter each forum name separated by commas</p>
+                    <p>• Extra spaces around forum names will be automatically trimmed</p>
+                    <p>• Empty forum names will be ignored</p>
+                    <p>• These forums will appear in the Data Socialization Forums card on the dashboard</p>
+                  </div>
                 </div>
               </div>
             )}
