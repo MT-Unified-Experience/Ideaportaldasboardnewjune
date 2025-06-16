@@ -597,7 +597,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                 <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
                   <h4 className="text-md font-medium text-purple-900 mb-2">Upload Client Submissions CSV</h4>
                   <p className="text-sm text-purple-700 mb-3">
-                    Upload a CSV file containing quarterly client submission data with columns: quarter, clients_representing, client_names (optional comma-separated list).
+                    Upload a CSV file containing quarterly client submission data with columns: quarter, clients_representing, client_names (optional), idea_id (optional), idea_summary (optional), idea_client_name (optional).
                   </p>
                   <div className="flex items-center gap-3">
                     <input
@@ -630,7 +630,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                   </div>
                   <div className="mt-2 text-xs text-purple-600">
                     <a 
-                      href="data:text/csv;charset=utf-8,quarter,clients_representing,client_names%0AFY25%20Q1,8,%22Client%20A,Client%20B,Client%20C,Client%20D,Client%20E,Client%20F,Client%20G,Client%20H%22%0AFY25%20Q2,10,%22Client%20A,Client%20B,Client%20C,Client%20D,Client%20E,Client%20F,Client%20G,Client%20H,Client%20I,Client%20J%22%0AFY25%20Q3,12,%22Client%20A,Client%20B,Client%20C,Client%20D,Client%20E,Client%20F,Client%20G,Client%20H,Client%20I,Client%20J,Client%20K,Client%20L%22%0AFY25%20Q4,15,%22Client%20A,Client%20B,Client%20C,Client%20D,Client%20E,Client%20F,Client%20G,Client%20H,Client%20I,Client%20J,Client%20K,Client%20L,Client%20M,Client%20N,Client%20O%22"
+                      href={`${import.meta.env.BASE_URL}client_submissions_template.csv?t=${Date.now()}`}
                       download="client_submissions_template.csv"
                       className="hover:underline"
                     >
@@ -658,9 +658,12 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                     </p>
                     <ul className="list-disc list-inside ml-4 space-y-1">
                       <li><code>client_names</code> - Comma-separated list of client names for detailed drill-down</li>
+                      <li><code>idea_id</code> - Unique identifier for each idea (enables detailed idea tracking)</li>
+                      <li><code>idea_summary</code> - Brief description of the idea</li>
+                      <li><code>idea_client_name</code> - Name of the client who submitted the idea</li>
                     </ul>
                     <p>
-                      <strong>Chart Interaction:</strong> Users can click on data points in the line chart to view detailed client information and generated idea lists for each quarter.
+                      <strong>Chart Interaction:</strong> Users can click on data points in the line chart to view detailed client information and actual idea lists for each quarter. If idea details are provided in the CSV, they will be displayed; otherwise, sample ideas will be generated.
                     </p>
                   </div>
                 </div>

@@ -75,6 +75,11 @@ export interface LineChartData {
   quarter: string;
   clientsRepresenting: number;
   clients?: string[];
+  ideas?: Array<{
+    id: string;
+    clientName: string;
+    summary: string;
+  }>;
 }
 
 export interface Feature {

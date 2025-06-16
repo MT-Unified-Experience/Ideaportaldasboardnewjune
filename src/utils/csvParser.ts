@@ -59,7 +59,8 @@ export const continuedEngagementRequiredHeaders = [
 export const clientSubmissionsRequiredHeaders = [
   'quarter',
   'clients_representing',
-  'client_names' // Optional: comma-separated list of client names
+  'client_names', // Optional: comma-separated list of client names
+  // Optional: idea_id, idea_summary, idea_client_name for individual ideas
 ];
 
 // Required headers for cross-client collaboration CSV validation
@@ -114,6 +115,9 @@ interface ClientSubmissionsCSVRow {
   quarter: string;
   clients_representing: string;
   client_names?: string;
+  idea_id?: string;
+  idea_summary?: string;
+  idea_client_name?: string;
 }
 
 interface CommitmentTrendsData {
@@ -154,6 +158,11 @@ interface ClientSubmissionsData {
     quarter: string;
     clientsRepresenting: number;
     clients?: string[];
+    ideas?: Array<{
+      id: string;
+      clientName: string;
+      summary: string;
+    }>;
   }>;
 }
 
@@ -918,11 +927,16 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
           }
 
           const rows = results.data as ClientSubmissionsCSVRow[];
-          const lineChartData: Array<{
+          const quarterMap = new Map<string, {
             quarter: string;
             clientsRepresenting: number;
-            clients?: string[];
-          }> = [];
+            clients: string[];
+            ideas: Array<{
+              id: string;
+              clientName: string;
+              summary: string;
+            }>;
+          }>();
 
           rows.forEach(row => {
             // Validate required fields
@@ -930,18 +944,35 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
               return; // Skip invalid rows
             }
 
-            const clients = row.client_names ? 
-              row.client_names.split(',').map(s => s.trim()).filter(s => s.length > 0) : 
-              [];
-
-            const chartData = {
-              quarter: row.quarter.trim(),
-              clientsRepresenting: safeNumberConversion(row.clients_representing),
-              clients: clients
-            };
-
-            lineChartData.push(chartData);
+            const quarter = row.quarter.trim();
+            
+            // Initialize quarter data if not exists
+            if (!quarterMap.has(quarter)) {
+              const clients = row.client_names ? 
+                row.client_names.split(',').map(s => s.trim()).filter(s => s.length > 0) : 
+                [];
+              
+              quarterMap.set(quarter, {
+                quarter: quarter,
+                clientsRepresenting: safeNumberConversion(row.clients_representing),
+                clients: clients,
+                ideas: []
+              });
+            }
+            
+            // Add idea data if available
+            const quarterData = quarterMap.get(quarter)!;
+            if (row.idea_id && row.idea_summary && row.idea_client_name) {
+              quarterData.ideas.push({
+                id: row.idea_id.trim(),
+                clientName: row.idea_client_name.trim(),
+                summary: row.idea_summary.trim()
+              });
+            }
           });
+
+          // Convert map to array
+          const lineChartData = Array.from(quarterMap.values());
 
           // Sort by quarter (assuming FY format)
           lineChartData.sort((a, b) => {

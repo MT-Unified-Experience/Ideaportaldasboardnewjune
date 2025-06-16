@@ -15,12 +15,27 @@ import { LineChartData, Feature } from '../../types';
 interface ClientListProps {
   quarter: string;
   clients: string[];
+  ideas?: Array<{
+    id: string;
+    clientName: string;
+    summary: string;
+  }>;
   onClose: () => void;
 }
 
-const ClientList: React.FC<ClientListProps> = ({ quarter, clients, onClose }) => {
-  // Generate sample ideas for the selected quarter
-  const generateIdeasForQuarter = (quarter: string, clients: string[]) => {
+const ClientList: React.FC<ClientListProps> = ({ quarter, clients, ideas = [], onClose }) => {
+  // Use provided ideas or generate sample ideas if none provided
+  const getIdeasForQuarter = (quarter: string, clients: string[], providedIdeas: Array<{
+    id: string;
+    clientName: string;
+    summary: string;
+  }>) => {
+    // If we have actual ideas from CSV, use them
+    if (providedIdeas && providedIdeas.length > 0) {
+      return providedIdeas;
+    }
+    
+    // Otherwise, generate sample ideas for backward compatibility
     const ideaTemplates = [
       'AI-Powered Document Analysis',
       'Mobile App Enhancement',
@@ -49,7 +64,7 @@ const ClientList: React.FC<ClientListProps> = ({ quarter, clients, onClose }) =>
       'Collaboration Tools'
     ];
 
-    const ideas = [];
+    const generatedIdeas = [];
     let ideaCounter = 1;
 
     // Generate 2-4 ideas per client
@@ -58,7 +73,7 @@ const ClientList: React.FC<ClientListProps> = ({ quarter, clients, onClose }) =>
       
       for (let i = 0; i < ideasPerClient; i++) {
         const ideaIndex = (clientIndex * ideasPerClient + i) % ideaTemplates.length;
-        ideas.push({
+        generatedIdeas.push({
           id: `${quarter.replace(/\s+/g, '')}-${String(ideaCounter).padStart(3, '0')}`,
           clientName: client,
           summary: ideaTemplates[ideaIndex]
@@ -67,10 +82,10 @@ const ClientList: React.FC<ClientListProps> = ({ quarter, clients, onClose }) =>
       }
     });
 
-    return ideas;
+    return generatedIdeas;
   };
 
-  const ideas = generateIdeasForQuarter(quarter, clients);
+  const displayIdeas = getIdeasForQuarter(quarter, clients, ideas);
 
   return (
     <div className="fixed inset-y-0 right-0 w-full md:w-[600px] bg-white shadow-xl z-50 overflow-y-auto">
@@ -97,7 +112,7 @@ const ClientList: React.FC<ClientListProps> = ({ quarter, clients, onClose }) =>
           </div>
           <div className="bg-green-50 rounded-lg p-4 border border-green-200">
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{ideas.length}</div>
+              <div className="text-2xl font-bold text-green-600">{displayIdeas.length}</div>
               <div className="text-sm text-gray-600">Total Ideas Submitted</div>
             </div>
           </div>
@@ -141,7 +156,7 @@ const ClientList: React.FC<ClientListProps> = ({ quarter, clients, onClose }) =>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {ideas.map((idea, index) => (
+                  {displayIdeas.map((idea, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-sm font-medium text-blue-600 border-r border-gray-200">
                         {idea.id}
@@ -167,8 +182,8 @@ const ClientList: React.FC<ClientListProps> = ({ quarter, clients, onClose }) =>
         <div className="mt-6 bg-blue-50 rounded-lg p-4 border border-blue-200">
           <h4 className="text-md font-medium text-gray-900 mb-2">Quarter Insights</h4>
           <div className="text-sm text-gray-600 space-y-1">
-            <p>• Average of {clients.length > 0 ? Math.round(ideas.length / clients.length * 10) / 10 : 0} ideas per contributing client</p>
-            <p>• Most active client contributed {clients.length > 0 ? Math.max(...clients.map(client => ideas.filter(idea => idea.clientName === client).length)) : 0} ideas</p>
+            <p>• Average of {clients.length > 0 ? Math.round(displayIdeas.length / clients.length * 10) / 10 : 0} ideas per contributing client</p>
+            <p>• Most active client contributed {clients.length > 0 ? Math.max(...clients.map(client => displayIdeas.filter(idea => idea.clientName === client).length)) : 0} ideas</p>
             <p>• Ideas span across multiple functional areas including AI, mobile, reporting, and workflow automation</p>
           </div>
         </div>
@@ -220,6 +235,10 @@ const LineChart: React.FC<LineChartProps> = ({ data, features }) => {
     return clients;
   };
 
+  const getQuarterIdeas = (quarter: string) => {
+    const quarterData = data.find(d => d.quarter === quarter);
+    return quarterData?.ideas || [];
+  };
   const handleClick = (data: any) => {
     if (data && data.activePayload && data.activePayload[0]) {
       const quarter = data.activePayload[0].payload.quarter;
@@ -276,6 +295,7 @@ const LineChart: React.FC<LineChartProps> = ({ data, features }) => {
         <ClientList
           quarter={selectedQuarter}
           clients={getQuarterClients(selectedQuarter)}
+          ideas={getQuarterIdeas(selectedQuarter)}
           onClose={() => setSelectedQuarter(null)}
         />
       )}
