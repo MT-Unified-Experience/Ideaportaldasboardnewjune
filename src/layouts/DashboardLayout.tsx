@@ -7,7 +7,7 @@ import QuarterTabs from '../components/navigation/QuarterTabs';
 import DashboardManagement from '../components/dashboard/DashboardManagement';
 import { CsvUploader } from '../components/upload/CsvUploader';
 import { DashboardGrid } from '../components/dashboard';
-import { BarChart2, Edit, ListTodo, Settings } from 'lucide-react';
+import { BarChart2, Edit, ListTodo, Settings, RefreshCw } from 'lucide-react';
 import ShareButton from '../components/common/ShareButton';
 import SettingsModal from '../components/common/SettingsModal';
 
@@ -52,7 +52,7 @@ const saveSettings = (settings: WidgetSettings): void => {
 };
 
 const DashboardLayout: React.FC = () => {
-  const { currentProduct, currentQuarter, dashboardData } = useData();
+  const { currentProduct, currentQuarter, dashboardData, refreshDashboardData, isLoading } = useData();
   const [isManagementOpen, setIsManagementOpen] = useState(false);
   const [isActionItemsOpen, setIsActionItemsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -70,6 +70,13 @@ const DashboardLayout: React.FC = () => {
     saveSettings(newSettings);
   };
 
+  const handleRefresh = async () => {
+    try {
+      await refreshDashboardData();
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -84,6 +91,16 @@ const DashboardLayout: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={handleRefresh}
+                disabled={isLoading}
+                className={`inline-flex items-center px-3 py-2 bg-white text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 border border-gray-200 ${
+                  isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                {isLoading ? 'Refreshing...' : 'Refresh'}
+              </button>
               <button
                 onClick={() => setIsSettingsOpen(true)}
                 className="inline-flex items-center px-3 py-2 bg-white text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 border border-gray-200"

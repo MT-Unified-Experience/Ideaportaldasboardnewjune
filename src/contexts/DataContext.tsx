@@ -5,6 +5,7 @@ import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders, parseC
 import { supabase, checkSupabaseConnection, supabaseFetch } from '../utils/supabaseClient';
 import { useEffect, useMemo } from 'react';
 import Papa from 'papaparse';
+import { retryWithBackoff } from '../utils/retryUtils';
 
 // Define expected fiscal years
 const EXPECTED_YEARS = ['FY22', 'FY23', 'FY24', 'FY25'];
@@ -37,6 +38,8 @@ interface DataContextType {
   uploadCrossClientCollaborationCSV: (file: File) => Promise<void>;
   fetchProductQuarterlyData: (filters?: { product_id?: string; product_name?: string; quarter?: string; year?: string; page?: number; limit?: number; orderBy?: string; orderDirection?: 'asc' | 'desc'; }) => Promise<ProductQuarterlyData[]>;
   updateDashboardData: (data: DashboardData) => Promise<void>;
+  fetchDashboardDataFromSupabase: (product?: Product, quarter?: Quarter) => Promise<void>;
+  refreshDashboardData: () => Promise<void>;
   isLoading: boolean;
   error: Error | null;
   isSupabaseAvailable: boolean;
@@ -199,6 +202,13 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       saveToLocalStorage(STORAGE_KEYS.ALL_PRODUCTS_DATA, allProductsData);
     }
   }, [allProductsData]);
+
+  // Fetch data from Supabase when product or quarter changes
+  useEffect(() => {
+    if (isSupabaseAvailable && currentProduct && currentQuarter) {
+      fetchDashboardDataFromSupabase(currentProduct, currentQuarter);
+    }
+  }, [currentProduct, currentQuarter, isSupabaseAvailable]);
 
   // Save current product and quarter to localStorage
   const setCurrentProduct = (product: Product) => {
@@ -857,72 +867,7 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
 
-  // Update dashboard data function
-  const updateDashboardData = async (data: DashboardData): Promise<void> => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      await safeSupabaseUpsert('dashboards', {
-        product: currentProduct,
-        quarter: currentQuarter,
-        data: data
-      }, 'product,quarter');
-      
-      // Update local state
-      setAllProductsData(prevData => ({
-        ...prevData,
-        [currentProduct]: {
-          ...prevData[currentProduct],
-          [currentQuarter]: data
-        }
-      }));
-      
-    } catch (err) {
-      setError(parseError(err));
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const value: DataContextType = {
-    currentProduct,
-    currentQuarter,
-    dashboardData,
-    allProductsData,
-    setCurrentProduct,
-    setCurrentQuarter,
-    uploadCSV,
-    uploadProductQuarterlyCSV,
-    uploadTopFeaturesCSV,
-    uploadResponsivenessTrendCSV,
-    uploadCommitmentTrendsCSV,
-    uploadContinuedEngagementCSV,
-    uploadClientSubmissionsCSV,
-    uploadCrossClientCollaborationCSV,
-    fetchProductQuarterlyData,
-    updateDashboardData,
-    isLoading,
-    error,
-    isSupabaseAvailable,
-  };
-
-  return (
-    <DataContext.Provider value={value}>
-      {children}
-    </DataContext.Provider>
-  );
-};
-
-// Custom hook to use the DataContext
-const useData = (): DataContextType => {
-  const context = useContext(DataContext);
-  if (!context) {
-    throw new Error('useData must be used within a DataProvider');
-  }
-  return context;
-};
-
-// Export both components
-export { DataProvider, useData };
+  // Function to fetch dashboard data from Supabase
+  const fetchDashboardDataFromSupabase = async (product?: Product, quarter?: Quarter): Promise<void> => {
+    const targetProduct = product || currentProduct;
+    const targetQuarter = quarter ||
