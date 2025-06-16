@@ -1,0 +1,13 @@
+quarter,year,collaborative_ideas,total_ideas,collaboration_rate,idea_id,idea_name,original_submitter,contributors,submission_date,collaboration_score,status,comments
+FY25 Q1,FY25,5,25,20,COLLAB-Q1-001,AI-Powered Document Analysis,Client A,"Client A,Client B,Client C",2024-10-01,85,Active,Multiple clients have requested enhanced AI capabilities for document processing and analysis.
+FY25 Q1,,,,,COLLAB-Q1-002,Multi-Client Workflow Integration,Client B,"Client B,Client D,Client E",2024-10-15,78,In Development,Cross-client collaboration needed for workflow standardization across different organizations.
+FY25 Q1,,,,,COLLAB-Q1-003,Cross-Platform Data Sync,Client C,"Client C,Client F",2024-11-01,72,Active,Data synchronization requirements identified by several enterprise clients.
+FY25 Q2,FY25,8,30,27,COLLAB-Q2-001,Collaborative Review Dashboard,Client A,"Client A,Client B,Client D",2025-01-01,88,Delivered,Collaborative review features requested to improve multi-stakeholder decision making.
+FY25 Q2,,,,,COLLAB-Q2-002,Unified Reporting System,Client C,"Client C,Client E,Client F,Client G",2025-01-15,92,In Development,Unified reporting system to consolidate data from multiple client environments.
+FY25 Q2,,,,,COLLAB-Q2-003,Smart Notification Engine,Client B,"Client B,Client D",2025-02-01,75,Active,Smart notifications to improve cross-client communication and updates.
+FY25 Q3,FY25,12,35,34,COLLAB-Q3-001,Advanced Search Capabilities,Client E,"Client E,Client F,Client G",2025-04-01,90,Delivered,Advanced search requested by clients dealing with large document repositories.
+FY25 Q3,,,,,COLLAB-Q3-002,Real-time Collaboration Tools,Client A,"Client A,Client C,Client H",2025-04-15,85,In Development,Real-time collaboration tools for distributed teams across client organizations.
+FY25 Q3,,,,,COLLAB-Q3-003,Enhanced Security Framework,Client F,"Client F,Client G,Client H,Client I",2025-05-01,95,Active,Multi-client security requirements for enterprise-grade data protection.
+FY25 Q4,FY25,15,40,38,COLLAB-Q4-001,Integrated Analytics Platform,Client B,"Client B,Client C,Client D,Client J",2025-07-01,93,In Development,Comprehensive analytics platform requested by multiple enterprise clients.
+FY25 Q4,,,,,COLLAB-Q4-002,Cross-Client Data Sharing,Client G,"Client G,Client H,Client I",2025-07-15,87,Active,Secure data sharing capabilities between client organizations.
+FY25 Q4,,,,,COLLAB-Q4-003,Unified User Management,Client A,"Client A,Client E,Client J,Client K",2025-08-01,89,Active,Centralized user management system for multi-client environments.

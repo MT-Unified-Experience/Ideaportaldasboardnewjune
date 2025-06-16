@@ -3,12 +3,24 @@ export interface CollaborationTrend {
   clientName: string;
 }
 
+export interface CollaborativeIdea {
+  id: string;
+  name: string;
+  originalSubmitter: string;
+  contributors: string[];
+  submissionDate: string;
+  collaborationScore: number;
+  status: 'Active' | 'Delivered' | 'In Development';
+  comments: string;
+}
+
 export interface CollaborationTrendQuarterlyData {
   quarter: string;
   year: number;
   collaborativeIdeas: number;
   totalIdeas: number;
   collaborationRate: number;
+  topCollaborativeIdeas?: CollaborativeIdea[];
 }
 
 export interface MetricSummary {
@@ -28,11 +40,19 @@ export interface MetricSummary {
       year: string;
       committed: number;
       delivered: number;
+      ideas?: Array<{
+        id: string;
+        summary: string;
+      }>;
     }>;
     quarterlyDeliveries?: Array<{
       quarter: string;
       year: string;
       delivered: number;
+      ideas?: Array<{
+        id: string;
+        summary: string;
+      }>;
     }>;
   };
   continuedEngagement: {
@@ -90,6 +110,10 @@ export interface Feature {
   client_voters: string[];
   created_at?: string;
   updated_at?: string;
+  estimated_impact?: 'High' | 'Medium' | 'Low';
+  resource_requirement?: 'High' | 'Medium' | 'Low';
+  strategic_alignment?: number;
+  risks?: string[];
 }
 
 export interface ProductQuarterlyData {

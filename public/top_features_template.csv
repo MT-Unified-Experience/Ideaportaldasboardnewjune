@@ -1,11 +1,11 @@
-feature_name,vote_count,status,status_updated_at,client_voters,feature_quarter
-AI Integration,35,Committed,2025-01-15,"Client A,Client B,Client C",current
-Mobile App,25,Under Review,2025-02-01,"Client D,Client E",current
-Reporting Tools,20,Delivered,2025-01-30,"Client F,Client G",current
-API Enhancements,18,Under Review,2025-02-15,"Client H,Client I",current
-Custom Workflows,16,Under Review,2025-02-16,"Client J,Client K",current
-Document Management,15,Committed,2025-02-17,"Client L,Client M",previous
-Search Improvements,14,Under Review,2025-02-18,"Client N,Client O",previous
-Bulk Actions,13,Delivered,2025-02-19,"Client P,Client Q",previous
-Dashboard Customization,12,Under Review,2025-02-20,"Client R,Client S",previous
-Email Integration,11,Committed,2025-02-21,"Client T,Client U",previous
+feature_name,vote_count,status,status_updated_at,client_voters,feature_quarter,estimated_impact,resource_requirement,strategic_alignment,risks
+AI Integration,35,Committed,2025-01-15,"Client A,Client B,Client C",current,High,High,9,"Technical complexity,Resource allocation conflicts"
+Mobile App,25,Under Review,2025-02-01,"Client D,Client E",current,Medium,Medium,8,"Client expectation management,Technical complexity"
+Reporting Tools,20,Delivered,2025-01-30,"Client F,Client G",previous,High,Medium,9,"Resource allocation conflicts"
+API Enhancements,18,Under Review,2025-02-15,"Client H,Client I",previous,Medium,High,7,"Technical complexity,Client expectation management"
+Custom Workflows,16,Under Review,2025-02-16,"Client J,Client K",current,High,High,8,"Resource allocation conflicts,Technical complexity"
+Document Management,15,Committed,2025-02-17,"Client L,Client M",previous,Medium,Medium,7,"Client expectation management"
+Search Improvements,14,Under Review,2025-02-18,"Client N,Client O",current,Medium,Low,6,"Technical complexity"
+Bulk Actions,13,Delivered,2025-02-19,"Client P,Client Q",previous,Low,Low,6,"Resource allocation conflicts"
+Dashboard Customization,12,Under Review,2025-02-20,"Client R,Client S",current,Medium,Medium,7,"Client expectation management,Technical complexity"
+Email Integration,11,Committed,2025-02-21,"Client T,Client U",previous,Low,Low,5,"Technical complexity"

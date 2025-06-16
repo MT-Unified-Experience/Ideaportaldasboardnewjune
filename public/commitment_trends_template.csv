@@ -1,0 +1,21 @@
+year,committed,delivered,quarter,quarterly_delivered,idea_id,idea_summary
+2020,45,42,Q1,12,COMM-2020-001,AI Integration Enhancement
+2020,,,Q2,15,COMM-2020-002,Mobile App Development
+2020,,,Q3,13,COMM-2020-003,Reporting Tools Upgrade
+2020,,,Q4,12,COMM-2020-004,API Enhancement Project
+2021,52,48,Q1,14,COMM-2021-001,Custom Workflow Builder
+2021,,,Q2,16,COMM-2021-002,Document Management System
+2021,,,Q3,11,COMM-2021-003,Search Functionality Enhancement
+2021,,,Q4,13,COMM-2021-004,Bulk Actions Feature
+2022,48,45,Q1,13,COMM-2022-001,Dashboard Customization
+2022,,,Q2,14,COMM-2022-002,Email Integration
+2022,,,Q3,12,COMM-2022-003,Advanced Analytics
+2022,,,Q4,15,COMM-2022-004,Multi-language Support
+2023,55,52,Q1,15,COMM-2023-001,Real-time Notifications
+2023,,,Q2,17,COMM-2023-002,Data Export Enhancements
+2023,,,Q3,14,COMM-2023-003,User Permission Management
+2023,,,Q4,16,COMM-2023-004,Automated Workflow Templates
+2024,60,57,Q1,16,COMM-2024-001,Third-party Integrations
+2024,,,Q2,18,COMM-2024-002,Mobile Responsive Design
+2024,,,Q3,15,COMM-2024-003,Advanced Search Filters
+2024,,,Q4,17,COMM-2024-004,Audit Trail Improvements

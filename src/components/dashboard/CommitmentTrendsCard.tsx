@@ -20,11 +20,19 @@ interface CommitmentTrendsCardProps {
     year: string;
     committed: number;
     delivered: number;
+    ideas?: Array<{
+      id: string;
+      summary: string;
+    }>;
   }>;
   quarterlyDeliveries?: Array<{
     quarter: string;
     year: string;
     delivered: number;
+    ideas?: Array<{
+      id: string;
+      summary: string;
+    }>;
   }>;
 }
 
@@ -45,22 +53,22 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
 
   // Generate default data if none provided
   const defaultCommitmentTrends = [
-    { year: '2020', committed: 45, delivered: 42 },
-    { year: '2021', committed: 52, delivered: 48 },
-    { year: '2022', committed: 48, delivered: 45 },
-    { year: '2023', committed: 55, delivered: 52 },
-    { year: '2024', committed: value.total, delivered: value.committed }
+    { year: '2020', committed: 45, delivered: 42, ideas: [] },
+    { year: '2021', committed: 52, delivered: 48, ideas: [] },
+    { year: '2022', committed: 48, delivered: 45, ideas: [] },
+    { year: '2023', committed: 55, delivered: 52, ideas: [] },
+    { year: '2024', committed: value.total, delivered: value.committed, ideas: [] }
   ];
 
   const defaultQuarterlyDeliveries = [
-    { quarter: 'Q1', year: '2023', delivered: 12 },
-    { quarter: 'Q2', year: '2023', delivered: 15 },
-    { quarter: 'Q3', year: '2023', delivered: 13 },
-    { quarter: 'Q4', year: '2023', delivered: 12 },
-    { quarter: 'Q1', year: '2024', delivered: 14 },
-    { quarter: 'Q2', year: '2024', delivered: 16 },
-    { quarter: 'Q3', year: '2024', delivered: 11 },
-    { quarter: 'Q4', year: '2024', delivered: 13 }
+    { quarter: 'Q1', year: '2023', delivered: 12, ideas: [] },
+    { quarter: 'Q2', year: '2023', delivered: 15, ideas: [] },
+    { quarter: 'Q3', year: '2023', delivered: 13, ideas: [] },
+    { quarter: 'Q4', year: '2023', delivered: 12, ideas: [] },
+    { quarter: 'Q1', year: '2024', delivered: 14, ideas: [] },
+    { quarter: 'Q2', year: '2024', delivered: 16, ideas: [] },
+    { quarter: 'Q3', year: '2024', delivered: 11, ideas: [] },
+    { quarter: 'Q4', year: '2024', delivered: 13, ideas: [] }
   ];
 
   const chartData = commitmentTrends.length > 0 ? commitmentTrends : defaultCommitmentTrends;
@@ -72,7 +80,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
     quarterLabel: `${item.quarter} ${item.year}`
   }));
 
-  // Generate sample ideas for data points
+  // Generate sample ideas for data points if none provided
   const generateIdeasForDataPoint = (type: 'annual' | 'quarterly', label: string, count: number) => {
     const ideaTemplates = [
       'AI-Powered Document Analysis',
@@ -109,11 +117,12 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
       const payload = data.activePayload[0].payload;
       const year = payload.year;
       const delivered = payload.delivered;
+      const ideas = payload.ideas || [];
       
       setSelectedDataPoint({
         type: 'annual',
         label: `${year} Delivered Ideas`,
-        ideas: generateIdeasForDataPoint('annual', year, delivered)
+        ideas: ideas.length > 0 ? ideas : generateIdeasForDataPoint('annual', year, delivered)
       });
     }
   };
@@ -123,11 +132,12 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
       const payload = data.activePayload[0].payload;
       const quarterLabel = payload.quarterLabel;
       const delivered = payload.delivered;
+      const ideas = payload.ideas || [];
       
       setSelectedDataPoint({
         type: 'quarterly',
         label: `${quarterLabel} Delivered Ideas`,
-        ideas: generateIdeasForDataPoint('quarterly', quarterLabel, delivered)
+        ideas: ideas.length > 0 ? ideas : generateIdeasForDataPoint('quarterly', quarterLabel, delivered)
       });
     }
   };
@@ -249,7 +259,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                   <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
                     <h4 className="text-md font-medium text-purple-900 mb-2">Upload Commitment Trends CSV</h4>
                     <p className="text-sm text-purple-700 mb-3">
-                      Upload a CSV file containing annual commitment and delivery data with columns: year, committed, delivered, quarter (optional), quarterly_delivered (optional).
+                      Upload a CSV file containing annual commitment and delivery data with columns: year, committed, delivered, quarter (optional), quarterly_delivered (optional), idea_id (optional), idea_summary (optional).
                     </p>
                     <div className="flex items-center gap-3">
                       <input
@@ -282,7 +292,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                     </div>
                     <div className="mt-2 text-xs text-purple-600">
                       <a 
-                        href="data:text/csv;charset=utf-8,year,committed,delivered,quarter,quarterly_delivered%0A2020,45,42,Q1,12%0A2021,52,48,Q2,15%0A2022,48,45,Q3,13%0A2023,55,52,Q4,12%0A2024,60,57,Q1,14"
+                        href="data:text/csv;charset=utf-8,year,committed,delivered,quarter,quarterly_delivered,idea_id,idea_summary%0A2020,45,42,Q1,12,COMM-2020-001,AI%20Integration%0A2021,52,48,Q2,15,COMM-2021-001,Mobile%20App%0A2022,48,45,Q3,13,COMM-2022-001,Reporting%20Tools%0A2023,55,52,Q4,12,COMM-2023-001,API%20Enhancements%0A2024,60,57,Q1,14,COMM-2024-001,Custom%20Workflows"
                         download="commitment_trends_template.csv"
                         className="hover:underline"
                       >

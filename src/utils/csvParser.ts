@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import { DashboardData, Feature, CollaborationTrendQuarterlyData } from '../types';
+import { DashboardData, Feature, CollaborationTrendQuarterlyData, CollaborativeIdea } from '../types';
 
 export class CSVError extends Error {
   constructor(
@@ -27,6 +27,7 @@ export const topFeaturesRequiredHeaders = [
   'status_updated_at',
   'client_voters',
   'feature_quarter' // To distinguish between current and previous quarter
+  // Optional: estimated_impact, resource_requirement, strategic_alignment, risks
 ];
 
 // Required headers for responsiveness trend CSV validation
@@ -43,7 +44,7 @@ export const commitmentTrendsRequiredHeaders = [
   'year',
   'committed',
   'delivered'
-  // Optional: quarter, quarterly_delivered
+  // Optional: quarter, quarterly_delivered, idea_id, idea_summary
 ];
 
 // Required headers for continued engagement CSV validation
@@ -70,7 +71,7 @@ export const crossClientCollaborationRequiredHeaders = [
   'collaborative_ideas',
   'total_ideas',
   'collaboration_rate'
-  // Optional: collaboration_count (for backward compatibility)
+  // Optional: idea_id, idea_name, original_submitter, contributors, submission_date, collaboration_score, status, comments
 ];
 
 interface ResponsivenessTrendCSVRow {
@@ -88,6 +89,10 @@ interface FeatureCSVRow {
   status_updated_at: string;
   client_voters: string;
   feature_quarter: string; // 'current' or 'previous'
+  estimated_impact?: string;
+  resource_requirement?: string;
+  strategic_alignment?: string;
+  risks?: string;
 }
 
 interface CommitmentTrendsCSVRow {
@@ -96,6 +101,8 @@ interface CommitmentTrendsCSVRow {
   delivered: string;
   quarter?: string;
   quarterly_delivered?: string;
+  idea_id?: string;
+  idea_summary?: string;
 }
 
 interface ContinuedEngagementCSVRow {
@@ -120,16 +127,40 @@ interface ClientSubmissionsCSVRow {
   idea_client_name?: string;
 }
 
+interface CollaborativeIdeaCSVRow {
+  quarter: string;
+  year?: string;
+  collaborative_ideas?: string;
+  total_ideas?: string;
+  collaboration_rate?: string;
+  idea_id?: string;
+  idea_name?: string;
+  original_submitter?: string;
+  contributors?: string;
+  submission_date?: string;
+  collaboration_score?: string;
+  status?: string;
+  comments?: string;
+}
+
 interface CommitmentTrendsData {
   commitmentTrends: Array<{
     year: string;
     committed: number;
     delivered: number;
+    ideas?: Array<{
+      id: string;
+      summary: string;
+    }>;
   }>;
   quarterlyDeliveries: Array<{
     quarter: string;
     year: string;
     delivered: number;
+    ideas?: Array<{
+      id: string;
+      summary: string;
+    }>;
   }>;
 }
 
@@ -566,7 +597,11 @@ export const parseTopFeaturesCSV = (csvData: string): Promise<TopFeaturesData> =
               vote_count: safeNumberConversion(row.vote_count),
               status: row.status.trim() as 'Delivered' | 'Under Review' | 'Committed',
               status_updated_at: row.status_updated_at.trim(),
-              client_voters: row.client_voters.split(',').map(s => s.trim()).filter(s => s.length > 0)
+              client_voters: row.client_voters.split(',').map(s => s.trim()).filter(s => s.length > 0),
+              estimated_impact: row.estimated_impact?.trim() as 'High' | 'Medium' | 'Low' | undefined,
+              resource_requirement: row.resource_requirement?.trim() as 'High' | 'Medium' | 'Low' | undefined,
+              strategic_alignment: row.strategic_alignment ? safeNumberConversion(row.strategic_alignment) : undefined,
+              risks: row.risks ? row.risks.split(',').map(s => s.trim()).filter(s => s.length > 0) : undefined
             };
 
             // Categorize by quarter
@@ -701,12 +736,24 @@ export const parseCommitmentTrendsCSV = (csvData: string): Promise<CommitmentTre
             year: string;
             committed: number;
             delivered: number;
+            ideas?: Array<{
+              id: string;
+              summary: string;
+            }>;
           }> = [];
           const quarterlyDeliveries: Array<{
             quarter: string;
             year: string;
             delivered: number;
+            ideas?: Array<{
+              id: string;
+              summary: string;
+            }>;
           }> = [];
+
+          // Group ideas by year and quarter
+          const yearIdeasMap = new Map<string, Array<{ id: string; summary: string }>>();
+          const quarterIdeasMap = new Map<string, Array<{ id: string; summary: string }>>();
 
           rows.forEach(row => {
             // Validate required fields for annual data
@@ -714,11 +761,24 @@ export const parseCommitmentTrendsCSV = (csvData: string): Promise<CommitmentTre
               return; // Skip invalid rows
             }
 
+            // Collect ideas for this year
+            if (row.idea_id && row.idea_summary) {
+              const yearKey = row.year.trim();
+              if (!yearIdeasMap.has(yearKey)) {
+                yearIdeasMap.set(yearKey, []);
+              }
+              yearIdeasMap.get(yearKey)!.push({
+                id: row.idea_id.trim(),
+                summary: row.idea_summary.trim()
+              });
+            }
+
             // Add annual commitment data
             const annualData = {
               year: row.year.trim(),
               committed: safeNumberConversion(row.committed),
-              delivered: safeNumberConversion(row.delivered)
+              delivered: safeNumberConversion(row.delivered),
+              ideas: yearIdeasMap.get(row.year.trim()) || []
             };
 
             // Check if this year already exists
@@ -732,10 +792,24 @@ export const parseCommitmentTrendsCSV = (csvData: string): Promise<CommitmentTre
 
             // Add quarterly data if available
             if (row.quarter && row.quarterly_delivered) {
+              const quarterKey = `${row.quarter.trim()}-${row.year.trim()}`;
+              
+              // Collect ideas for this quarter
+              if (row.idea_id && row.idea_summary) {
+                if (!quarterIdeasMap.has(quarterKey)) {
+                  quarterIdeasMap.set(quarterKey, []);
+                }
+                quarterIdeasMap.get(quarterKey)!.push({
+                  id: row.idea_id.trim(),
+                  summary: row.idea_summary.trim()
+                });
+              }
+
               const quarterlyData = {
                 quarter: row.quarter.trim(),
                 year: row.year.trim(),
-                delivered: safeNumberConversion(row.quarterly_delivered)
+                delivered: safeNumberConversion(row.quarterly_delivered),
+                ideas: quarterIdeasMap.get(quarterKey) || []
               };
 
               // Check if this quarter-year combination already exists
@@ -1021,16 +1095,8 @@ export const parseCrossClientCollaborationCSV = (csvData: string): Promise<{
             );
           }
 
-          const rows = results.data as Array<{
-            quarter: string;
-            year?: string;
-            collaborative_ideas?: string;
-            total_ideas?: string;
-            collaboration_rate?: string;
-            collaboration_count?: string;
-          }>;
-          
-          const collaborationTrendData: CollaborationTrendQuarterlyData[] = [];
+          const rows = results.data as CollaborativeIdeaCSVRow[];
+          const quarterMap = new Map<string, CollaborationTrendQuarterlyData>();
 
           rows.forEach(row => {
             // Handle both old format (quarter, collaboration_count) and new format
@@ -1050,11 +1116,6 @@ export const parseCrossClientCollaborationCSV = (csvData: string): Promise<{
               collaborationRate = row.collaboration_rate ? 
                 safeNumberConversion(row.collaboration_rate) : 
                 (totalIdeas > 0 ? Math.round((collaborativeIdeas / totalIdeas) * 100) : 0);
-            } else if (row.collaboration_count) {
-              // Handle old format - use collaboration_count as collaborative ideas
-              collaborativeIdeas = safeNumberConversion(row.collaboration_count);
-              totalIdeas = Math.max(collaborativeIdeas * 2, 20); // Estimate total ideas
-              collaborationRate = totalIdeas > 0 ? Math.round((collaborativeIdeas / totalIdeas) * 100) : 0;
             }
 
             // Parse year if provided
@@ -1067,16 +1128,42 @@ export const parseCrossClientCollaborationCSV = (csvData: string): Promise<{
               }
             }
 
-            const trendData: CollaborationTrendQuarterlyData = {
-              quarter: row.quarter.trim(),
-              year: year,
-              collaborativeIdeas: collaborativeIdeas,
-              totalIdeas: totalIdeas,
-              collaborationRate: collaborationRate
-            };
+            const quarterKey = `${row.quarter.trim()}-${year}`;
+            
+            // Initialize quarter data if not exists
+            if (!quarterMap.has(quarterKey)) {
+              quarterMap.set(quarterKey, {
+                quarter: row.quarter.trim(),
+                year: year,
+                collaborativeIdeas: collaborativeIdeas,
+                totalIdeas: totalIdeas,
+                collaborationRate: collaborationRate,
+                topCollaborativeIdeas: []
+              });
+            }
 
-            collaborationTrendData.push(trendData);
+            // Add collaborative idea data if available
+            const quarterData = quarterMap.get(quarterKey)!;
+            if (row.idea_id && row.idea_name) {
+              const collaborativeIdea: CollaborativeIdea = {
+                id: row.idea_id.trim(),
+                name: row.idea_name.trim(),
+                originalSubmitter: row.original_submitter?.trim() || 'Unknown',
+                contributors: row.contributors ? 
+                  row.contributors.split(',').map(s => s.trim()).filter(s => s.length > 0) : 
+                  [],
+                submissionDate: row.submission_date?.trim() || new Date().toISOString(),
+                collaborationScore: safeNumberConversion(row.collaboration_score),
+                status: (row.status?.trim() as 'Active' | 'Delivered' | 'In Development') || 'Active',
+                comments: row.comments?.trim() || ''
+              };
+
+              quarterData.topCollaborativeIdeas!.push(collaborativeIdea);
+            }
           });
+
+          // Convert map to array
+          const collaborationTrendData = Array.from(quarterMap.values());
 
           // Sort by year and quarter
           collaborationTrendData.sort((a, b) => {

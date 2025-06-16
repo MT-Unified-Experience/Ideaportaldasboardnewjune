@@ -31,6 +31,10 @@ interface QuarterlyTrendsComparisonProps {
     vote_count: number;
     status: 'Delivered' | 'Under Review' | 'Committed';
     client_voters: string[];
+    estimated_impact?: 'High' | 'Medium' | 'Low';
+    resource_requirement?: 'High' | 'Medium' | 'Low';
+    strategic_alignment?: number;
+    risks?: string[];
   }>;
 }
 
@@ -59,6 +63,13 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
                             growthRate < -20 ? 'decreasing' : 
                             Math.abs(q2 - q3) > Math.abs(q1 - q4) ? 'cyclical' : 'none';
 
+      // Use actual feature data if available, otherwise generate defaults
+      const defaultRisks = [
+        'Resource allocation conflicts',
+        'Technical complexity',
+        'Client expectation management'
+      ];
+
       return {
         id: `trend-${index}`,
         name: feature.feature_name,
@@ -76,14 +87,10 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
         seasonal_pattern: seasonalPattern,
         status: feature.status,
         client_voters: feature.client_voters || [],
-        estimated_impact: index < 3 ? 'High' : index < 7 ? 'Medium' : 'Low',
-        resource_requirement: trendDirection === 'up' ? 'High' : 'Medium',
-        strategic_alignment: Math.floor(Math.random() * 4) + 7, // 7-10 for top features
-        risks: [
-          'Resource allocation conflicts',
-          'Technical complexity',
-          'Client expectation management'
-        ].slice(0, Math.floor(Math.random() * 3) + 1)
+        estimated_impact: feature.estimated_impact || (index < 3 ? 'High' : index < 7 ? 'Medium' : 'Low'),
+        resource_requirement: feature.resource_requirement || (trendDirection === 'up' ? 'High' : 'Medium'),
+        strategic_alignment: feature.strategic_alignment || (Math.floor(Math.random() * 4) + 7), // 7-10 for top features
+        risks: feature.risks || defaultRisks.slice(0, Math.floor(Math.random() * 3) + 1)
       };
     });
   };
