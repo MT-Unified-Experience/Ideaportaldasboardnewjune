@@ -932,7 +932,7 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
 
             const clients = row.client_names ? 
               row.client_names.split(',').map(s => s.trim()).filter(s => s.length > 0) : 
-              undefined;
+              [];
 
             const chartData = {
               quarter: row.quarter.trim(),
