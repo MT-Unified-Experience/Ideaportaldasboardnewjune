@@ -15,6 +15,7 @@ interface WidgetSettings {
   responsiveness: boolean;
   commitment: boolean;
   continuedEngagement: boolean;
+  collaborationTrend: boolean;
   clientSubmissions: boolean;
   topFeatures: boolean;
   dataSocialization: boolean;
@@ -37,6 +38,7 @@ const getStoredSettings = (): WidgetSettings => {
     responsiveness: true,
     commitment: true,
     continuedEngagement: true,
+    collaborationTrend: true,
     clientSubmissions: true,
     topFeatures: true,
     dataSocialization: true,

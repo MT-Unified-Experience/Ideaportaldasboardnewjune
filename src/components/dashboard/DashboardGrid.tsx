@@ -12,6 +12,7 @@ interface WidgetSettings {
   responsiveness: boolean;
   commitment: boolean;
   continuedEngagement: boolean;
+  collaborationTrend: boolean;
   clientSubmissions: boolean;
   topFeatures: boolean;
   dataSocialization: boolean;
@@ -62,15 +63,17 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
       </div>
 
       {/* Third Row: Cross-Client Collaboration Trend */}
-      <div className="grid grid-cols-1 gap-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-          <CrossClientCollaborationTrend
-            isOpen={true}
-            onClose={() => {}}
-            embedded={true}
-          />
+      {widgetSettings.collaborationTrend && (
+        <div className="grid grid-cols-1 gap-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+            <CrossClientCollaborationTrend
+              isOpen={true}
+              onClose={() => {}}
+              embedded={true}
+            />
+          </div>
         </div>
-      </div>
+      )}
       
       {/* Fourth Row: Top 10 Trends Over Last 2 Quarters */}
       {widgetSettings.topFeatures && (
