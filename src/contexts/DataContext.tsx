@@ -9,6 +9,17 @@ import Papa from 'papaparse';
 // Define expected fiscal years
 const EXPECTED_YEARS = ['FY22', 'FY23', 'FY24', 'FY25'];
 
+// Local storage keys
+const STORAGE_KEYS = {
+  ALL_PRODUCTS_DATA: 'dashboard-all-products-data',
+  CURRENT_PRODUCT: 'dashboard-current-product',
+  CURRENT_QUARTER: 'dashboard-current-quarter',
+  DATA_VERSION: 'dashboard-data-version'
+};
+
+// Data version for cache invalidation
+const DATA_VERSION = '1.0.0';
+
 interface DataContextType {
   currentProduct: Product;
   currentQuarter: Quarter;
@@ -81,9 +92,44 @@ const safelyMergeNestedObjects = (defaultObj: any, incomingObj: any | null): any
   };
 };
 
+// Local storage helper functions
+const saveToLocalStorage = (key: string, data: any): void => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.warn('Failed to save to localStorage:', error);
+  }
+};
+
+const loadFromLocalStorage = (key: string): any => {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : null;
+  } catch (error) {
+    console.warn('Failed to load from localStorage:', error);
+    return null;
+  }
+};
+
+const clearLocalStorageData = (): void => {
+  try {
+    Object.values(STORAGE_KEYS).forEach(key => {
+      localStorage.removeItem(key);
+    });
+  } catch (error) {
+    console.warn('Failed to clear localStorage:', error);
+  }
+};
+
+// Check if stored data version matches current version
+const isDataVersionValid = (): boolean => {
+  const storedVersion = loadFromLocalStorage(STORAGE_KEYS.DATA_VERSION);
+  return storedVersion === DATA_VERSION;
+};
+
 const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentProduct, setCurrentProduct] = useState<Product>('TeamConnect');
-  const [currentQuarter, setCurrentQuarter] = useState<Quarter>('FY25 Q1');
+  const [currentProduct, setCurrentProductState] = useState<Product>('TeamConnect');
+  const [currentQuarter, setCurrentQuarterState] = useState<Quarter>('FY25 Q1');
   const [allProductsData, setAllProductsData] = useState<Record<Product, ProductData>>({} as Record<Product, ProductData>);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
@@ -108,6 +154,62 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const timeoutId = setTimeout(checkConnection, 100);
     return () => clearTimeout(timeoutId);
   }, []);
+
+  // Load data from localStorage on mount
+  useEffect(() => {
+    const loadStoredData = () => {
+      // Check data version first
+      if (!isDataVersionValid()) {
+        console.log('Data version mismatch, clearing old data');
+        clearLocalStorageData();
+        saveToLocalStorage(STORAGE_KEYS.DATA_VERSION, DATA_VERSION);
+        initializeDefaultData();
+        return;
+      }
+
+      // Load stored product and quarter
+      const storedProduct = loadFromLocalStorage(STORAGE_KEYS.CURRENT_PRODUCT);
+      const storedQuarter = loadFromLocalStorage(STORAGE_KEYS.CURRENT_QUARTER);
+      const storedData = loadFromLocalStorage(STORAGE_KEYS.ALL_PRODUCTS_DATA);
+
+      if (storedProduct) {
+        setCurrentProductState(storedProduct);
+      }
+
+      if (storedQuarter) {
+        setCurrentQuarterState(storedQuarter);
+      }
+
+      if (storedData && Object.keys(storedData).length > 0) {
+        console.log('Loading data from localStorage');
+        setAllProductsData(storedData);
+      } else {
+        console.log('No stored data found, initializing default data');
+        initializeDefaultData();
+      }
+    };
+
+    loadStoredData();
+  }, []);
+
+  // Save data to localStorage whenever allProductsData changes
+  useEffect(() => {
+    if (Object.keys(allProductsData).length > 0) {
+      console.log('Saving data to localStorage');
+      saveToLocalStorage(STORAGE_KEYS.ALL_PRODUCTS_DATA, allProductsData);
+    }
+  }, [allProductsData]);
+
+  // Save current product and quarter to localStorage
+  const setCurrentProduct = (product: Product) => {
+    setCurrentProductState(product);
+    saveToLocalStorage(STORAGE_KEYS.CURRENT_PRODUCT, product);
+  };
+
+  const setCurrentQuarter = (quarter: Quarter) => {
+    setCurrentQuarterState(quarter);
+    saveToLocalStorage(STORAGE_KEYS.CURRENT_QUARTER, quarter);
+  };
 
   // Initialize default data for all products and quarters
   const initializeDefaultData = () => {
@@ -151,10 +253,6 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     
     setAllProductsData(initialData);
   };
-
-  useEffect(() => {
-    initializeDefaultData();
-  }, []);
 
   // Compute dashboardData based on current product and quarter
   const dashboardData = useMemo(() => {
@@ -201,6 +299,7 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      console.log(`Data successfully saved to ${table}`);
     } catch (error: any) {
       // More specific error handling
       if (error?.message?.includes('Failed to fetch') || 

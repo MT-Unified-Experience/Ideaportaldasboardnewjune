@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload } from 'lucide-react';
+import { Upload, CheckCircle } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 import ErrorModal from '../common/ErrorModal';
 import { CSVError, validateCSVData } from '../../utils/csvParser';
@@ -8,6 +8,7 @@ export const CsvUploader: React.FC = () => {
   const { uploadCSV, isLoading, error, currentProduct } = useData();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showError, setShowError] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const [errorDetails, setErrorDetails] = useState<{
     message: string;
     type?: 'file' | 'data' | 'application';
@@ -31,6 +32,7 @@ export const CsvUploader: React.FC = () => {
         });
       }
       setShowError(true);
+      setUploadSuccess(false);
     }
   }, [error]);
 
@@ -44,11 +46,23 @@ export const CsvUploader: React.FC = () => {
 
   const handleFile = async (file: File) => {
     try {
+      setUploadSuccess(false);
+      
       // Validate that the CSV contains data for the current product
       const fileContent = await file.text();
       await validateCSVData(fileContent, currentProduct);
       
       await uploadCSV(file);
+      
+      // Show success message
+      setUploadSuccess(true);
+      setTimeout(() => setUploadSuccess(false), 3000);
+      
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      
     } catch (err) {
       if (err instanceof CSVError) {
         setErrorDetails({
@@ -80,15 +94,35 @@ export const CsvUploader: React.FC = () => {
           onChange={handleChange}
           className="hidden"
         />
-        <button
-          type="button"
-          onClick={handleButtonClick}
-          disabled={isLoading}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Upload className="h-[0.7rem] w-[0.7rem] mr-2" />
-          {isLoading ? 'Uploading...' : 'Upload CSV'}
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={handleButtonClick}
+            disabled={isLoading}
+            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 ${
+              uploadSuccess 
+                ? 'bg-green-600 text-white hover:bg-green-700' 
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {uploadSuccess ? (
+              <>
+                <CheckCircle className="h-[0.7rem] w-[0.7rem] mr-2" />
+                Uploaded Successfully
+              </>
+            ) : (
+              <>
+                <Upload className="h-[0.7rem] w-[0.7rem] mr-2" />
+                {isLoading ? 'Uploading...' : 'Upload CSV'}
+              </>
+            )}
+          </button>
+          
+          {uploadSuccess && (
+            <div className="absolute -top-2 -right-2 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
+          )}
+        </div>
+        
         <a 
           href={`${import.meta.env.BASE_URL}template.csv?t=${Date.now()}`}
           className="block mt-2 text-[10px] text-blue-600 hover:text-blue-800 text-right"
