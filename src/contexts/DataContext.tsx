@@ -242,7 +242,7 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         .select('*')
         .eq('product', targetProduct)
         .eq('quarter', targetQuarter)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
