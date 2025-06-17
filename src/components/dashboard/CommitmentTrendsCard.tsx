@@ -53,66 +53,6 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
   const { uploadCommitmentTrendsCSV, isLoading } = useData();
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
-  // Generate default data if none provided
-  const defaultCommitmentTrends = [
-    { year: '2020', committed: 45, delivered: 42, ideas: [] },
-    { year: '2021', committed: 52, delivered: 48, ideas: [] },
-    { year: '2022', committed: 48, delivered: 45, ideas: [] },
-    { year: '2023', committed: 55, delivered: 52, ideas: [] },
-    { year: '2024', committed: value.total, delivered: value.committed, ideas: [] }
-  ];
-
-  const defaultQuarterlyDeliveries = [
-    { quarter: 'Q1', year: '2023', delivered: 12, ideas: [] },
-    { quarter: 'Q2', year: '2023', delivered: 15, ideas: [] },
-    { quarter: 'Q3', year: '2023', delivered: 13, ideas: [] },
-    { quarter: 'Q4', year: '2023', delivered: 12, ideas: [] },
-    { quarter: 'Q1', year: '2024', delivered: 14, ideas: [] },
-    { quarter: 'Q2', year: '2024', delivered: 16, ideas: [] },
-    { quarter: 'Q3', year: '2024', delivered: 11, ideas: [] },
-    { quarter: 'Q4', year: '2024', delivered: 13, ideas: [] }
-  ];
-
-  const chartData = commitmentTrends.length > 0 ? commitmentTrends : defaultCommitmentTrends;
-  const quarterlyData = quarterlyDeliveries.length > 0 ? quarterlyDeliveries : defaultQuarterlyDeliveries;
-
-  // Transform quarterly data for chart display
-  const transformedQuarterlyData = quarterlyData.map(item => ({
-    ...item,
-    quarterLabel: `${item.quarter} ${item.year}`
-  }));
-
-  // Generate sample ideas for data points if none provided
-  const generateIdeasForDataPoint = (type: 'annual' | 'quarterly', label: string, count: number) => {
-    const ideaTemplates = [
-      'AI-Powered Document Analysis',
-      'Mobile App Enhancement',
-      'Reporting Dashboard Improvements',
-      'API Integration Updates',
-      'Custom Workflow Builder',
-      'Document Management System',
-      'Search Functionality Enhancement',
-      'Bulk Actions Feature',
-      'Dashboard Customization',
-      'Email Integration',
-      'Advanced Analytics',
-      'Multi-language Support',
-      'Real-time Notifications',
-      'Data Export Enhancements',
-      'User Permission Management',
-      'Automated Workflow Templates',
-      'Integration with Third-party Tools',
-      'Mobile Responsive Design',
-      'Advanced Search Filters',
-      'Audit Trail Improvements'
-    ];
-
-    return Array.from({ length: count }, (_, index) => ({
-      id: `${type === 'annual' ? 'ANN' : 'QTR'}-${label.replace(/\s+/g, '')}-${String(index + 1).padStart(3, '0')}`,
-      summary: ideaTemplates[index % ideaTemplates.length]
-    }));
-  };
-
   // Handle chart clicks
   const handleAnnualChartClick = (data: any) => {
     if (data && data.activePayload && data.activePayload[0]) {
@@ -124,7 +64,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
       setSelectedDataPoint({
         type: 'annual',
         label: `${year} Delivered Ideas`,
-        ideas: ideas.length > 0 ? ideas : generateIdeasForDataPoint('annual', year, delivered)
+        ideas: ideas
       });
     }
   };
@@ -132,14 +72,13 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
   const handleQuarterlyChartClick = (data: any) => {
     if (data && data.activePayload && data.activePayload[0]) {
       const payload = data.activePayload[0].payload;
-      const quarterLabel = payload.quarterLabel;
-      const delivered = payload.delivered;
+      const quarterLabel = `${payload.quarter} ${payload.year}`;
       const ideas = payload.ideas || [];
       
       setSelectedDataPoint({
         type: 'quarterly',
         label: `${quarterLabel} Delivered Ideas`,
-        ideas: ideas.length > 0 ? ideas : generateIdeasForDataPoint('quarterly', quarterLabel, delivered)
+        ideas: ideas
       });
     }
   };
@@ -342,160 +281,182 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                   </div>
 
                   {/* Annual Commitments vs Deliveries Chart */}
-                  <div className="bg-gray-50 rounded-lg p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
-                      Annual Commitments vs Deliveries (Past 5 Years)
-                    </h3>
-                    <div className="h-[350px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData} onClick={handleAnnualChartClick}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis 
-                            dataKey="year"
-                            label={{ value: 'Year', position: 'insideBottom', offset: -5 }}
-                          />
-                          <YAxis 
-                            label={{ value: 'Number of Ideas', angle: -90, position: 'insideLeft' }}
-                          />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Legend content={<CustomLegend />} />
-                          <Line
-                            type="monotone"
-                            dataKey="committed"
-                            name="Total Committed Ideas"
-                            stroke="#3b82f6"
-                            strokeWidth={3}
-                            dot={{ fill: '#3b82f6', r: 6 }}
-                            activeDot={{ 
-                              r: 8, 
-                              stroke: '#3b82f6', 
-                              strokeWidth: 2,
-                              style: { cursor: 'pointer' }
-                            }}
-                          />
-                          <Line
-                            type="monotone"
-                            dataKey="delivered"
-                            name="Delivered Ideas"
-                            stroke="#22c55e"
-                            strokeWidth={3}
-                            dot={{ fill: '#22c55e', r: 6 }}
-                            activeDot={{ 
-                              r: 8, 
-                              stroke: '#22c55e', 
-                              strokeWidth: 2,
-                              onClick: handleAnnualChartClick,
-                              style: { cursor: 'pointer' }
-                            }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
+                  {commitmentTrends && commitmentTrends.length > 0 ? (
+                    <div className="bg-gray-50 rounded-lg p-6">
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">
+                        Annual Commitments vs Deliveries
+                      </h3>
+                      <div className="h-[350px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={commitmentTrends} onClick={handleAnnualChartClick}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis 
+                              dataKey="year"
+                              label={{ value: 'Year', position: 'insideBottom', offset: -5 }}
+                            />
+                            <YAxis 
+                              label={{ value: 'Number of Ideas', angle: -90, position: 'insideLeft' }}
+                            />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend content={<CustomLegend />} />
+                            <Line
+                              type="monotone"
+                              dataKey="committed"
+                              name="Total Committed Ideas"
+                              stroke="#3b82f6"
+                              strokeWidth={3}
+                              dot={{ fill: '#3b82f6', r: 6 }}
+                              activeDot={{ 
+                                r: 8, 
+                                stroke: '#3b82f6', 
+                                strokeWidth: 2,
+                                style: { cursor: 'pointer' }
+                              }}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="delivered"
+                              name="Delivered Ideas"
+                              stroke="#22c55e"
+                              strokeWidth={3}
+                              dot={{ fill: '#22c55e', r: 6 }}
+                              activeDot={{ 
+                                r: 8, 
+                                stroke: '#22c55e', 
+                                strokeWidth: 2,
+                                onClick: handleAnnualChartClick,
+                                style: { cursor: 'pointer' }
+                              }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="bg-gray-50 rounded-lg p-6 text-center">
+                      <div className="text-gray-500 mb-4">
+                        <div className="text-lg font-medium">No Annual Commitment Data Available</div>
+                        <p className="text-sm mt-2">Upload a CSV file above to view annual commitment trends and detailed analytics.</p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Quarterly Deliveries Chart */}
-                  <div className="bg-gray-50 rounded-lg p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
-                      Quarterly Idea Deliveries
-                    </h3>
-                    <div className="h-[300px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={transformedQuarterlyData} onClick={handleQuarterlyChartClick}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis 
-                            dataKey="quarterLabel"
-                            angle={-45}
-                            textAnchor="end"
-                            height={60}
-                            label={{ value: 'Quarter', position: 'insideBottom', offset: -5 }}
-                          />
-                          <YAxis 
-                            label={{ value: 'Delivered Ideas', angle: -90, position: 'insideLeft' }}
-                          />
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: 'white',
-                              border: '1px solid #ccc',
-                              borderRadius: '4px',
-                              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-                            }}
-                            formatter={(value: number) => [value, 'Delivered Ideas']}
-                            labelFormatter={(label: string) => `Quarter: ${label}`}
-                          />
-                          <Line
-                            type="monotone"
-                            dataKey="delivered"
-                            stroke="#22c55e"
-                            strokeWidth={3}
-                            dot={{ fill: '#22c55e', r: 5 }}
-                            activeDot={{ 
-                              r: 7, 
-                              stroke: '#22c55e', 
-                              strokeWidth: 2,
-                              onClick: handleQuarterlyChartClick,
-                              style: { cursor: 'pointer' }
-                            }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
+                  {quarterlyDeliveries && quarterlyDeliveries.length > 0 ? (
+                    <div className="bg-gray-50 rounded-lg p-6">
+                      <h3 className="text-lg font-medium text-gray-900 mb-4">
+                        Quarterly Idea Deliveries
+                      </h3>
+                      <div className="h-[300px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={quarterlyDeliveries} onClick={handleQuarterlyChartClick}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis 
+                              dataKey="quarter"
+                              angle={-45}
+                              textAnchor="end"
+                              height={60}
+                              label={{ value: 'Quarter', position: 'insideBottom', offset: -5 }}
+                            />
+                            <YAxis 
+                              label={{ value: 'Delivered Ideas', angle: -90, position: 'insideLeft' }}
+                            />
+                            <Tooltip
+                              contentStyle={{
+                                backgroundColor: 'white',
+                                border: '1px solid #ccc',
+                                borderRadius: '4px',
+                                boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                              }}
+                              formatter={(value: number) => [value, 'Delivered Ideas']}
+                              labelFormatter={(label: string) => `Quarter: ${label}`}
+                            />
+                            <Line
+                              type="monotone"
+                              dataKey="delivered"
+                              stroke="#22c55e"
+                              strokeWidth={3}
+                              dot={{ fill: '#22c55e', r: 5 }}
+                              activeDot={{ 
+                                r: 7, 
+                                stroke: '#22c55e', 
+                                strokeWidth: 2,
+                                onClick: handleQuarterlyChartClick,
+                                style: { cursor: 'pointer' }
+                              }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="bg-gray-50 rounded-lg p-6 text-center">
+                      <div className="text-gray-500 mb-4">
+                        <div className="text-lg font-medium">No Quarterly Delivery Data Available</div>
+                        <p className="text-sm mt-2">Upload a CSV file above to view quarterly delivery trends.</p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Performance Summary */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-lg p-6 border border-gray-200">
-                      <h4 className="text-lg font-medium text-gray-900 mb-4">5-Year Summary</h4>
-                      <div className="space-y-3">
-                        {chartData.map((item, index) => {
-                          const deliveryRate = Math.round((item.delivered / item.committed) * 100);
-                          return (
-                            <div key={item.year} className="flex items-center justify-between w-full">
-                              <span className="text-sm text-gray-600">{item.year}</span>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-900">
-                                  {item.delivered}/{item.committed}
-                                </span>
-                                <span className={`text-xs px-2 py-1 rounded-full ${
-                                  deliveryRate >= 90 ? 'bg-green-100 text-green-800' :
-                                  deliveryRate >= 80 ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-red-100 text-red-800'
-                                }`}>
-                                  {deliveryRate}%
-                                </span>
+                  {commitmentTrends && commitmentTrends.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="bg-white rounded-lg p-6 border border-gray-200">
+                        <h4 className="text-lg font-medium text-gray-900 mb-4">Performance Summary</h4>
+                        <div className="space-y-3">
+                          {commitmentTrends.map((item, index) => {
+                            const deliveryRate = Math.round((item.delivered / item.committed) * 100);
+                            return (
+                              <div key={item.year} className="flex items-center justify-between w-full">
+                                <span className="text-sm text-gray-600">{item.year}</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-900">
+                                    {item.delivered}/{item.committed}
+                                  </span>
+                                  <span className={`text-xs px-2 py-1 rounded-full ${
+                                    deliveryRate >= 90 ? 'bg-green-100 text-green-800' :
+                                    deliveryRate >= 80 ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-red-100 text-red-800'
+                                  }`}>
+                                    {deliveryRate}%
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="bg-white rounded-lg p-6 border border-gray-200">
-                      <h4 className="text-lg font-medium text-gray-900 mb-4">Key Metrics</h4>
-                      <div className="space-y-4">
-                        <div>
-                          <div className="text-2xl font-bold text-purple-600">
-                            {Math.round(chartData.reduce((sum, item) => sum + (item.delivered / item.committed), 0) / chartData.length * 100)}%
+                      <div className="bg-white rounded-lg p-6 border border-gray-200">
+                        <h4 className="text-lg font-medium text-gray-900 mb-4">Key Metrics</h4>
+                        <div className="space-y-4">
+                          <div>
+                            <div className="text-2xl font-bold text-purple-600">
+                              {Math.round(commitmentTrends.reduce((sum, item) => sum + (item.delivered / item.committed), 0) / commitmentTrends.length * 100)}%
+                            </div>
+                            <div className="text-sm text-gray-600">Average Delivery Rate</div>
                           </div>
-                          <div className="text-sm text-gray-600">Average Delivery Rate</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-blue-600">
-                            {Math.round(quarterlyData.reduce((sum, item) => sum + item.delivered, 0) / quarterlyData.length)}
+                          {quarterlyDeliveries && quarterlyDeliveries.length > 0 && (
+                            <div>
+                              <div className="text-2xl font-bold text-blue-600">
+                                {Math.round(quarterlyDeliveries.reduce((sum, item) => sum + item.delivered, 0) / quarterlyDeliveries.length)}
+                              </div>
+                              <div className="text-sm text-gray-600">Avg Quarterly Deliveries</div>
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-2xl font-bold text-green-600">
+                              {commitmentTrends[commitmentTrends.length - 1]?.delivered || 0}
+                            </div>
+                            <div className="text-sm text-gray-600">Current Year Delivered</div>
                           </div>
-                          <div className="text-sm text-gray-600">Avg Quarterly Deliveries</div>
-                        </div>
-                        <div>
-                          <div className="text-2xl font-bold text-green-600">
-                            {chartData[chartData.length - 1]?.delivered || 0}
-                          </div>
-                          <div className="text-sm text-gray-600">Current Year Delivered</div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Ideas Data Table */}
-                  {selectedDataPoint && (
+                  {selectedDataPoint && selectedDataPoint.ideas.length > 0 && (
                     <div className="bg-white rounded-lg border border-gray-200 p-6">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-medium text-gray-900">
