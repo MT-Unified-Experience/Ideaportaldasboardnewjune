@@ -227,7 +227,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="flex items-center gap-2 mb-6">
         <h3 className="text-lg font-medium text-gray-900">
-          {formattedPreviousQuarter} vs {formattedCurrentQuarter} Comparison
+          Top 10 Trends Over Last 2 Quarters
         </h3>
         <div className="relative group">
           <HelpCircle className="h-4 w-4 text-gray-400 cursor-help" />
