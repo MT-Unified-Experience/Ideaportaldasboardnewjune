@@ -1004,7 +1004,7 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
           const quarterMap = new Map<string, {
             quarter: string;
             clientsRepresenting: number;
-            clients: string[];
+            clients: Set<string>;
             ideas: Array<{
               id: string;
               clientName: string;
