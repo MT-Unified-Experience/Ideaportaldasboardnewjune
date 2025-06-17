@@ -338,7 +338,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <span className="text-sm font-medium text-gray-900">#{index + 1}</span>
-                      <span className="text-sm text-gray-700 truncate max-w-[200px]">{trend.name}</span>
+                      <span className="text-sm text-gray-700">{trend.name}</span>
                       {getTrendIcon(trend.trend_direction, trend.is_significant)}
                     </div>
                     <div className="flex items-center space-x-2">
