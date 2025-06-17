@@ -438,7 +438,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                         {chartData.map((item, index) => {
                           const deliveryRate = Math.round((item.delivered / item.committed) * 100);
                           return (
-                            <div key={item.year} className="flex items-center justify-between">
+                            <div key={item.year} className="flex items-center justify-between w-full">
                               <span className="text-sm text-gray-600">{item.year}</span>
                               <div className="flex items-center gap-2">
                                 <span className="text-sm font-medium text-gray-900">
