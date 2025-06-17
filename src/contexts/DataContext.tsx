@@ -6,6 +6,31 @@ import { supabase, checkSupabaseConnection, supabaseFetch } from '../utils/supab
 import { useEffect, useMemo } from 'react';
 import Papa from 'papaparse';
 
+// Storage keys for persistence
+const STORAGE_KEYS = {
+  CURRENT_PRODUCT: 'mitratech-dashboard-current-product',
+  CURRENT_QUARTER: 'mitratech-dashboard-current-quarter'
+};
+
+// Helper functions for localStorage operations
+const getStoredValue = <T>(key: string, defaultValue: T): T => {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : defaultValue;
+  } catch (error) {
+    console.warn(`Error reading from localStorage for key ${key}:`, error);
+    return defaultValue;
+  }
+};
+
+const setStoredValue = <T>(key: string, value: T): void => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.warn(`Error writing to localStorage for key ${key}:`, error);
+  }
+};
+
 // Define expected fiscal years
 const EXPECTED_YEARS = ['FY22', 'FY23', 'FY24', 'FY25'];
 
@@ -84,12 +109,27 @@ const safelyMergeNestedObjects = (defaultObj: any, incomingObj: any | null): any
 };
 
 const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currentProduct, setCurrentProduct] = useState<Product>('TeamConnect');
-  const [currentQuarter, setCurrentQuarter] = useState<Quarter>('FY25 Q1');
+  // Initialize state with values from localStorage or defaults
+  const [currentProduct, setCurrentProduct] = useState<Product>(() => 
+    getStoredValue(STORAGE_KEYS.CURRENT_PRODUCT, 'TeamConnect')
+  );
+  const [currentQuarter, setCurrentQuarter] = useState<Quarter>(() => 
+    getStoredValue(STORAGE_KEYS.CURRENT_QUARTER, 'FY25 Q1')
+  );
   const [allProductsData, setAllProductsData] = useState<Record<Product, ProductData>>({} as Record<Product, ProductData>);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const [isSupabaseAvailable, setIsSupabaseAvailable] = useState<boolean>(false);
+
+  // Persist currentProduct to localStorage whenever it changes
+  useEffect(() => {
+    setStoredValue(STORAGE_KEYS.CURRENT_PRODUCT, currentProduct);
+  }, [currentProduct]);
+
+  // Persist currentQuarter to localStorage whenever it changes
+  useEffect(() => {
+    setStoredValue(STORAGE_KEYS.CURRENT_QUARTER, currentQuarter);
+  }, [currentQuarter]);
 
   // Auto-fetch data when product, quarter, or Supabase availability changes
   useEffect(() => {
