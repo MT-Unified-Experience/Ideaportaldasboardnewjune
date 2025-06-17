@@ -349,13 +349,14 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                   </div>
 
                   {/* Trend Chart */}
-                  <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                  {quarterlyTrends && quarterlyTrends.length > 0 ? (
+                    <div className="bg-gray-50 rounded-lg p-6 mb-6">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">
                       FY25 Quarterly Engagement Trends
                     </h3>
                     <div className="h-[300px]">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData} onClick={handleChartClick}>
+                        <LineChart data={quarterlyTrends} onClick={handleChartClick}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis 
                             dataKey="quarter" 
@@ -383,17 +384,26 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-50 rounded-lg p-6 mb-6 text-center">
+                      <div className="text-gray-500 mb-4">
+                        <div className="text-lg font-medium">No Quarterly Trends Data Available</div>
+                        <p className="text-sm mt-2">Upload a CSV file above to view quarterly engagement trends.</p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Quarterly Breakdown */}
-                  <div className="space-y-4">
+                  {quarterlyTrends && quarterlyTrends.length > 0 && (
+                    <div className="space-y-4">
                     <h3 className="text-lg font-medium text-gray-900">
                       Quarterly Breakdown
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      {chartData.map((item, index) => {
+                      {quarterlyTrends.map((item, index) => {
                         const isCurrentQuarter = index === chartData.length - 1;
-                        const prevItem = index > 0 ? chartData[index - 1] : null;
+                        const prevItem = index > 0 ? quarterlyTrends[index - 1] : null;
                         const change = prevItem ? item.rate - prevItem.rate : 0;
                         
                         return (
@@ -445,7 +455,8 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                         );
                       })}
                     </div>
-                  </div>
+                    </div>
+                  )}
 
                   {/* Ideas Data Table */}
                   {selectedQuarterIdeas && selectedQuarterIdeas.length > 0 && (
