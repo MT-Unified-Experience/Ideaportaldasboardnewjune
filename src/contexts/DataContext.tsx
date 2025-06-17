@@ -887,4 +887,42 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     currentProduct,
     currentQuarter,
     dashboardData,
+    allProductsData,
+    setCurrentProduct,
+    setCurrentQuarter,
+    uploadCSV,
+    uploadProductQuarterlyCSV,
+    uploadTopFeaturesCSV,
+    uploadResponsivenessTrendCSV,
+    uploadCommitmentTrendsCSV,
+    uploadContinuedEngagementCSV,
+    uploadClientSubmissionsCSV,
+    uploadCrossClientCollaborationCSV,
+    fetchProductQuarterlyData,
+    updateDashboardData,
+    fetchDashboardDataFromSupabase,
+    refreshDashboardData,
+    isLoading,
+    error,
+    isSupabaseAvailable,
+  };
+
+  return (
+    <DataContext.Provider value={value}>
+      {children}
+    </DataContext.Provider>
+  );
+};
+
+// Custom hook to use the DataContext
+const useData = (): DataContextType => {
+  const context = useContext(DataContext);
+  if (!context) {
+    throw new Error('useData must be used within a DataProvider');
+  }
+  return context;
+};
+
+// Export both components
+export { DataProvider, useData };
     
