@@ -1022,21 +1022,27 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
             
             // Initialize quarter data if not exists
             if (!quarterMap.has(quarter)) {
-              const clients = row.client_names ? 
-                row.client_names.split(',').map(s => s.trim()).filter(s => s.length > 0) : 
-                [];
-              
               quarterMap.set(quarter, {
                 quarter: quarter,
                 clientsRepresenting: safeNumberConversion(row.clients_representing),
-                clients: clients,
+                clients: new Set<string>(), // Use Set to track unique clients
                 ideas: []
               });
             }
             
-            // Add idea data if available
             const quarterData = quarterMap.get(quarter)!;
+            
+            // Add clients from client_names field if available
+            if (row.client_names) {
+              const clientNames = row.client_names.split(',').map(s => s.trim()).filter(s => s.length > 0);
+              clientNames.forEach(client => quarterData.clients.add(client));
+            }
+            
+            // Add idea data if available
             if (row.idea_id && row.idea_summary && row.idea_client_name) {
+              // Add the client from the idea to our clients set
+              quarterData.clients.add(row.idea_client_name.trim());
+              
               quarterData.ideas.push({
                 id: row.idea_id.trim(),
                 clientName: row.idea_client_name.trim(),
@@ -1045,8 +1051,13 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
             }
           });
 
-          // Convert map to array
-          const lineChartData = Array.from(quarterMap.values());
+          // Convert map to array and convert Set to Array for clients
+          const lineChartData = Array.from(quarterMap.values()).map(quarterData => ({
+            ...quarterData,
+            clients: Array.from(quarterData.clients), // Convert Set to Array
+            // Update clientsRepresenting to match actual unique client count if we have client data
+            clientsRepresenting: quarterData.clients.size > 0 ? quarterData.clients.size : quarterData.clientsRepresenting
+          }));
 
           // Sort by quarter (assuming FY format)
           lineChartData.sort((a, b) => {
