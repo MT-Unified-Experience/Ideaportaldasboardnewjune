@@ -22,6 +22,7 @@ interface ResponsivenessCardProps {
     percentage: number;
     totalIdeas: number;
     ideasMovedOutOfReview: number;
+    ideasList?: string[];
   }>;
 }
 
@@ -38,8 +39,26 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
   const { uploadResponsivenessTrendCSV, isLoading } = useData();
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
-  // Use only CSV data - no static fallbacks
-  const chartData = quarterlyData || [];
+  // Helper function to get the past four quarters based on current quarter
+  const getPastFourQuarters = (currentQuarter: Quarter): string[] => {
+    const quarterMap: { [key: string]: string[] } = {
+      'FY25 Q1': ['FY24 Q2', 'FY24 Q3', 'FY24 Q4', 'FY25 Q1'],
+      'FY25 Q2': ['FY24 Q3', 'FY24 Q4', 'FY25 Q1', 'FY25 Q2'],
+      'FY25 Q3': ['FY24 Q4', 'FY25 Q1', 'FY25 Q2', 'FY25 Q3'],
+      'FY25 Q4': ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'],
+      'FY26 Q1': ['FY25 Q2', 'FY25 Q3', 'FY25 Q4', 'FY26 Q1']
+    };
+    return quarterMap[currentQuarter] || ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'];
+  };
+
+  // Filter quarterly data to show only the past four quarters
+  const pastFourQuarters = getPastFourQuarters(currentQuarter);
+  const filteredChartData = quarterlyData.filter(item => 
+    pastFourQuarters.includes(item.quarter)
+  ).sort((a, b) => {
+    // Sort by the order in pastFourQuarters array
+    return pastFourQuarters.indexOf(a.quarter) - pastFourQuarters.indexOf(b.quarter);
+  });
 
   // Handle data point click
   const handleDataPointClick = (data: any) => {
@@ -212,7 +231,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
               </div>
 
               {/* Current Quarter Summary */}
-              {chartData.length > 0 && (
+              {filteredChartData.length > 0 && (
                 <div className="bg-blue-50 rounded-lg p-6">
                   <div className="grid grid-cols-3 gap-4">
                     <div className="text-center">
@@ -221,13 +240,13 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                     </div>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-green-600">
-                        {chartData[chartData.length - 1]?.ideasMovedOutOfReview || Math.round((chartData[chartData.length - 1]?.totalIdeas || 0) * value / 100)}
+                        {filteredChartData[filteredChartData.length - 1]?.ideasMovedOutOfReview || Math.round((filteredChartData[filteredChartData.length - 1]?.totalIdeas || 0) * value / 100)}
                       </div>
                       <div className="text-sm text-gray-600">Ideas Moved Out of Review</div>
                     </div>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-gray-600">
-                        {chartData[chartData.length - 1]?.totalIdeas || 0}
+                        {filteredChartData[filteredChartData.length - 1]?.totalIdeas || 0}
                       </div>
                       <div className="text-sm text-gray-600">Total Ideas</div>
                     </div>
@@ -236,14 +255,14 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
               )}
 
               {/* Trend Chart */}
-              {chartData.length > 0 ? (
+              {filteredChartData.length > 0 ? (
                 <div className="bg-gray-50 rounded-lg p-6">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    Quarterly Performance Trend
+                    Quarterly Performance Trend (Past 4 Quarters)
                   </h3>
                   <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={chartData} onClick={handleDataPointClick}>
+                      <LineChart data={filteredChartData} onClick={handleDataPointClick}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis 
                           dataKey="quarter" 
@@ -285,21 +304,21 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
               )}
 
               {/* Quarterly Breakdown */}
-              {chartData.length > 0 && (
+              {filteredChartData.length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium text-gray-900">
-                    Quarterly Breakdown
+                    Quarterly Breakdown (Past 4 Quarters)
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    {chartData.map((item, index) => {
+                    {filteredChartData.map((item, index) => {
                       const isCurrentQuarter = item.quarter === currentQuarter;
-                      const prevItem = index > 0 ? chartData[index - 1] : null;
+                      const prevItem = index > 0 ? filteredChartData[index - 1] : null;
                       const change = prevItem ? item.percentage - prevItem.percentage : 0;
                       
                       return (
                         <div
                           key={item.quarter}
-                          className={`p-4 rounded-lg border ${
+                          className={`p-4 rounded-lg border cursor-pointer hover:shadow-lg transition-all ${
                             isCurrentQuarter 
                               ? 'bg-blue-50 border-blue-200' 
                               : 'bg-white border-gray-200'
@@ -391,7 +410,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
               )}
 
               {/* Insights */}
-              {chartData.length > 0 && (
+              {filteredChartData.length > 0 && (
                 <div className="bg-gray-50 rounded-lg p-6">
                   <h3 className="text-lg font-medium text-gray-900 mb-3">
                     Key Insights
@@ -407,7 +426,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                       • Target responsiveness rate is typically 85% or higher for optimal client satisfaction
                     </p>
                     <p>
-                      • The metric shows both the number of ideas that progressed and the total ideas submitted for context
+                      • The chart shows the past 4 quarters relative to the selected quarter: {pastFourQuarters.map(formatQuarterLabel).join(', ')}
                     </p>
                     <p>
                       • Click on any data point in the chart to view the specific ideas that moved out of review for that quarter
