@@ -130,7 +130,6 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
         'Enhanced User Experience',
         'Performance Monitoring Tools'
       ]
-    }
     },
     { 
       quarter: 'FY26 Q1', 
