@@ -202,7 +202,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
             <div className="mt-1 flex items-baseline">
               <p className="text-2xl font-semibold text-gray-900">{value}%</p>
             </div>
-            <p className="mt-1 text-xs text-gray-500">Ideas responded to with a status update after client submissions</p>
+            <p className="mt-1 text-xs text-gray-500">Ideas responded to with a status update within 2 weeks of client submissions</p>
           </div>
           <div className="p-2 rounded-full bg-blue-100">
             <TrendingUp className="h-5 w-5 text-blue-600" />
