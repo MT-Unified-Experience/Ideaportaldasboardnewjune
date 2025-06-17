@@ -71,11 +71,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
 
   // Format quarter labels for display
   const formatQuarterLabel = (quarter: string) => {
-    const match = quarter.match(/FY(\d+)\s+Q(\d+)/);
-    if (match) {
-      const year = `20${match[1]}`;
-      return `Q${match[2]} ${year}`;
-    }
+    // Return the quarter as-is since it's already in the correct FYXX QX format
     return quarter;
   };
 
