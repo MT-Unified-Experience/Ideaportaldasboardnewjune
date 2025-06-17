@@ -39,51 +39,66 @@ interface TrendData {
 interface QuarterlyTrendsComparisonProps {
   currentFeatures: Feature[]; // Q4 features
   previousFeatures: Feature[]; // Q3 features
+  currentQuarterLabel?: string;
+  previousQuarterLabel?: string;
 }
 
 const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ 
   currentFeatures, 
-  previousFeatures 
+  previousFeatures,
+  currentQuarterLabel = 'Q4',
+  previousQuarterLabel = 'Q3'
 }) => {
   const [selectedTrend, setSelectedTrend] = useState<TrendData | null>(null);
   const [activeView, setActiveView] = useState<'comparison' | 'analysis' | 'recommendations'>('comparison');
 
+  // Format quarter labels for display
+  const formatQuarterLabel = (quarter: string) => {
+    const match = quarter.match(/FY(\d+)\s+Q(\d+)/);
+    if (match) {
+      return `FY${match[1]} Q${match[2]}`;
+    }
+    return quarter;
+  };
+
+  const formattedCurrentQuarter = formatQuarterLabel(currentQuarterLabel);
+  const formattedPreviousQuarter = formatQuarterLabel(previousQuarterLabel);
   // Generate trend data from actual CSV features
   const generateTrendData = (): TrendData[] => {
     // Create a map to track all unique features
     const featureMap = new Map<string, {
-      q3_votes: number;
-      q4_votes: number;
-      q3_rank: number;
-      q4_rank: number;
+      previous_votes: number;
+      current_votes: number;
+      previous_rank: number;
+      current_rank: number;
       feature: Feature;
     }>();
 
-    // Add Q4 features (current quarter)
+    // Add current quarter features
     currentFeatures.forEach((feature, index) => {
       featureMap.set(feature.feature_name, {
-        q3_votes: 0, // Will be updated if found in Q3
-        q4_votes: feature.vote_count,
-        q3_rank: 999, // Will be updated if found in Q3
-        q4_rank: index + 1,
+        previous_votes: 0, // Will be updated if found in previous quarter
+        current_votes: feature.vote_count,
+        previous_rank: 999, // Will be updated if found in previous quarter
+        current_rank: index + 1,
         feature: feature
       });
     });
 
-    // Add Q3 features (previous quarter) and update existing entries
+    // Add previous quarter features and update existing entries
     previousFeatures.forEach((feature, index) => {
       const existing = featureMap.get(feature.feature_name);
       if (existing) {
         // Feature exists in both quarters
-        existing.q3_votes = feature.vote_count;
-        existing.q3_rank = index + 1;
+        existing.previous_votes = feature.vote_count;
+        existing.previous_rank = index + 1;
       } else {
-        // Feature only exists in Q3
+        // Feature only exists in previous quarter
         featureMap.set(feature.feature_name, {
-          q3_votes: feature.vote_count,
-          q4_votes: 0,
-          q3_rank: index + 1,
-          q4_rank: 999,
+          previous_votes: feature.vote_count,
+          current_votes: 0,
+          previous_rank: index + 1,
+          current_rank: 999,
           feature: feature
         });
       }
@@ -91,18 +106,18 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
 
     // Convert to trend data array
     const trendData: TrendData[] = Array.from(featureMap.entries()).map(([featureName, data], index) => {
-      const q3Votes = data.q3_votes;
-      const q4Votes = data.q4_votes;
+      const previousVotes = data.previous_votes;
+      const currentVotes = data.current_votes;
       
-      // Calculate percentage change (Q3 to Q4)
+      // Calculate percentage change (previous to current)
       let percentageChange = 0;
-      if (q3Votes > 0) {
-        percentageChange = ((q4Votes - q3Votes) / q3Votes) * 100;
-      } else if (q4Votes > 0) {
-        percentageChange = 100; // New feature in Q4
+      if (previousVotes > 0) {
+        percentageChange = ((currentVotes - previousVotes) / previousVotes) * 100;
+      } else if (currentVotes > 0) {
+        percentageChange = 100; // New feature in current quarter
       }
 
-      // Calculate growth rate (Q1 to Q4) - since we don't have Q1/Q2 data, use Q3 to Q4
+      // Calculate growth rate - use previous to current
       const growthRate = percentageChange;
       
       // Determine if change is significant (>15% change)
@@ -122,10 +137,10 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
         name: featureName,
         q1_votes: 0, // No Q1 data available
         q2_votes: 0, // No Q2 data available
-        q3_votes: q3Votes,
-        q4_votes: q4Votes,
-        q3_rank: data.q3_rank,
-        q4_rank: data.q4_rank,
+        q3_votes: previousVotes,
+        q4_votes: currentVotes,
+        q3_rank: data.previous_rank,
+        q4_rank: data.current_rank,
         percentage_change: percentageChange,
         growth_rate: growthRate,
         confidence_interval: [percentageChange - 5, percentageChange + 5] as [number, number],
@@ -141,7 +156,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
       };
     });
 
-    // Sort by Q4 vote count (descending) and take top 10
+    // Sort by current quarter vote count (descending) and take top 10
     return trendData
       .sort((a, b) => b.q4_votes - a.q4_votes)
       .slice(0, 10);
@@ -188,11 +203,11 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
           <p className="font-medium text-gray-900 mb-2">{data.name}</p>
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
-              <span>Q3 Votes:</span>
+              <span>{formattedPreviousQuarter} Votes:</span>
               <span className="font-medium">{data.q3_votes}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span>Q4 Votes:</span>
+              <span>{formattedCurrentQuarter} Votes:</span>
               <span className="font-medium">{data.q4_votes}</span>
             </div>
             <div className="flex justify-between text-sm">
@@ -212,12 +227,12 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="flex items-center gap-2 mb-6">
         <h3 className="text-lg font-medium text-gray-900">
-          Top 10 Trends Over Last 2 Quarters
+          {formattedPreviousQuarter} vs {formattedCurrentQuarter} Comparison
         </h3>
         <div className="relative group">
           <HelpCircle className="h-4 w-4 text-gray-400 cursor-help" />
           <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-            Analysis of the top 10 feature request trends comparing Q3 and Q4 performance with detailed insights
+            Analysis of the top 10 feature request trends comparing {formattedPreviousQuarter} and {formattedCurrentQuarter} performance with detailed insights
           </div>
         </div>
       </div>
@@ -226,7 +241,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
       <div className="border-b border-gray-200 mb-6">
         <nav className="-mb-px flex space-x-8">
           {[
-            { id: 'comparison', name: 'Q3 vs Q4 Comparison', icon: BarChart },
+            { id: 'comparison', name: `${formattedPreviousQuarter} vs ${formattedCurrentQuarter} Comparison`, icon: BarChart },
             { id: 'analysis', name: 'Trend Analysis', icon: TrendingUp },
             { id: 'recommendations', name: 'Strategic Recommendations', icon: CheckCircle }
           ].map((tab) => {
@@ -249,14 +264,14 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
         </nav>
       </div>
 
-      {/* Q3 vs Q4 Comparison View */}
+      {/* Previous vs Current Quarter Comparison View */}
       {activeView === 'comparison' && (
         <div className="space-y-6">
-          {/* Split Q3 and Q4 Charts */}
+          {/* Split Previous and Current Quarter Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Q3 Chart */}
+            {/* Previous Quarter Chart */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="text-md font-medium text-gray-900 mb-4">Q3 Vote Volume</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">{formattedPreviousQuarter} Vote Volume</h4>
               <div className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
@@ -274,12 +289,12 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
                     />
                     <YAxis />
                     <Tooltip 
-                      formatter={(value: number, name: string) => [value, 'Q3 Votes']}
+                      formatter={(value: number, name: string) => [value, `${formattedPreviousQuarter} Votes`]}
                       labelFormatter={(label: string) => `Feature: ${label}`}
                     />
                     <Bar 
                       dataKey="q3_votes" 
-                      name="Q3 Votes" 
+                      name={`${formattedPreviousQuarter} Votes`}
                       fill="#8b5cf6" 
                       minPointSize={5}
                     />
@@ -288,9 +303,9 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
               </div>
             </div>
 
-            {/* Q4 Chart */}
+            {/* Current Quarter Chart */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="text-md font-medium text-gray-900 mb-4">Q4 Vote Volume</h4>
+              <h4 className="text-md font-medium text-gray-900 mb-4">{formattedCurrentQuarter} Vote Volume</h4>
               <div className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
@@ -308,12 +323,12 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
                     />
                     <YAxis />
                     <Tooltip 
-                      formatter={(value: number, name: string) => [value, 'Q4 Votes']}
+                      formatter={(value: number, name: string) => [value, `${formattedCurrentQuarter} Votes`]}
                       labelFormatter={(label: string) => `Feature: ${label}`}
                     />
                     <Bar 
                       dataKey="q4_votes" 
-                      name="Q4 Votes" 
+                      name={`${formattedCurrentQuarter} Votes`}
                       fill="#3b82f6" 
                       minPointSize={5}
                     />
@@ -323,9 +338,9 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
             </div>
           </div>
 
-          {/* Percentage change list */}
+          {/* Percentage change from previous to current quarter */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="text-md font-medium text-gray-900 mb-4">Percentage Change Q3 to Q4</h4>
+            <h4 className="text-md font-medium text-gray-900 mb-4">Percentage Change {formattedPreviousQuarter} to {formattedCurrentQuarter}</h4>
             <div className="space-y-3 max-h-[400px] overflow-y-auto">
               {trendData.slice(0, 10).map((trend, index) => (
                 <div
@@ -354,7 +369,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
                     </div>
                   </div>
                   <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
-                    <span>Q3: {trend.q3_votes} → Q4: {trend.q4_votes}</span>
+                    <span>{formattedPreviousQuarter}: {trend.q3_votes} → {formattedCurrentQuarter}: {trend.q4_votes}</span>
                     <span className={`px-2 py-1 rounded-full ${getImpactColor(trend.estimated_impact)}`}>
                       {trend.estimated_impact} Impact
                     </span>
@@ -385,8 +400,8 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
                       <LineChart data={[
                         { quarter: 'Q1', votes: selectedTrend.q1_votes },
                         { quarter: 'Q2', votes: selectedTrend.q2_votes },
-                        { quarter: 'Q3', votes: selectedTrend.q3_votes },
-                        { quarter: 'Q4', votes: selectedTrend.q4_votes }
+                        { quarter: formattedPreviousQuarter.split(' ')[1], votes: selectedTrend.q3_votes },
+                        { quarter: formattedCurrentQuarter.split(' ')[1], votes: selectedTrend.q4_votes }
                       ]}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="quarter" />
@@ -408,7 +423,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
                   <h5 className="font-medium text-gray-900 mb-2">Statistical Analysis</h5>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Growth Rate (Q3-Q4):</span>
+                      <span className="text-sm text-gray-600">Growth Rate ({formattedPreviousQuarter.split(' ')[1]}-{formattedCurrentQuarter.split(' ')[1]}):</span>
                       <span className="text-sm font-medium">{selectedTrend.growth_rate.toFixed(1)}%</span>
                     </div>
                     <div className="flex justify-between">

@@ -7,6 +7,7 @@ import DataSocializationCard from './DataSocializationCard';
 import LineChart from './LineChart';
 import CrossClientCollaborationTrend from './CrossClientCollaborationTrend';
 import { TopFeaturesChart } from './TopFeaturesChart';
+import { useData } from '../../contexts/DataContext';
 
 interface WidgetSettings {
   responsiveness: boolean;
@@ -30,6 +31,23 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
   widgetSettings 
 }) => {
   const { metricSummary, lineChartData, topFeatures, previousQuarterFeatures } = data;
+  const { allProductsData, currentProduct } = useData();
+
+  // Helper function to get previous quarter
+  const getPreviousQuarter = (quarter: string): string => {
+    const quarterMap: { [key: string]: string } = {
+      'FY25 Q1': 'FY24 Q4',
+      'FY25 Q2': 'FY25 Q1',
+      'FY25 Q3': 'FY25 Q2',
+      'FY25 Q4': 'FY25 Q3',
+      'FY26 Q1': 'FY25 Q4'
+    };
+    return quarterMap[quarter] || 'FY25 Q3';
+  };
+
+  // Get previous quarter data
+  const previousQuarter = getPreviousQuarter(currentQuarter);
+  const previousQuarterData = allProductsData[currentProduct]?.[previousQuarter];
 
   return (
     <div className="space-y-6">
@@ -82,6 +100,8 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
             <TopFeaturesChart 
               features={topFeatures} 
               previousFeatures={previousQuarterFeatures || []} 
+              currentQuarterLabel={currentQuarter}
+              previousQuarterLabel={previousQuarter}
             />
           </div>
         </div>
