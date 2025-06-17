@@ -36,6 +36,7 @@ export interface MetricSummary {
   roadmapAlignment: {
     committed: number;
     total: number;
+    commitmentStatus?: 'On Track' | 'Off Track' | 'At Risk';
     commitmentTrends?: Array<{
       year: string;
       committed: number;

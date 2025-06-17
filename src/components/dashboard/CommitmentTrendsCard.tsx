@@ -224,9 +224,20 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
               )}
             </div>
             <div className="mt-1 flex items-baseline">
-              <p className="text-2xl font-semibold text-gray-900">
+              <div className="flex items-center gap-3">
+                <p className="text-2xl font-semibold text-gray-900">
                 {value.committed}/{value.total}
-              </p>
+                </p>
+                {value.commitmentStatus && (
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    value.commitmentStatus === 'On Track' ? 'bg-green-100 text-green-800' :
+                    value.commitmentStatus === 'Off Track' ? 'bg-red-100 text-red-800' :
+                    'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {value.commitmentStatus}
+                  </span>
+                )}
+              </div>
             </div>
             <p className="mt-1 text-xs text-gray-500">Total Planned Ideas Delivered to Date vs Annual Commitment</p>
           </div>
