@@ -38,122 +38,8 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
   const { uploadResponsivenessTrendCSV, isLoading } = useData();
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
-  // Helper function to get the four quarters to display based on currentQuarter
-  const getFourQuartersToDisplay = (currentQuarter: Quarter): Quarter[] => {
-    const allQuarters: Quarter[] = ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4', 'FY26 Q1'];
-    const currentIndex = allQuarters.indexOf(currentQuarter);
-    
-    if (currentIndex === -1) {
-      // If currentQuarter is not found, default to the last 4 quarters
-      return allQuarters.slice(-4);
-    }
-    
-    // Get the current quarter and the three preceding quarters
-    const startIndex = Math.max(0, currentIndex - 3);
-    const endIndex = currentIndex + 1;
-    
-    return allQuarters.slice(startIndex, endIndex);
-  };
-
-  const quartersToDisplay = getFourQuartersToDisplay(currentQuarter);
-
-  // Generate default quarterly data if none provided
-  const defaultQuarterlyData = [
-    { 
-      quarter: 'FY25 Q1', 
-      percentage: 82, 
-      totalIdeas: 45, 
-      ideasMovedOutOfReview: 37,
-      ideasList: [
-        'AI-Powered Document Analysis',
-        'Mobile App Enhancement',
-        'Reporting Dashboard Improvements',
-        'API Integration Updates',
-        'Custom Workflow Builder',
-        'Document Management System',
-        'Search Functionality Enhancement',
-        'Bulk Actions Feature',
-        'Dashboard Customization',
-        'Email Integration'
-      ]
-    },
-    { 
-      quarter: 'FY25 Q2', 
-      percentage: 78, 
-      totalIdeas: 52, 
-      ideasMovedOutOfReview: 41,
-      ideasList: [
-        'Advanced Analytics Dashboard',
-        'Multi-language Support',
-        'Real-time Notifications',
-        'Data Export Enhancements',
-        'User Permission Management',
-        'Automated Workflow Templates',
-        'Integration with Third-party Tools',
-        'Mobile Responsive Design',
-        'Advanced Search Filters',
-        'Audit Trail Improvements'
-      ]
-    },
-    { 
-      quarter: 'FY25 Q3', 
-      percentage: 85, 
-      totalIdeas: 38, 
-      ideasMovedOutOfReview: 32,
-      ideasList: [
-        'Cloud Storage Integration',
-        'Enhanced Security Features',
-        'Performance Optimization',
-        'Custom Report Builder',
-        'Collaboration Tools',
-        'Version Control System',
-        'Automated Backup Solutions',
-        'Single Sign-On (SSO)',
-        'Advanced User Analytics',
-        'Mobile App Offline Mode'
-      ]
-    },
-    { 
-      quarter: 'FY25 Q4', 
-      percentage: value, 
-      totalIdeas: 41, 
-      ideasMovedOutOfReview: Math.round(41 * value / 100),
-      ideasList: [
-        'Machine Learning Integration',
-        'Advanced Data Visualization',
-        'Cross-platform Synchronization',
-        'Enhanced Mobile Features',
-        'Automated Testing Framework',
-        'Real-time Collaboration',
-        'Advanced Security Protocols',
-        'Custom Integration APIs',
-        'Enhanced User Experience',
-        'Performance Monitoring Tools'
-      ]
-    },
-    { 
-      quarter: 'FY26 Q1', 
-      percentage: 88, 
-      totalIdeas: 43, 
-      ideasMovedOutOfReview: Math.round(43 * 88 / 100),
-      ideasList: [
-        'Next-Gen AI Features',
-        'Advanced Workflow Automation',
-        'Enhanced Data Analytics',
-        'Improved User Interface',
-        'Cloud-Native Architecture',
-        'Advanced Security Measures',
-        'Real-time Data Processing',
-        'Enhanced Mobile Experience',
-        'Advanced Integration Capabilities',
-        'Performance Optimization Tools'
-      ]
-    }
-  ];
-
-  // Filter data to only show the four quarters we want to display
-  const allData = quarterlyData.length > 0 ? quarterlyData : defaultQuarterlyData;
-  const chartData = allData.filter(item => quartersToDisplay.includes(item.quarter as Quarter));
+  // Use only CSV data - no static fallbacks
+  const chartData = quarterlyData || [];
 
   // Handle data point click
   const handleDataPointClick = (data: any) => {
@@ -326,122 +212,135 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
               </div>
 
               {/* Current Quarter Summary */}
-              <div className="bg-blue-50 rounded-lg p-6">
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600">{value}%</div>
-                    <div className="text-sm text-gray-600">Current Quarter</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600">
-                      {chartData[chartData.length - 1]?.ideasMovedOutOfReview || Math.round((chartData[chartData.length - 1]?.totalIdeas || 0) * value / 100)}
+              {chartData.length > 0 && (
+                <div className="bg-blue-50 rounded-lg p-6">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-blue-600">{value}%</div>
+                      <div className="text-sm text-gray-600">Current Quarter</div>
                     </div>
-                    <div className="text-sm text-gray-600">Ideas Moved Out of Review</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-600">
-                      {chartData[chartData.length - 1]?.totalIdeas || 0}
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-green-600">
+                        {chartData[chartData.length - 1]?.ideasMovedOutOfReview || Math.round((chartData[chartData.length - 1]?.totalIdeas || 0) * value / 100)}
+                      </div>
+                      <div className="text-sm text-gray-600">Ideas Moved Out of Review</div>
                     </div>
-                    <div className="text-sm text-gray-600">Total Ideas</div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-gray-600">
+                        {chartData[chartData.length - 1]?.totalIdeas || 0}
+                      </div>
+                      <div className="text-sm text-gray-600">Total Ideas</div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Trend Chart */}
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Quarterly Performance Trend
-                </h3>
-                <div className="h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData} onClick={handleDataPointClick}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="quarter" 
-                        tickFormatter={formatQuarterLabel}
-                        angle={-45}
-                        textAnchor="end"
-                        height={60}
-                      />
-                      <YAxis 
-                        domain={[0, 100]}
-                        label={{ value: 'Responsiveness %', angle: -90, position: 'insideLeft' }}
-                      />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Line
-                        type="monotone"
-                        dataKey="percentage"
-                        stroke="#3b82f6"
-                        strokeWidth={3}
-                        dot={{ fill: '#3b82f6', r: 6 }}
-                        activeDot={{ 
-                          r: 8, 
-                          stroke: '#3b82f6', 
-                          strokeWidth: 2,
-                          onClick: handleDataPointClick,
-                          style: { cursor: 'pointer' }
-                        }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+              {chartData.length > 0 ? (
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">
+                    Quarterly Performance Trend
+                  </h3>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartData} onClick={handleDataPointClick}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="quarter" 
+                          tickFormatter={formatQuarterLabel}
+                          angle={-45}
+                          textAnchor="end"
+                          height={60}
+                        />
+                        <YAxis 
+                          domain={[0, 100]}
+                          label={{ value: 'Responsiveness %', angle: -90, position: 'insideLeft' }}
+                        />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Line
+                          type="monotone"
+                          dataKey="percentage"
+                          stroke="#3b82f6"
+                          strokeWidth={3}
+                          dot={{ fill: '#3b82f6', r: 6 }}
+                          activeDot={{ 
+                            r: 8, 
+                            stroke: '#3b82f6', 
+                            strokeWidth: 2,
+                            onClick: handleDataPointClick,
+                            style: { cursor: 'pointer' }
+                          }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="bg-gray-50 rounded-lg p-6 text-center">
+                  <div className="text-gray-500 mb-4">
+                    <div className="text-lg font-medium">No Responsiveness Data Available</div>
+                    <p className="text-sm mt-2">Upload a CSV file above to view quarterly responsiveness trends and detailed analytics.</p>
+                  </div>
+                </div>
+              )}
 
               {/* Quarterly Breakdown */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  Quarterly Breakdown
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                  {chartData.map((item, index) => {
-                    const isCurrentQuarter = item.quarter === currentQuarter;
-                    const prevItem = index > 0 ? chartData[index - 1] : null;
-                    const change = prevItem ? item.percentage - prevItem.percentage : 0;
-                    
-                    return (
-                      <div
-                        key={item.quarter}
-                        className={`p-4 rounded-lg border ${
-                          isCurrentQuarter 
-                            ? 'bg-blue-50 border-blue-200' 
-                            : 'bg-white border-gray-200'
-                        }`}
-                        onClick={() => {
-                          setSelectedQuarterIdeas(item.ideasList || []);
-                          setSelectedQuarterName(item.quarter);
-                        }}
-                      >
-                        <div className="text-center">
-                          <h4 className="font-medium text-gray-900 mb-2">
-                            {formatQuarterLabel(item.quarter)}
-                          </h4>
-                          <div className="text-2xl font-bold text-gray-900 mb-2">
-                            {item.percentage}%
-                          </div>
-                          {prevItem && (
-                            <div className={`text-sm font-medium mb-2 ${
-                              change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-500'
-                            }`}>
-                              {change > 0 ? '+' : ''}{change.toFixed(1)}% vs prev
+              {chartData.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Quarterly Breakdown
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                    {chartData.map((item, index) => {
+                      const isCurrentQuarter = item.quarter === currentQuarter;
+                      const prevItem = index > 0 ? chartData[index - 1] : null;
+                      const change = prevItem ? item.percentage - prevItem.percentage : 0;
+                      
+                      return (
+                        <div
+                          key={item.quarter}
+                          className={`p-4 rounded-lg border ${
+                            isCurrentQuarter 
+                              ? 'bg-blue-50 border-blue-200' 
+                              : 'bg-white border-gray-200'
+                          }`}
+                          onClick={() => {
+                            setSelectedQuarterIdeas(item.ideasList || []);
+                            setSelectedQuarterName(item.quarter);
+                          }}
+                        >
+                          <div className="text-center">
+                            <h4 className="font-medium text-gray-900 mb-2">
+                              {formatQuarterLabel(item.quarter)}
+                            </h4>
+                            <div className="text-2xl font-bold text-gray-900 mb-2">
+                              {item.percentage}%
                             </div>
-                          )}
-                          <p className="text-sm text-gray-600">
-                            {item.ideasMovedOutOfReview || Math.round(item.totalIdeas * item.percentage / 100)} of {item.totalIdeas} ideas moved out of review
-                          </p>
-                          {isCurrentQuarter && (
-                            <span className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              Current
-                            </span>
-                          )}
-                          <div className="mt-2 text-xs text-blue-600 font-medium">
-                            Click to view ideas
+                            {prevItem && (
+                              <div className={`text-sm font-medium mb-2 ${
+                                change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-500'
+                              }`}>
+                                {change > 0 ? '+' : ''}{change.toFixed(1)}% vs prev
+                              </div>
+                            )}
+                            <p className="text-sm text-gray-600">
+                              {item.ideasMovedOutOfReview || Math.round(item.totalIdeas * item.percentage / 100)} of {item.totalIdeas} ideas moved out of review
+                            </p>
+                            {isCurrentQuarter && (
+                              <span className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                Current
+                              </span>
+                            )}
+                            <div className="mt-2 text-xs text-blue-600 font-medium">
+                              Click to view ideas
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Ideas List for Selected Quarter */}
               {selectedQuarterIdeas && selectedQuarterIdeas.length > 0 && (
@@ -492,28 +391,30 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
               )}
 
               {/* Insights */}
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">
-                  Key Insights
-                </h3>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <p>
-                    • Responsiveness measures the percentage of ideas that moved out of the "Need Review" stage after client submission
-                  </p>
-                  <p>
-                    • Higher percentages indicate better engagement and faster feedback loops with clients
-                  </p>
-                  <p>
-                    • Target responsiveness rate is typically 85% or higher for optimal client satisfaction
-                  </p>
-                  <p>
-                    • The metric shows both the number of ideas that progressed and the total ideas submitted for context
-                  </p>
-                  <p>
-                    • Click on any data point in the chart to view the specific ideas that moved out of review for that quarter
-                  </p>
+              {chartData.length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-3">
+                    Key Insights
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-600">
+                    <p>
+                      • Responsiveness measures the percentage of ideas that moved out of the "Need Review" stage after client submission
+                    </p>
+                    <p>
+                      • Higher percentages indicate better engagement and faster feedback loops with clients
+                    </p>
+                    <p>
+                      • Target responsiveness rate is typically 85% or higher for optimal client satisfaction
+                    </p>
+                    <p>
+                      • The metric shows both the number of ideas that progressed and the total ideas submitted for context
+                    </p>
+                    <p>
+                      • Click on any data point in the chart to view the specific ideas that moved out of review for that quarter
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
