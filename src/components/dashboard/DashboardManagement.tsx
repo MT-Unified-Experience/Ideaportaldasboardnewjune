@@ -552,93 +552,51 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
             )}
 
             {/* Cross-Client Collaboration Tab */}
-            {activeTab === 'metrics' && (
+            {activeTab === 'collaboration' && (
               <div className="space-y-6">
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <h3 className="text-lg font-medium text-blue-900 mb-2">Key Metrics Configuration</h3>
-                  <p className="text-sm text-blue-700">
-                    Configure status indicators and thresholds for key dashboard metrics.
+                {/* CSV Upload Section */}
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <h4 className="text-md font-medium text-green-900 mb-2">Upload Cross-Client Collaboration CSV</h4>
+                  <p className="text-sm text-green-700 mb-3">
+                    Upload a CSV file containing quarterly cross-client collaboration data with columns: quarter, year, collaborative_ideas, total_ideas, collaboration_rate.
                   </p>
-                </div>
-
-                {/* Commitment Status Section */}
-                <div className="bg-white rounded-lg p-6 border border-gray-200">
-                  <h4 className="text-md font-medium text-gray-900 mb-4">Idea Portal Commitment Status</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Current Status
-                      </label>
-                      <select
-                        value={localData.metricSummary.roadmapAlignment.commitmentStatus || 'On Track'}
-                        onChange={(e) => setLocalData(prev => ({
-                          ...prev,
-                          metricSummary: {
-                            ...prev.metricSummary,
-                            roadmapAlignment: {
-                              ...prev.metricSummary.roadmapAlignment,
-                              commitmentStatus: e.target.value as 'On Track' | 'Off Track' | 'At Risk'
-                            }
-                          }
-                        }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="On Track">On Track</option>
-                        <option value="At Risk">At Risk</option>
-                        <option value="Off Track">Off Track</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Status Preview
-                      </label>
-                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-md">
-                        <span className="text-lg font-semibold text-gray-900">
-                          {localData.metricSummary.roadmapAlignment.committed}/{localData.metricSummary.roadmapAlignment.total}
-                        </span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          (localData.metricSummary.roadmapAlignment.commitmentStatus || 'On Track') === 'On Track' ? 'bg-green-100 text-green-800' :
-                          (localData.metricSummary.roadmapAlignment.commitmentStatus || 'On Track') === 'Off Track' ? 'bg-red-100 text-red-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {localData.metricSummary.roadmapAlignment.commitmentStatus || 'On Track'}
-                        </span>
-                      </div>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleCollaborationUpload}
+                      className="hidden"
+                      id="collaboration-csv-upload"
+                      disabled={isLoading}
+                    />
+                    <label
+                      htmlFor="collaboration-csv-upload"
+                      className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+                        isLoading 
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                          : 'bg-green-600 text-white hover:bg-green-700'
+                      }`}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {isLoading ? 'Uploading...' : 'Upload Collaboration CSV'}
+                    </label>
+                    {uploadStatus && (
+                      <span className={`text-sm ${
+                        uploadStatus.includes('successful') ? 'text-green-600' : 
+                        uploadStatus.includes('failed') ? 'text-red-600' : 'text-green-600'
+                      }`}>
+                        {uploadStatus}
+                      </span>
+                    )}
                   </div>
-                  
-                  {/* Status Descriptions */}
-                  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                      <div className="flex items-center mb-2">
-                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          On Track
-                        </span>
-                      </div>
-                      <p className="text-sm text-green-700">
-                        Commitments are being delivered on schedule and within expected timelines.
-                      </p>
-                    </div>
-                    <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                      <div className="flex items-center mb-2">
-                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          At Risk
-                        </span>
-                      </div>
-                      <p className="text-sm text-yellow-700">
-                        Some delays or challenges may impact delivery timelines. Monitoring required.
-                      </p>
-                    </div>
-                    <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                      <div className="flex items-center mb-2">
-                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                          Off Track
-                        </span>
-                      </div>
-                      <p className="text-sm text-red-700">
-                        Significant delays or issues are impacting delivery. Immediate attention needed.
-                      </p>
-                    </div>
+                  <div className="mt-2 text-xs text-green-600">
+                    <a 
+                      href="data:text/csv;charset=utf-8,quarter,year,collaborative_ideas,total_ideas,collaboration_rate%0AFY25%20Q1,FY25,5,25,20%0AFY25%20Q2,FY25,8,30,27%0AFY25%20Q3,FY25,12,35,34%0AFY25%20Q4,FY25,15,40,38"
+                      download="collaboration_template.csv"
+                      className="hover:underline"
+                    >
+                      Download sample CSV template
+                    </a>
                   </div>
                 </div>
               </div>
