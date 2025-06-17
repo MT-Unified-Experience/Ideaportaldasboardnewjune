@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { X, Users, HelpCircle } from 'lucide-react';
+import ExportToPdfButton from '../common/ExportToPdfButton';
 import { LineChartData, Feature } from '../../types';
 
 interface ClientListProps {
@@ -24,6 +25,8 @@ interface ClientListProps {
 }
 
 const ClientList: React.FC<ClientListProps> = ({ quarter, clients, ideas = [], onClose }) => {
+  const clientListRef = React.useRef<HTMLDivElement>(null);
+
   // Use provided ideas or generate sample ideas if none provided
   const getIdeasForQuarter = (quarter: string, clients: string[], providedIdeas: Array<{
     id: string;
@@ -89,17 +92,24 @@ const ClientList: React.FC<ClientListProps> = ({ quarter, clients, ideas = [], o
 
   return (
     <div className="fixed inset-y-0 right-0 w-full md:w-[600px] bg-white shadow-xl z-50 overflow-y-auto">
-      <div className="p-6">
+      <div ref={clientListRef} className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">
             {quarter} Client Submissions
           </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <X className="h-6 w-6 text-gray-500" />
-          </button>
+          <div className="flex items-center gap-3">
+            <ExportToPdfButton 
+              targetRef={clientListRef}
+              filename={`Client_Submissions_${quarter.replace(/\s+/g, '_')}`}
+              size="sm"
+            />
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X className="h-6 w-6 text-gray-500" />
+            </button>
+          </div>
         </div>
 
         {/* Summary Cards */}

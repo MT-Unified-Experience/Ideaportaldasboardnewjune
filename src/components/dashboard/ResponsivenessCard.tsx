@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TrendingUp, X, HelpCircle, Upload, Users } from 'lucide-react';
+import ExportToPdfButton from '../common/ExportToPdfButton';
 import {
   LineChart,
   Line,
@@ -29,6 +30,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
   quarterlyData = []
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const modalContentRef = React.useRef<HTMLDivElement>(null);
   const [selectedQuarterIdeas, setSelectedQuarterIdeas] = useState<string[] | null>(null);
   const [selectedQuarterName, setSelectedQuarterName] = useState<string | null>(null);
   const { uploadResponsivenessTrendCSV, isLoading } = useData();
@@ -210,7 +212,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
 
       {isOpen && (
         <div className="fixed inset-y-0 right-0 w-full md:w-[700px] bg-white shadow-xl z-50 overflow-y-auto transform transition-transform duration-300 ease-in-out">
-          <div className="p-6">
+          <div ref={modalContentRef} className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
@@ -220,12 +222,19 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                   Responsiveness Trend
                 </h2>
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              >
-                <X className="h-6 w-6 text-gray-500" />
-              </button>
+              <div className="flex items-center gap-3">
+                <ExportToPdfButton 
+                  targetRef={modalContentRef}
+                  filename="Responsiveness_Trend_Analysis"
+                  size="sm"
+                />
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="h-6 w-6 text-gray-500" />
+                </button>
+              </div>
             </div>
 
             <div className="space-y-6">

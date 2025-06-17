@@ -8,7 +8,7 @@ import DashboardManagement from '../components/dashboard/DashboardManagement';
 import { CsvUploader } from '../components/upload/CsvUploader';
 import { DashboardGrid } from '../components/dashboard';
 import { BarChart2, Edit, ListTodo, Settings, RefreshCw } from 'lucide-react';
-import ShareButton from '../components/common/ShareButton';
+import ExportToPdfButton from '../components/common/ExportToPdfButton';
 import SettingsModal from '../components/common/SettingsModal';
 
 interface WidgetSettings {
@@ -55,6 +55,7 @@ const saveSettings = (settings: WidgetSettings): void => {
 
 const DashboardLayout: React.FC = () => {
   const { currentProduct, currentQuarter, dashboardData, refreshDashboardData, isLoading } = useData();
+  const dashboardRef = React.useRef<HTMLDivElement>(null);
   const [isManagementOpen, setIsManagementOpen] = useState(false);
   const [isActionItemsOpen, setIsActionItemsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -110,14 +111,17 @@ const DashboardLayout: React.FC = () => {
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
               </button>
-              <ShareButton />
+              <ExportToPdfButton 
+                targetRef={dashboardRef}
+                filename={`${currentProduct}_${currentQuarter}_Dashboard`}
+              />
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main ref={dashboardRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Product Navigation */}
         <div className="mb-6">
           <ProductTabs />

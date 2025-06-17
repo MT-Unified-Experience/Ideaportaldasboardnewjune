@@ -47,6 +47,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
   embedded = false,
 }) => {
   const [selectedDataPoint, setSelectedDataPoint] = useState<QuarterlyCollaborationData | null>(null);
+  const modalContentRef = React.useRef<HTMLDivElement>(null);
 
   // Generate comprehensive quarterly data for the past 8 quarters
   const generateQuarterlyData = (): QuarterlyCollaborationData[] => {
@@ -302,7 +303,7 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
     <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-500 bg-opacity-75">
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative transform overflow-hidden rounded-lg bg-white w-full max-w-6xl shadow-xl" style={{ minWidth: '800px', maxHeight: '80vh' }}>
-          <div className="bg-white px-6 py-4">
+          <div ref={modalContentRef} className="bg-white px-6 py-4">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100">
@@ -320,12 +321,19 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                   </div>
                 </div>
               </div>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-500 transition-colors"
-              >
-                <X className="h-6 w-6" />
-              </button>
+              <div className="flex items-center gap-3">
+                <ExportToPdfButton 
+                  targetRef={modalContentRef}
+                  filename="Cross_Client_Collaboration_Trend"
+                  size="sm"
+                />
+                <button
+                  onClick={onClose}
+                  className="text-gray-400 hover:text-gray-500 transition-colors"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
             </div>
 
             {/* Main Chart */}

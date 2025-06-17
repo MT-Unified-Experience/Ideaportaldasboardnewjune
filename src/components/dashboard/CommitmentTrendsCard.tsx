@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Briefcase, X, HelpCircle, Upload } from 'lucide-react';
+import ExportToPdfButton from '../common/ExportToPdfButton';
 import {
   LineChart,
   Line,
@@ -43,6 +44,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
   quarterlyDeliveries = []
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const modalContentRef = React.useRef<HTMLDivElement>(null);
   const [selectedDataPoint, setSelectedDataPoint] = useState<{
     type: 'annual' | 'quarterly';
     label: string;
@@ -236,7 +238,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
 
       {isOpen && (
         <div className="fixed inset-y-0 right-0 w-full md:w-[800px] bg-white shadow-xl z-50 overflow-y-auto transform transition-transform duration-300 ease-in-out">
-          <div className="p-6">
+          <div ref={modalContentRef} className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
@@ -246,12 +248,19 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                       Idea Portal Commitment Trends
                     </h2>
                   </div>
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <X className="h-6 w-6 text-gray-500" />
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <ExportToPdfButton 
+                      targetRef={modalContentRef}
+                      filename="Commitment_Trends_Analysis"
+                      size="sm"
+                    />
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                      <X className="h-6 w-6 text-gray-500" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-6 max-h-[80vh] overflow-y-auto">

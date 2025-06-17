@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, TrendingUp, TrendingDown, Users } from 'lucide-react';
+import ExportToPdfButton from '../common/ExportToPdfButton';
 import { CollaborativeIdea } from '../../types';
 
 interface QuarterlyCollaborationData {
@@ -25,6 +26,8 @@ const CrossClientCollaborationDetailsModal: React.FC<CrossClientCollaborationDet
   onClose,
   data
 }) => {
+  const modalContentRef = React.useRef<HTMLDivElement>(null);
+
   if (!isOpen || !data) return null;
 
   // Generate sample ideas if none provided
@@ -82,7 +85,7 @@ const CrossClientCollaborationDetailsModal: React.FC<CrossClientCollaborationDet
       <div className={`fixed inset-y-0 right-0 w-full md:w-[700px] bg-white shadow-xl z-50 overflow-y-auto transform transition-transform duration-300 ease-in-out ${
         isOpen ? 'translate-x-0' : 'translate-x-full'
       }`}>
-        <div className="p-6">
+        <div ref={modalContentRef} className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center">
@@ -98,12 +101,19 @@ const CrossClientCollaborationDetailsModal: React.FC<CrossClientCollaborationDet
                 </p>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="h-6 w-6 text-gray-500" />
-            </button>
+            <div className="flex items-center gap-3">
+              <ExportToPdfButton 
+                targetRef={modalContentRef}
+                filename={`Collaboration_Details_${data.quarter}_${data.year}`}
+                size="sm"
+              />
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="h-6 w-6 text-gray-500" />
+              </button>
+            </div>
           </div>
 
           {/* Content */}
