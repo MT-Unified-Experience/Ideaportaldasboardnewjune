@@ -15,7 +15,7 @@ const DataSocializationCard: React.FC = () => {
   
   const secondRowForums = [
     { name: 'Customer Advisory Board (CAB)', icon: Presentation },
-    { name: 'Quarterly Product Reviews (QBRs)', icon: LineChart }
+    { name: 'Quarterly Business Reviews (QBRs)', icon: LineChart }
   ];
   
   const allForums = [...firstRowForums, ...secondRowForums];
