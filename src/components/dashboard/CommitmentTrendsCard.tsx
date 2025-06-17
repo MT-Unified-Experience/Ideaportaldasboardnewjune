@@ -15,7 +15,7 @@ import {
 import { useData } from '../../contexts/DataContext';
 
 interface CommitmentTrendsCardProps {
-  value: { committed: number; total: number };
+  value: { committed: number; total: number; commitmentStatus?: 'On Track' | 'Off Track' | 'At Risk' };
   tooltip?: string;
   commitmentTrends?: Array<{
     year: string;
