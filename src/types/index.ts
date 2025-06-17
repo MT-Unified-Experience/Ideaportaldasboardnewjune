@@ -151,4 +151,4 @@ export type Product =
   | 'eCounsel' 
   | 'CaseCloud';
 
-export type Quarter = 'FY25 Q1' | 'FY25 Q2' | 'FY25 Q3' | 'FY25 Q4';
+export type Quarter = 'FY25 Q1' | 'FY25 Q2' | 'FY25 Q3' | 'FY25 Q4' | 'FY26 Q1';
