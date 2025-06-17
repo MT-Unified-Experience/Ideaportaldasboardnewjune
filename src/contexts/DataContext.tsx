@@ -130,8 +130,6 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       'CaseCloud'
     ];
     
-    const quarters: Quarter[] = ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'];
-    
     const quarters: Quarter[] = ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4', 'FY26 Q1'];
     
     const initialData: Record<Product, ProductData> = {} as Record<Product, ProductData>;
