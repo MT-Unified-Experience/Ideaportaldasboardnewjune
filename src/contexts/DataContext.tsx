@@ -181,7 +181,10 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           ...defaultDashboardData,
           metricSummary: {
             ...defaultDashboardData.metricSummary,
-            roadmapAlignment: { ...defaultDashboardData.metricSummary.roadmapAlignment },
+            roadmapAlignment: { 
+              ...defaultDashboardData.metricSummary.roadmapAlignment,
+              commitmentStatus: 'On Track'
+            },
             ideaVolume: { ...defaultDashboardData.metricSummary.ideaVolume },
           },
           lineChartData: [...defaultDashboardData.lineChartData],
