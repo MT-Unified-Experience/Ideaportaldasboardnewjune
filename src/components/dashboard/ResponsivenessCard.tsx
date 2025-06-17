@@ -131,7 +131,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
         'Performance Monitoring Tools'
       ]
     }
-    { 
+    }, { 
       quarter: 'FY26 Q1', 
       percentage: 88, 
       totalIdeas: 43, 
