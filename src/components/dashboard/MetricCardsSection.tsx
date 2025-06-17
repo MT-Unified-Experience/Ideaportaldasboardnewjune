@@ -54,7 +54,11 @@ const MetricCardsSection: React.FC<MetricCardsSectionProps> = ({
       )}
       {widgetSettings.commitment && (
         <CommitmentTrendsCard
-          value={metricSummary.roadmapAlignment}
+          value={{
+            committed: metricSummary.roadmapAlignment.committed,
+            total: metricSummary.roadmapAlignment.total,
+            commitmentStatus: metricSummary.roadmapAlignment.commitmentStatus || 'On Track'
+          }}
           tooltip={tooltips.commitment}
           commitmentTrends={metricSummary.roadmapAlignment.commitmentTrends}
           quarterlyDeliveries={metricSummary.roadmapAlignment.quarterlyDeliveries}
