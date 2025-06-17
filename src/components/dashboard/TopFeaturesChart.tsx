@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import QuarterlyTrendsComparison from './QuarterlyTrendsComparison';
 
 interface Feature {
@@ -7,8 +7,25 @@ interface Feature {
   status: 'Delivered' | 'Under Review' | 'Committed';
   status_updated_at: string;
   client_voters: string[];
+  estimated_impact?: 'High' | 'Medium' | 'Low';
+  resource_requirement?: 'High' | 'Medium' | 'Low';
+  strategic_alignment?: number;
+  risks?: string[];
 }
 
-export const TopFeaturesChart: React.FC<{ features: Feature[] }> = ({ features }) => {
-  return <QuarterlyTrendsComparison features={features} />;
+interface TopFeaturesChartProps {
+  features: Feature[];
+  previousFeatures?: Feature[];
+}
+
+export const TopFeaturesChart: React.FC<TopFeaturesChartProps> = ({ 
+  features, 
+  previousFeatures = [] 
+}) => {
+  return (
+    <QuarterlyTrendsComparison 
+      currentFeatures={features} 
+      previousFeatures={previousFeatures} 
+    />
+  );
 };

@@ -29,7 +29,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
   currentQuarter, 
   widgetSettings 
 }) => {
-  const { metricSummary, lineChartData, topFeatures } = data;
+  const { metricSummary, lineChartData, topFeatures, previousQuarterFeatures } = data;
 
   return (
     <div className="space-y-6">
@@ -79,7 +79,10 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
       {widgetSettings.topFeatures && (
         <div className="grid grid-cols-1 gap-6">
           <div className="col-span-full">
-            <TopFeaturesChart features={topFeatures} />
+            <TopFeaturesChart 
+              features={topFeatures} 
+              previousFeatures={previousQuarterFeatures || []} 
+            />
           </div>
         </div>
       )}

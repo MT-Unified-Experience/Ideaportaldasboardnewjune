@@ -2,6 +2,17 @@ import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, ReferenceLine } from 'recharts';
 import { TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle, Clock, Users, X, HelpCircle } from 'lucide-react';
 
+interface Feature {
+  feature_name: string;
+  vote_count: number;
+  status: 'Delivered' | 'Under Review' | 'Committed';
+  client_voters: string[];
+  estimated_impact?: 'High' | 'Medium' | 'Low';
+  resource_requirement?: 'High' | 'Medium' | 'Low';
+  strategic_alignment?: number;
+  risks?: string[];
+}
+
 interface TrendData {
   id: string;
   name: string;
@@ -21,86 +32,127 @@ interface TrendData {
   client_voters: string[];
   estimated_impact: 'High' | 'Medium' | 'Low';
   resource_requirement: 'High' | 'Medium' | 'Low';
-  strategic_alignment: number; // 1-10 scale
+  strategic_alignment: number;
   risks: string[];
 }
 
 interface QuarterlyTrendsComparisonProps {
-  features: Array<{
-    feature_name: string;
-    vote_count: number;
-    status: 'Delivered' | 'Under Review' | 'Committed';
-    client_voters: string[];
-    estimated_impact?: 'High' | 'Medium' | 'Low';
-    resource_requirement?: 'High' | 'Medium' | 'Low';
-    strategic_alignment?: number;
-    risks?: string[];
-  }>;
+  currentFeatures: Feature[]; // Q4 features
+  previousFeatures: Feature[]; // Q3 features
 }
 
-const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ features }) => {
+const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ 
+  currentFeatures, 
+  previousFeatures 
+}) => {
   const [selectedTrend, setSelectedTrend] = useState<TrendData | null>(null);
   const [activeView, setActiveView] = useState<'comparison' | 'analysis' | 'recommendations'>('comparison');
 
-  // Generate comprehensive trend data based on features
+  // Generate trend data from actual CSV features
   const generateTrendData = (): TrendData[] => {
-    return features.slice(0, 10).map((feature, index) => {
-      const baseVotes = Math.max(feature.vote_count || 10, 5); // Ensure minimum value
-      const q1 = Math.max(5, Math.floor(baseVotes * (0.6 + Math.random() * 0.4)));
-      const q2 = Math.max(8, Math.floor(q1 * (0.8 + Math.random() * 0.6)));
-      const q3 = Math.max(10, Math.floor(q2 * (0.7 + Math.random() * 0.8)));
-      const q4 = Math.max(15, baseVotes);
+    // Create a map to track all unique features
+    const featureMap = new Map<string, {
+      q3_votes: number;
+      q4_votes: number;
+      q3_rank: number;
+      q4_rank: number;
+      feature: Feature;
+    }>();
+
+    // Add Q4 features (current quarter)
+    currentFeatures.forEach((feature, index) => {
+      featureMap.set(feature.feature_name, {
+        q3_votes: 0, // Will be updated if found in Q3
+        q4_votes: feature.vote_count,
+        q3_rank: 999, // Will be updated if found in Q3
+        q4_rank: index + 1,
+        feature: feature
+      });
+    });
+
+    // Add Q3 features (previous quarter) and update existing entries
+    previousFeatures.forEach((feature, index) => {
+      const existing = featureMap.get(feature.feature_name);
+      if (existing) {
+        // Feature exists in both quarters
+        existing.q3_votes = feature.vote_count;
+        existing.q3_rank = index + 1;
+      } else {
+        // Feature only exists in Q3
+        featureMap.set(feature.feature_name, {
+          q3_votes: feature.vote_count,
+          q4_votes: 0,
+          q3_rank: index + 1,
+          q4_rank: 999,
+          feature: feature
+        });
+      }
+    });
+
+    // Convert to trend data array
+    const trendData: TrendData[] = Array.from(featureMap.entries()).map(([featureName, data], index) => {
+      const q3Votes = data.q3_votes;
+      const q4Votes = data.q4_votes;
       
-      const percentageChange = ((q4 - q3) / q3) * 100;
-      const growthRate = ((q4 - q1) / q1) * 100;
+      // Calculate percentage change (Q3 to Q4)
+      let percentageChange = 0;
+      if (q3Votes > 0) {
+        percentageChange = ((q4Votes - q3Votes) / q3Votes) * 100;
+      } else if (q4Votes > 0) {
+        percentageChange = 100; // New feature in Q4
+      }
+
+      // Calculate growth rate (Q1 to Q4) - since we don't have Q1/Q2 data, use Q3 to Q4
+      const growthRate = percentageChange;
+      
+      // Determine if change is significant (>15% change)
       const isSignificant = Math.abs(percentageChange) > 15;
       
+      // Determine trend direction
       let trendDirection: 'up' | 'down' | 'stable' = 'stable';
       if (percentageChange > 5) trendDirection = 'up';
       else if (percentageChange < -5) trendDirection = 'down';
 
-      const seasonalPattern = growthRate > 50 ? 'increasing' : 
-                            growthRate < -20 ? 'decreasing' : 
-                            Math.abs(q2 - q3) > Math.abs(q1 - q4) ? 'cyclical' : 'none';
-
-      // Use actual feature data if available, otherwise generate defaults
-      const defaultRisks = [
-        'Resource allocation conflicts',
-        'Technical complexity',
-        'Client expectation management'
-      ];
+      // Determine seasonal pattern
+      const seasonalPattern = Math.abs(percentageChange) > 50 ? 'increasing' : 
+                            percentageChange < -20 ? 'decreasing' : 'none';
 
       return {
         id: `trend-${index}`,
-        name: feature.feature_name,
-        q1_votes: q1,
-        q2_votes: q2,
-        q3_votes: q3,
-        q4_votes: q4,
-        q3_rank: index + 1,
-        q4_rank: index + 1,
+        name: featureName,
+        q1_votes: 0, // No Q1 data available
+        q2_votes: 0, // No Q2 data available
+        q3_votes: q3Votes,
+        q4_votes: q4Votes,
+        q3_rank: data.q3_rank,
+        q4_rank: data.q4_rank,
         percentage_change: percentageChange,
         growth_rate: growthRate,
         confidence_interval: [percentageChange - 5, percentageChange + 5] as [number, number],
         is_significant: isSignificant,
         trend_direction: trendDirection,
         seasonal_pattern: seasonalPattern,
-        status: feature.status,
-        client_voters: feature.client_voters || [],
-        estimated_impact: feature.estimated_impact || (index < 3 ? 'High' : index < 7 ? 'Medium' : 'Low'),
-        resource_requirement: feature.resource_requirement || (trendDirection === 'up' ? 'High' : 'Medium'),
-        strategic_alignment: feature.strategic_alignment || (Math.floor(Math.random() * 4) + 7), // 7-10 for top features
-        risks: feature.risks || defaultRisks.slice(0, Math.floor(Math.random() * 3) + 1)
+        status: data.feature.status,
+        client_voters: data.feature.client_voters || [],
+        estimated_impact: data.feature.estimated_impact || 'Medium',
+        resource_requirement: data.feature.resource_requirement || 'Medium',
+        strategic_alignment: data.feature.strategic_alignment || 7,
+        risks: data.feature.risks || ['Resource allocation conflicts', 'Technical complexity']
       };
     });
+
+    // Sort by Q4 vote count (descending) and take top 10
+    return trendData
+      .sort((a, b) => b.q4_votes - a.q4_votes)
+      .slice(0, 10);
   };
 
   const trendData = generateTrendData();
 
-  // Calculate recommendations
+  // Calculate recommendations based on actual data
   const getTopRecommendations = () => {
     return trendData
-      .filter(trend => trend.growth_rate > 20 && trend.strategic_alignment >= 8)
+      .filter(trend => trend.growth_rate > 0 && trend.strategic_alignment >= 7)
       .sort((a, b) => (b.growth_rate * b.strategic_alignment) - (a.growth_rate * a.strategic_alignment))
       .slice(0, 3);
   };
@@ -356,7 +408,7 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ f
                   <h5 className="font-medium text-gray-900 mb-2">Statistical Analysis</h5>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Growth Rate (Q1-Q4):</span>
+                      <span className="text-sm text-gray-600">Growth Rate (Q3-Q4):</span>
                       <span className="text-sm font-medium">{selectedTrend.growth_rate.toFixed(1)}%</span>
                     </div>
                     <div className="flex justify-between">
