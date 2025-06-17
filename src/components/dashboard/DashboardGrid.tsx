@@ -1,5 +1,5 @@
 import React from 'react';
-import { DashboardData } from '../../types';
+import { DashboardData, Quarter } from '../../types';
 import DashboardSection from './DashboardSection';
 import MetricCardsSection from './MetricCardsSection';
 import FeaturesAndForumsSection from './FeaturesAndForumsSection';
@@ -60,6 +60,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
             commitment: widgetSettings.commitment,
             continuedEngagement: widgetSettings.continuedEngagement,
           }}
+          currentQuarter={currentQuarter as Quarter}
         />
       </div>
 

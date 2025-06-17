@@ -10,7 +10,7 @@ interface DashboardManagementProps {
 }
 
 const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClose }) => {
-  const { dashboardData, updateDashboardData, uploadCrossClientCollaborationCSV, uploadTopFeaturesCSV, uploadClientSubmissionsCSV, isLoading } = useData();
+  const { dashboardData, updateDashboardData, uploadCrossClientCollaborationCSV, uploadTopFeaturesCSV, uploadClientSubmissionsCSV, isLoading, currentQuarter } = useData();
   const [activeTab, setActiveTab] = useState<'features' | 'collaboration' | 'client-submissions' | 'forums'>('features');
   const [activeSubTab, setActiveSubTab] = useState<'current' | 'previous'>('current');
   const [localData, setLocalData] = useState<DashboardData>(dashboardData || {
@@ -27,6 +27,20 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
   });
   const [isLocalLoading, setIsLocalLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
+
+  // Helper function to get previous quarter
+  const getPreviousQuarter = (quarter: string): string => {
+    const quarterMap: { [key: string]: string } = {
+      'FY25 Q1': 'FY24 Q4',
+      'FY25 Q2': 'FY25 Q1',
+      'FY25 Q3': 'FY25 Q2',
+      'FY25 Q4': 'FY25 Q3',
+      'FY26 Q1': 'FY25 Q4'
+    };
+    return quarterMap[quarter] || 'FY25 Q3';
+  };
+
+  const previousQuarter = getPreviousQuarter(currentQuarter);
 
   // Handle top features CSV upload
   const handleTopFeaturesUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -358,7 +372,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }`}
                     >
-                      Current Quarter (Q4)
+                      Current Quarter ({currentQuarter})
                     </button>
                     <button
                       onClick={() => setActiveSubTab('previous')}
@@ -368,7 +382,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }`}
                     >
-                      Previous Quarter (Q3)
+                      Previous Quarter ({previousQuarter})
                     </button>
                   </nav>
                 </div>
@@ -377,7 +391,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                 {activeSubTab === 'current' && (
                   <div className="space-y-6">
                     <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <h3 className="text-lg font-medium text-blue-900 mb-2">Q4 Features (Current Quarter)</h3>
+                      <h3 className="text-lg font-medium text-blue-900 mb-2">{currentQuarter} Features (Current Quarter)</h3>
                       <p className="text-sm text-blue-700">
                         Manage the top features for the current quarter. These will be displayed in the main dashboard and quarterly trends comparison.
                       </p>
@@ -465,7 +479,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                 {activeSubTab === 'previous' && (
                   <div className="space-y-6">
                     <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                      <h3 className="text-lg font-medium text-yellow-900 mb-2">Q3 Features (Previous Quarter)</h3>
+                      <h3 className="text-lg font-medium text-yellow-900 mb-2">{previousQuarter} Features (Previous Quarter)</h3>
                       <p className="text-sm text-yellow-700">
                         Features from the previous quarter for comparison analysis in the quarterly trends chart.
                       </p>

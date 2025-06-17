@@ -1,5 +1,5 @@
 import React from 'react';
-import { MetricSummary } from '../../types';
+import { MetricSummary, Quarter } from '../../types';
 import ResponsivenessCard from './ResponsivenessCard';
 import CommitmentTrendsCard from './CommitmentTrendsCard';
 import ContinuedEngagementCard from './ContinuedEngagementCard';
@@ -13,11 +13,13 @@ interface WidgetSettings {
 interface MetricCardsSectionProps {
   metricSummary: MetricSummary;
   widgetSettings: WidgetSettings;
+  currentQuarter: Quarter;
 }
 
 const MetricCardsSection: React.FC<MetricCardsSectionProps> = ({ 
   metricSummary, 
-  widgetSettings 
+  widgetSettings,
+  currentQuarter
 }) => {
   const tooltips = {
     responsiveness: "(Ideas moved out of the \"Need Review\" stage / Total ideas submitted in the quarter) × 100",
@@ -50,6 +52,7 @@ const MetricCardsSection: React.FC<MetricCardsSectionProps> = ({
           value={metricSummary.responsiveness}
           tooltip={tooltips.responsiveness}
           quarterlyData={metricSummary.responsivenessQuarterlyData}
+          currentQuarter={currentQuarter}
         />
       )}
       {widgetSettings.commitment && (

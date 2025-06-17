@@ -10,12 +10,13 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { LineChartData, Feature } from '../../types';
+import { LineChartData, Feature, Quarter } from '../../types';
 import { useData } from '../../contexts/DataContext';
 
 interface ResponsivenessCardProps {
   value: number;
   tooltip?: string;
+  currentQuarter: Quarter;
   quarterlyData?: Array<{
     quarter: string;
     percentage: number;
@@ -27,6 +28,7 @@ interface ResponsivenessCardProps {
 const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({ 
   value, 
   tooltip,
+  currentQuarter,
   quarterlyData = []
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,6 +37,25 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
   const [selectedQuarterName, setSelectedQuarterName] = useState<string | null>(null);
   const { uploadResponsivenessTrendCSV, isLoading } = useData();
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+
+  // Helper function to get the four quarters to display based on currentQuarter
+  const getFourQuartersToDisplay = (currentQuarter: Quarter): Quarter[] => {
+    const allQuarters: Quarter[] = ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4', 'FY26 Q1'];
+    const currentIndex = allQuarters.indexOf(currentQuarter);
+    
+    if (currentIndex === -1) {
+      // If currentQuarter is not found, default to the last 4 quarters
+      return allQuarters.slice(-4);
+    }
+    
+    // Get the current quarter and the three preceding quarters
+    const startIndex = Math.max(0, currentIndex - 3);
+    const endIndex = currentIndex + 1;
+    
+    return allQuarters.slice(startIndex, endIndex);
+  };
+
+  const quartersToDisplay = getFourQuartersToDisplay(currentQuarter);
 
   // Generate default quarterly data if none provided
   const defaultQuarterlyData = [
@@ -110,9 +131,29 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
         'Performance Monitoring Tools'
       ]
     }
+    { 
+      quarter: 'FY26 Q1', 
+      percentage: 88, 
+      totalIdeas: 43, 
+      ideasMovedOutOfReview: Math.round(43 * 88 / 100),
+      ideasList: [
+        'Next-Gen AI Features',
+        'Advanced Workflow Automation',
+        'Enhanced Data Analytics',
+        'Improved User Interface',
+        'Cloud-Native Architecture',
+        'Advanced Security Measures',
+        'Real-time Data Processing',
+        'Enhanced Mobile Experience',
+        'Advanced Integration Capabilities',
+        'Performance Optimization Tools'
+      ]
+    }
   ];
 
-  const chartData = quarterlyData.length > 0 ? quarterlyData : defaultQuarterlyData;
+  // Filter data to only show the four quarters we want to display
+  const allData = quarterlyData.length > 0 ? quarterlyData : defaultQuarterlyData;
+  const chartData = allData.filter(item => quartersToDisplay.includes(item.quarter as Quarter));
 
   // Handle data point click
   const handleDataPointClick = (data: any) => {
@@ -353,7 +394,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   {chartData.map((item, index) => {
-                    const isCurrentQuarter = index === chartData.length - 1;
+                    const isCurrentQuarter = item.quarter === currentQuarter;
                     const prevItem = index > 0 ? chartData[index - 1] : null;
                     const change = prevItem ? item.percentage - prevItem.percentage : 0;
                     

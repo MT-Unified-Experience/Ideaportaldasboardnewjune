@@ -175,7 +175,6 @@ const DashboardLayout: React.FC = () => {
         <DashboardManagement
           isOpen={isManagementOpen}
           onClose={() => setIsManagementOpen(false)}
-          widgetSettings={widgetSettings}
         />
 
         <ActionItemsPanel
