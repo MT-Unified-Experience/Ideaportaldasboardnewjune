@@ -14,6 +14,16 @@ export interface CollaborativeIdea {
   comments: string;
 }
 
+export interface ActionItem {
+  id: string;
+  product: string;
+  quarter: string;
+  text: string;
+  completed: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CollaborationTrendQuarterlyData {
   quarter: string;
   year: number;

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { DashboardData, Product, Quarter, ProductData, ProductQuarterlyData } from '../types';
+import { ActionItem } from '../types';
 import { parseCSV, validateCSVHeaders, CSVError, parseTopFeaturesCSV, topFeaturesRequiredHeaders, parseResponsivenessTrendCSV, responsivenessTrendRequiredHeaders, parseCommitmentTrendsCSV, commitmentTrendsRequiredHeaders } from '../utils/csvParser';
 import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders, parseClientSubmissionsCSV, clientSubmissionsRequiredHeaders, parseCrossClientCollaborationCSV, crossClientCollaborationRequiredHeaders } from '../utils/csvParser';
 import { supabase, checkSupabaseConnection, supabaseFetch } from '../utils/supabaseClient';
@@ -56,6 +57,11 @@ interface DataContextType {
   isLoading: boolean;
   error: Error | null;
   isSupabaseAvailable: boolean;
+  // Action Items functions
+  fetchActionItems: (product: Product, quarter: Quarter) => Promise<ActionItem[]>;
+  createActionItem: (product: Product, quarter: Quarter, text: string) => Promise<ActionItem>;
+  updateActionItem: (id: string, updates: Partial<ActionItem>) => Promise<void>;
+  deleteActionItem: (id: string) => Promise<void>;
 }
 
 // Create context with a default value to prevent undefined context errors
@@ -888,6 +894,90 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
 
+  // Action Items functions
+  const fetchActionItems = async (product: Product, quarter: Quarter): Promise<ActionItem[]> => {
+    if (!isSupabaseAvailable || !supabase) {
+      console.warn('Supabase not available. Cannot fetch action items.');
+      return [];
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('action_items')
+        .select('*')
+        .eq('product', product)
+        .eq('quarter', quarter)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching action items:', error);
+      return [];
+    }
+  };
+
+  const createActionItem = async (product: Product, quarter: Quarter, text: string): Promise<ActionItem> => {
+    if (!isSupabaseAvailable || !supabase) {
+      throw new Error('Supabase not available. Cannot create action item.');
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('action_items')
+        .insert({
+          product,
+          quarter,
+          text: text.trim(),
+          completed: false
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error creating action item:', error);
+      throw error;
+    }
+  };
+
+  const updateActionItem = async (id: string, updates: Partial<ActionItem>): Promise<void> => {
+    if (!isSupabaseAvailable || !supabase) {
+      throw new Error('Supabase not available. Cannot update action item.');
+    }
+
+    try {
+      const { error } = await supabase
+        .from('action_items')
+        .update(updates)
+        .eq('id', id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating action item:', error);
+      throw error;
+    }
+  };
+
+  const deleteActionItem = async (id: string): Promise<void> => {
+    if (!isSupabaseAvailable || !supabase) {
+      throw new Error('Supabase not available. Cannot delete action item.');
+    }
+
+    try {
+      const { error } = await supabase
+        .from('action_items')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error deleting action item:', error);
+      throw error;
+    }
+  };
+
   const value: DataContextType = {
     currentProduct,
     currentQuarter,
@@ -910,6 +1000,10 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     isLoading,
     error,
     isSupabaseAvailable,
+    fetchActionItems,
+    createActionItem,
+    updateActionItem,
+    deleteActionItem,
   };
 
   return (
