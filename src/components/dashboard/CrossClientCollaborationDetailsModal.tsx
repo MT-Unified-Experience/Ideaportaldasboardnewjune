@@ -250,13 +250,9 @@ const CrossClientCollaborationDetailsModal: React.FC<CrossClientCollaborationDet
                 <p>
                   • This quarter shows {data.collaborativeIdeas} collaborative ideas out of {data.totalIdeas} total ideas ({data.collaborationRate}% collaboration rate)
                 </p>
-                <p>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <X className="h-6 w-6 text-gray-500" />
-          </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
