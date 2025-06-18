@@ -7,7 +7,7 @@ export default {
         sans: ['Poppins', 'sans-serif'],
       },
       maxWidth: {
-        '7xl': '100rem',
+        '7xl': '90rem',
       },
     },
   },
