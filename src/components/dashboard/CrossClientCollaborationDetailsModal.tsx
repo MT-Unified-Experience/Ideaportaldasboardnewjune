@@ -1,6 +1,5 @@
 import React from 'react';
 import { X, TrendingUp, TrendingDown, Users } from 'lucide-react';
-import ExportToPdfButton from '../common/ExportToPdfButton';
 import { CollaborativeIdea } from '../../types';
 
 interface QuarterlyCollaborationData {
@@ -252,19 +251,12 @@ const CrossClientCollaborationDetailsModal: React.FC<CrossClientCollaborationDet
                   • This quarter shows {data.collaborativeIdeas} collaborative ideas out of {data.totalIdeas} total ideas ({data.collaborationRate}% collaboration rate)
                 </p>
                 <p>
-                  • Average collaboration score across all ideas: {Math.round(displayIdeas.reduce((sum, idea) => sum + idea.collaborationScore, 0) / displayIdeas.length)}%
-                </p>
-                <p>
-                  • Most active collaboration areas: {displayIdeas.slice(0, 3).map(idea => idea.name).join(', ')}
-                </p>
-                {data.significantChange && (
-                  <p>
-                    • Significant {data.changeDirection === 'up' ? 'increase' : 'decrease'} of {Math.abs(data.changePercentage)}% compared to previous quarter
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X className="h-6 w-6 text-gray-500" />
+          </button>
         </div>
       </div>
     </>

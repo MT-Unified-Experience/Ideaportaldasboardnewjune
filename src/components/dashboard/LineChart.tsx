@@ -10,7 +10,6 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { X, Users, HelpCircle } from 'lucide-react';
-import ExportToPdfButton from '../common/ExportToPdfButton';
 import { LineChartData, Feature } from '../../types';
 
 interface ClientListProps {
@@ -97,19 +96,12 @@ const ClientList: React.FC<ClientListProps> = ({ quarter, clients, ideas = [], o
           <h2 className="text-xl font-semibold text-gray-900">
             {quarter} Client Submissions
           </h2>
-          <div className="flex items-center gap-3">
-            <ExportToPdfButton 
-              targetRef={clientListRef}
-              filename={`Client_Submissions_${quarter.replace(/\s+/g, '_')}`}
-              size="sm"
-            />
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="h-6 w-6 text-gray-500" />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X className="h-6 w-6 text-gray-500" />
+          </button>
         </div>
 
         {/* Summary Cards */}

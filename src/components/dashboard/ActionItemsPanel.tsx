@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { X, CheckSquare, Square, Edit2, Save, Trash2 } from 'lucide-react';
-import ExportToPdfButton from '../common/ExportToPdfButton';
 import { useData } from '../../contexts/DataContext';
 import { ActionItem } from '../../types';
 
@@ -178,19 +177,12 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
           <h2 className="text-xl font-semibold text-gray-900">
             {currentProduct} Action Items
           </h2>
-          <div className="flex items-center gap-3">
-            <ExportToPdfButton 
-              targetRef={panelContentRef}
-              filename={`${currentProduct}_Action_Items`}
-              size="sm"
-            />
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="h-6 w-6 text-gray-500" />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X className="h-6 w-6 text-gray-500" />
+          </button>
         </div>
 
         {/* Error Display */}

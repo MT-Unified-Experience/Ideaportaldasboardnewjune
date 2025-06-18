@@ -321,19 +321,12 @@ const CrossClientCollaborationTrend: React.FC<CrossClientCollaborationTrendProps
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <ExportToPdfButton 
-                  targetRef={modalContentRef}
-                  filename="Cross_Client_Collaboration_Trend"
-                  size="sm"
-                />
-                <button
-                  onClick={onClose}
-                  className="text-gray-400 hover:text-gray-500 transition-colors"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-              </div>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-500 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
             </div>
 
             {/* Main Chart */}

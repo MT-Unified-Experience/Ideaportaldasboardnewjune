@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { RefreshCw, X, HelpCircle, CheckCircle, Clock, Upload } from 'lucide-react';
-import ExportToPdfButton from '../common/ExportToPdfButton';
 import {
   LineChart,
   Line,
@@ -220,19 +219,12 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                   Continued Engagement Rate
                 </h2>
               </div>
-              <div className="flex items-center gap-3">
-                <ExportToPdfButton 
-                  targetRef={modalContentRef}
-                  filename="Continued_Engagement_Analysis"
-                  size="sm"
-                />
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <X className="h-6 w-6 text-gray-500" />
-                </button>
-              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="h-6 w-6 text-gray-500" />
+              </button>
             </div>
 
             {/* Tabs */}
