@@ -133,15 +133,32 @@ const ClientList: React.FC<ClientListProps> = ({ quarter, clients, ideas = [], o
           <h3 className="text-lg font-medium text-gray-900 mb-3">Contributing Clients</h3>
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {clients.map((client, index) => (
+              {(() => {
+                // Count ideas per client
+                const clientIdeaCounts = new Map<string, number>();
+                displayIdeas.forEach(idea => {
+                  const count = clientIdeaCounts.get(idea.clientName) || 0;
+                  clientIdeaCounts.set(idea.clientName, count + 1);
+                });
+
+                // Get unique clients from the clients array, but show idea counts from actual ideas
+                const uniqueClients = Array.from(new Set(clients));
+                
+                return uniqueClients.map((client, index) => {
+                  const ideaCount = clientIdeaCounts.get(client) || 0;
+                  const displayText = ideaCount > 1 ? `${client} (${ideaCount} ideas)` : client;
+                  
+                  return (
                 <div
                   key={index}
                   className="flex items-center text-sm text-gray-700 bg-white p-3 rounded-lg shadow-sm"
                 >
                   <Users className="h-4 w-4 text-purple-500 mr-2" />
-                  {client}
+                  {displayText}
                 </div>
-              ))}
+                  );
+                });
+              })()}
             </div>
           </div>
         </div>
