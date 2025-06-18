@@ -653,5 +653,3 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
 };
 
 export default QuarterlyTrendsComparison;
-
-export default QuarterlyTrendsComparison
