@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X, Upload } from 'lucide-react';
-import ExportToPdfButton from '../common/ExportToPdfButton';
 import {
   LineChart,
   Line,
@@ -159,19 +158,12 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
               Idea Portal Commitment Trends
             </h2>
           </div>
-          <div className="flex items-center gap-3">
-            <ExportToPdfButton 
-              targetRef={modalContentRef}
-              filename="Commitment_Trends_Analysis"
-              size="sm"
-            />
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="h-6 w-6 text-gray-500" />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <X className="h-6 w-6 text-gray-500" />
+          </button>
         </div>
 
         <div className="space-y-6 max-h-[80vh] overflow-y-auto">
