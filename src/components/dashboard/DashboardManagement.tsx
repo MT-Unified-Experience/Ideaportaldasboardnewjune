@@ -709,56 +709,6 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
               </div>
             )}
 
-            {/* Cross-Client Collaboration Tab */}
-            {activeTab === 'collaboration' && (
-              <div className="space-y-6">
-                {/* CSV Upload Section */}
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <h4 className="text-md font-medium text-green-900 mb-2">Upload Cross-Client Collaboration CSV</h4>
-                  <p className="text-sm text-green-700 mb-3">
-                    Upload a CSV file containing quarterly cross-client collaboration data with columns: quarter, year, collaborative_ideas, total_ideas, collaboration_rate.
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="file"
-                      accept=".csv"
-                      onChange={handleCollaborationUpload}
-                      className="hidden"
-                      id="collaboration-csv-upload"
-                      disabled={isLoading}
-                    />
-                    <label
-                      htmlFor="collaboration-csv-upload"
-                      className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
-                        isLoading 
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                          : 'bg-green-600 text-white hover:bg-green-700'
-                      }`}
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      {isLoading ? 'Uploading...' : 'Upload Collaboration CSV'}
-                    </label>
-                    {uploadStatus && (
-                      <span className={`text-sm ${
-                        uploadStatus.includes('successful') ? 'text-green-600' : 
-                        uploadStatus.includes('failed') ? 'text-red-600' : 'text-green-600'
-                      }`}>
-                        {uploadStatus}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-2 text-xs text-green-600">
-                    <a 
-                      href="data:text/csv;charset=utf-8,quarter,year,collaborative_ideas,total_ideas,collaboration_rate%0AFY25%20Q1,FY25,5,25,20%0AFY25%20Q2,FY25,8,30,27%0AFY25%20Q3,FY25,12,35,34%0AFY25%20Q4,FY25,15,40,38"
-                      download="collaboration_template.csv"
-                      className="hover:underline"
-                    >
-                      Download sample CSV template
-                    </a>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Client Submissions Tab */}
             {activeTab === 'client-submissions' && (
