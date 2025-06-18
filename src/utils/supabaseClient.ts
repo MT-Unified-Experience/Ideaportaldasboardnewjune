@@ -175,6 +175,12 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
       console.warn('4. Save the settings and refresh this page');
     }
     
+    // Additional debugging information
+    console.warn('🔍 Debug Information:');
+    console.warn('- Supabase URL:', import.meta.env.VITE_SUPABASE_URL ? 'Set' : 'Missing');
+    console.warn('- Supabase Anon Key:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Set' : 'Missing');
+    console.warn('- Environment:', import.meta.env.DEV ? 'Development' : 'Production');
+    
     console.warn('Working in offline mode.');
     return false;
   }

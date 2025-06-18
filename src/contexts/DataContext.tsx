@@ -152,6 +152,12 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         setIsSupabaseAvailable(available);
         if (!available) {
           console.warn('Supabase is not available. Application will work in offline mode.');
+          // Show detailed error information for debugging
+          console.warn('🔧 Troubleshooting Steps:');
+          console.warn('1. Check your .env file contains VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
+          console.warn('2. Restart your development server after adding environment variables');
+          console.warn('3. Verify your Supabase project is active and accessible');
+          console.warn('4. Check browser console for CORS or network errors');
         }
       } catch (error) {
         console.warn('Error checking Supabase connection, continuing in offline mode:', error);
