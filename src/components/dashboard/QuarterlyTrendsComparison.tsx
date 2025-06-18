@@ -276,14 +276,14 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={trendData.slice(0, 10)} 
-                    margin={{ top: 20, right: 30, left: 20, bottom: 150 }}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 120 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
                       dataKey="name" 
-                      angle={-90}
-                      textAnchor="middle"
-                      height={130}
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
                       tick={{ fontSize: 10 }}
                       interval={0}
                     />
@@ -310,14 +310,14 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={trendData.slice(0, 10)} 
-                    margin={{ top: 20, right: 30, left: 20, bottom: 150 }}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 120 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
                       dataKey="name" 
-                      angle={-90}
-                      textAnchor="middle"
-                      height={130}
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
                       tick={{ fontSize: 10 }}
                       interval={0}
                     />
@@ -613,4 +613,45 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
                       </span>
                     </div>
                     <div className="text-sm text-gray-600 mt-1">
-                      Expected ROI: {Math.roun
+                      Expected ROI: {Math.round(trend.growth_rate * trend.strategic_alignment / 5)}% | 
+                      Risk Level: {trend.resource_requirement}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Success Metrics */}
+          <div className="bg-yellow-50 rounded-lg p-6 border border-yellow-200">
+            <h4 className="text-lg font-medium text-gray-900 mb-4">Success Metrics & KPIs</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h5 className="font-medium text-gray-900 mb-2">Primary Metrics</h5>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Vote conversion rate {">"}70% within 6 months</li>
+                  <li>• Client satisfaction score increase {">"} 15%</li>
+                  <li>• Vote volume growth {">"} 25% quarter-over-quarter</li>
+                  <li>• Implementation timeline adherence {">"} 90%</li>
+                </ul>
+              </div>
+              <div>
+                <h5 className="font-medium text-gray-900 mb-2">Secondary Metrics</h5>
+                <ul className="text-sm text-gray-600 space-y-1">
+                  <li>• Cross-client collaboration increase {">"} 20%</li>
+                  <li>• Client engagement increase {">"} 30%</li>
+                  <li>• Revenue impact {">"} $500K annually</li>
+                  <li>• Market share improvement {">"} 5%</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default QuarterlyTrendsComparison;
+
+export default QuarterlyTrendsComparison
