@@ -128,6 +128,24 @@ const ClientList: React.FC<ClientListProps> = ({ quarter, clients, ideas = [], o
           </div>
         </div>
 
+        {/* Contributing Clients List */}
+        <div className="mb-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-3">Contributing Clients</h3>
+          <div className="bg-gray-50 rounded-lg p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {clients.map((client, index) => (
+                <div
+                  key={index}
+                  className="flex items-center text-sm text-gray-700 bg-white p-3 rounded-lg shadow-sm"
+                >
+                  <Users className="h-4 w-4 text-purple-500 mr-2" />
+                  {client}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Ideas Data Table */}
         <div className="space-y-4">
           <h3 className="text-lg font-medium text-gray-900">Ideas Submitted This Quarter</h3>
