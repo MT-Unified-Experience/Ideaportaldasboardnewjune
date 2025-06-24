@@ -250,7 +250,7 @@ interface ProductQuarterlyData {
 }
 
 // Function to validate CSV data matches current product
-export const validateCSVData = async (csvData: string, currentProduct: string): Promise<void> => {
+export const getCSVProductData = async (csvData: string): Promise<{ product: string; hasData: boolean }> => {
   return new Promise((resolve, reject) => {
     Papa.parse(csvData, {
       header: true,
@@ -268,22 +268,23 @@ export const validateCSVData = async (csvData: string, currentProduct: string): 
             );
           }
           
-          // Check if data matches current product (case-insensitive)
-          const hasMatchingProduct = rows.some(row => 
-            row.product?.trim().toLowerCase() === currentProduct.toLowerCase()
-          );
-          if (!hasMatchingProduct) {
+          // Get the first product found in the CSV
+          const firstProductRow = rows.find(row => row.product?.trim());
+          if (!firstProductRow || !firstProductRow.product?.trim()) {
             throw new CSVError(
-              'Invalid product data',
+              'No product data found',
               'data',
               [
-                `The CSV file does not contain data for ${currentProduct}`,
-                'Please upload a CSV file with data for the selected product'
+                'The CSV file does not contain any product information',
+                'Please ensure your CSV file has a "product" column with valid data'
               ]
             );
           }
           
-          resolve();
+          resolve({
+            product: firstProductRow.product.trim(),
+            hasData: true
+          });
         } catch (error) {
           reject(error);
         }
