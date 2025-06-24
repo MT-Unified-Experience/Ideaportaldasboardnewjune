@@ -688,14 +688,34 @@ export const parseResponsivenessTrendCSV = (csvData: string): Promise<Array<{
             responsivenessData.push(data);
           });
 
-          // Sort by quarter (assuming FY format)
-          responsivenessData.sort((a, b) => {
-            const getQuarterNum = (quarter: string) => {
-              const match = quarter.match(/Q(\d+)/);
-              return match ? parseInt(match[1]) : 0;
+          // Helper function to sort quarters chronologically across fiscal years
+          const sortQuartersChronologically = (a: { quarter: string }, b: { quarter: string }) => {
+            const parseQuarter = (quarter: string) => {
+              // Extract fiscal year and quarter number from format like "FY25 Q1"
+              const match = quarter.match(/FY(\d+)\s+Q(\d+)/);
+              if (match) {
+                const fiscalYear = parseInt(match[1]);
+                const quarterNum = parseInt(match[2]);
+                // Convert 2-digit fiscal year to full year (FY25 = 2025, FY26 = 2026, etc.)
+                const fullYear = fiscalYear < 50 ? 2000 + fiscalYear : 1900 + fiscalYear;
+                return { year: fullYear, quarter: quarterNum };
+              }
+              // Fallback for non-standard formats
+              return { year: 0, quarter: 0 };
             };
-            return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
-          });
+            
+            const parsedA = parseQuarter(a.quarter);
+            const parsedB = parseQuarter(b.quarter);
+            
+            // Sort by fiscal year first, then by quarter
+            if (parsedA.year !== parsedB.year) {
+              return parsedA.year - parsedB.year;
+            }
+            return parsedA.quarter - parsedB.quarter;
+          };
+
+          // Sort by fiscal year and quarter chronologically
+          responsivenessData.sort(sortQuartersChronologically);
 
           resolve(responsivenessData);
         } catch (error) {
@@ -828,17 +848,47 @@ export const parseCommitmentTrendsCSV = (csvData: string): Promise<CommitmentTre
           // Sort by year
           commitmentTrends.sort((a, b) => parseInt(a.year) - parseInt(b.year));
           
-          // Sort quarterly data by year and quarter
-          quarterlyDeliveries.sort((a, b) => {
-            const yearDiff = parseInt(a.year) - parseInt(b.year);
-            if (yearDiff !== 0) return yearDiff;
-            
-            const getQuarterNum = (quarter: string) => {
-              const match = quarter.match(/Q(\d+)/);
-              return match ? parseInt(match[1]) : 0;
+          // Helper function to sort quarters chronologically across fiscal years
+          const sortQuartersChronologically = (a: { quarter: string; year: string }, b: { quarter: string; year: string }) => {
+            const parseQuarter = (quarter: string, year: string) => {
+              // Handle both FY format quarters and year strings
+              let fiscalYear: number;
+              let quarterNum: number;
+              
+              // If quarter contains FY format, extract from there
+              const fyMatch = quarter.match(/FY(\d+)\s+Q(\d+)/);
+              if (fyMatch) {
+                const fy = parseInt(fyMatch[1]);
+                fiscalYear = fy < 50 ? 2000 + fy : 1900 + fy;
+                quarterNum = parseInt(fyMatch[2]);
+              } else {
+                // Otherwise, use the year field and extract quarter number
+                if (year.startsWith('FY')) {
+                  const fy = parseInt(year.substring(2));
+                  fiscalYear = fy < 50 ? 2000 + fy : 1900 + fy;
+                } else {
+                  fiscalYear = parseInt(year);
+                }
+                
+                const qMatch = quarter.match(/Q(\d+)/);
+                quarterNum = qMatch ? parseInt(qMatch[1]) : 0;
+              }
+              
+              return { year: fiscalYear, quarter: quarterNum };
             };
-            return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
-          });
+            
+            const parsedA = parseQuarter(a.quarter, a.year);
+            const parsedB = parseQuarter(b.quarter, b.year);
+            
+            // Sort by fiscal year first, then by quarter
+            if (parsedA.year !== parsedB.year) {
+              return parsedA.year - parsedB.year;
+            }
+            return parsedA.quarter - parsedB.quarter;
+          };
+
+          // Sort quarterly data by fiscal year and quarter chronologically
+          quarterlyDeliveries.sort(sortQuartersChronologically);
 
           resolve({
             commitmentTrends,
@@ -954,14 +1004,34 @@ export const parseContinuedEngagementCSV = (csvData: string): Promise<ContinuedE
             }
           });
 
-          // Sort quarterly data by quarter
-          quarterlyTrends.sort((a, b) => {
-            const getQuarterNum = (quarter: string) => {
-              const match = quarter.match(/Q(\d+)/);
-              return match ? parseInt(match[1]) : 0;
+          // Helper function to sort quarters chronologically across fiscal years
+          const sortQuartersChronologically = (a: { quarter: string }, b: { quarter: string }) => {
+            const parseQuarter = (quarter: string) => {
+              // Extract fiscal year and quarter number from format like "FY25 Q1"
+              const match = quarter.match(/FY(\d+)\s+Q(\d+)/);
+              if (match) {
+                const fiscalYear = parseInt(match[1]);
+                const quarterNum = parseInt(match[2]);
+                // Convert 2-digit fiscal year to full year (FY25 = 2025, FY26 = 2026, etc.)
+                const fullYear = fiscalYear < 50 ? 2000 + fiscalYear : 1900 + fiscalYear;
+                return { year: fullYear, quarter: quarterNum };
+              }
+              // Fallback for non-standard formats
+              return { year: 0, quarter: 0 };
             };
-            return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
-          });
+            
+            const parsedA = parseQuarter(a.quarter);
+            const parsedB = parseQuarter(b.quarter);
+            
+            // Sort by fiscal year first, then by quarter
+            if (parsedA.year !== parsedB.year) {
+              return parsedA.year - parsedB.year;
+            }
+            return parsedA.quarter - parsedB.quarter;
+          };
+
+          // Sort quarterly data by fiscal year and quarter chronologically
+          quarterlyTrends.sort(sortQuartersChronologically);
 
           resolve({
             quarterlyTrends,
@@ -1059,14 +1129,34 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
             clientsRepresenting: quarterData.clients.size > 0 ? quarterData.clients.size : quarterData.clientsRepresenting
           }));
 
-          // Sort by quarter (assuming FY format)
-          lineChartData.sort((a, b) => {
-            const getQuarterNum = (quarter: string) => {
-              const match = quarter.match(/Q(\d+)/);
-              return match ? parseInt(match[1]) : 0;
+          // Helper function to sort quarters chronologically across fiscal years
+          const sortQuartersChronologically = (a: { quarter: string }, b: { quarter: string }) => {
+            const parseQuarter = (quarter: string) => {
+              // Extract fiscal year and quarter number from format like "FY25 Q1"
+              const match = quarter.match(/FY(\d+)\s+Q(\d+)/);
+              if (match) {
+                const fiscalYear = parseInt(match[1]);
+                const quarterNum = parseInt(match[2]);
+                // Convert 2-digit fiscal year to full year (FY25 = 2025, FY26 = 2026, etc.)
+                const fullYear = fiscalYear < 50 ? 2000 + fiscalYear : 1900 + fiscalYear;
+                return { year: fullYear, quarter: quarterNum };
+              }
+              // Fallback for non-standard formats
+              return { year: 0, quarter: 0 };
             };
-            return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
-          });
+            
+            const parsedA = parseQuarter(a.quarter);
+            const parsedB = parseQuarter(b.quarter);
+            
+            // Sort by fiscal year first, then by quarter
+            if (parsedA.year !== parsedB.year) {
+              return parsedA.year - parsedB.year;
+            }
+            return parsedA.quarter - parsedB.quarter;
+          };
+
+          // Sort by fiscal year and quarter chronologically
+          lineChartData.sort(sortQuartersChronologically);
 
           resolve({
             lineChartData
@@ -1176,15 +1266,34 @@ export const parseCrossClientCollaborationCSV = (csvData: string): Promise<{
           // Convert map to array
           const collaborationTrendData = Array.from(quarterMap.values());
 
-          // Sort by year and quarter
-          collaborationTrendData.sort((a, b) => {
-            if (a.year !== b.year) return a.year - b.year;
-            const getQuarterNum = (quarter: string) => {
-              const match = quarter.match(/Q(\d+)/);
-              return match ? parseInt(match[1]) : 0;
+          // Helper function to sort quarters chronologically across fiscal years
+          const sortQuartersChronologically = (a: CollaborationTrendQuarterlyData, b: CollaborationTrendQuarterlyData) => {
+            const parseQuarter = (quarter: string) => {
+              // Extract fiscal year and quarter number from format like "FY25 Q1"
+              const match = quarter.match(/FY(\d+)\s+Q(\d+)/);
+              if (match) {
+                const fiscalYear = parseInt(match[1]);
+                const quarterNum = parseInt(match[2]);
+                // Convert 2-digit fiscal year to full year (FY25 = 2025, FY26 = 2026, etc.)
+                const fullYear = fiscalYear < 50 ? 2000 + fiscalYear : 1900 + fiscalYear;
+                return { year: fullYear, quarter: quarterNum };
+              }
+              // Fallback for non-standard formats
+              return { year: 0, quarter: 0 };
             };
-            return getQuarterNum(a.quarter) - getQuarterNum(b.quarter);
-          });
+            
+            const parsedA = parseQuarter(a.quarter);
+            const parsedB = parseQuarter(b.quarter);
+            
+            // Sort by fiscal year first, then by quarter
+            if (parsedA.year !== parsedB.year) {
+              return parsedA.year - parsedB.year;
+            }
+            return parsedA.quarter - parsedB.quarter;
+          };
+
+          // Sort by fiscal year and quarter chronologically
+          collaborationTrendData.sort(sortQuartersChronologically);
 
           resolve({
             collaborationTrendData
