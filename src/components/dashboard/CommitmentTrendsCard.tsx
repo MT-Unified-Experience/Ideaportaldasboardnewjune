@@ -68,7 +68,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                 )}
               </div>
             </div>
-            <p className="mt-1 text-xs text-gray-500">Total Planned Ideas Delivered to Date vs Annual Commitment</p>
+            <p className="mt-1 text-xs text-gray-500">Total Planned Ideas Planned+Delivered to Date vs Annual Commitment</p>
           </div>
           <div className="p-2 rounded-full bg-purple-100">
             <Briefcase className="h-5 w-5 text-purple-600" />
