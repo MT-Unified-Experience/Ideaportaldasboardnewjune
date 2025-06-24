@@ -2,10 +2,10 @@ import React, { useState, useRef } from 'react';
 import { Upload, CheckCircle } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 import ErrorModal from '../common/ErrorModal';
-import { CSVError, getCSVProductData } from '../../utils/csvParser';
+import { CSVError, validateCSVData } from '../../utils/csvParser';
 
 export const CsvUploader: React.FC = () => {
-  const { uploadCSV, isLoading, error, currentProduct, setCurrentProduct } = useData();
+  const { uploadCSV, isLoading, error, currentProduct } = useData();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showError, setShowError] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -48,14 +48,9 @@ export const CsvUploader: React.FC = () => {
     try {
       setUploadSuccess(false);
       
-      // Get the product data from the CSV file
+      // Validate that the CSV contains data for the current product
       const fileContent = await file.text();
-      const csvProductData = await getCSVProductData(fileContent);
-      
-      // If the CSV contains data for a different product, switch to that product
-      if (csvProductData.product && csvProductData.product.toLowerCase() !== currentProduct.toLowerCase()) {
-        setCurrentProduct(csvProductData.product);
-      }
+      await validateCSVData(fileContent, currentProduct);
       
       await uploadCSV(file);
       
