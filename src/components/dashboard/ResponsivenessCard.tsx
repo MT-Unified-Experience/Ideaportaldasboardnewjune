@@ -174,10 +174,6 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
             <div className="space-y-6">
               {/* CSV Upload Section */}
               <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <h4 className="text-md font-medium text-blue-900 mb-2">Upload Responsiveness Trend CSV</h4>
-                <p className="text-sm text-blue-700 mb-3">
-                  Upload a CSV file containing quarterly responsiveness data with columns: quarter, percentage, total_ideas, ideas_moved_out_of_review, ideas_list (optional).
-                </p>
                 <div className="flex items-center gap-3">
                   <input
                     type="file"
@@ -207,7 +203,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
                     </span>
                   )}
                 </div>
-                <div className="mt-2 text-xs text-blue-600">
+                <div className="mt-3 text-xs text-blue-600">
                   <a 
                     href="data:text/csv;charset=utf-8,quarter,percentage,total_ideas,ideas_moved_out_of_review,ideas_list%0AFY25%20Q1,82,45,37,%22AI%20Integration,Mobile%20App,Reporting%20Tools%22%0AFY25%20Q2,78,52,41,%22API%20Enhancements,Custom%20Workflows,Document%20Management%22%0AFY25%20Q3,85,38,32,%22Search%20Improvements,Bulk%20Actions,Dashboard%20Customization%22%0AFY25%20Q4,95,41,39,%22Email%20Integration,Advanced%20Analytics,Performance%20Optimization%22"
                     download="responsiveness_trend_template.csv"
