@@ -183,6 +183,13 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
         <div className="bg-gray-50 rounded-lg p-4">
           <h4 className="text-md font-medium text-gray-900 mb-4">Trend Analysis</h4>
           
+          {/* Instructions */}
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-xs text-blue-700">
+              <strong>Instructions:</strong> Click on any bullet point to edit it. Use the "Add" button to create new trend analysis points. Remove points by hovering and clicking the X button.
+            </p>
+          </div>
+          
           {/* Existing Bullet Points */}
           <div className="space-y-3 mb-4">
             {trendAnalysis.map((point, index) => (
@@ -221,13 +228,6 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
             >
               Add
             </button>
-          </div>
-          
-          {/* Instructions */}
-          <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-xs text-blue-700">
-              <strong>Instructions:</strong> Click on any bullet point to edit it. Use the "Add" button to create new trend analysis points. Remove points by hovering and clicking the X button.
-            </p>
           </div>
         </div>
       </div>
