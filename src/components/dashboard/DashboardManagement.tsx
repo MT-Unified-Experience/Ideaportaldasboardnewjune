@@ -12,7 +12,6 @@ interface DashboardManagementProps {
 const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClose }) => {
   const { dashboardData, updateDashboardData, uploadCrossClientCollaborationCSV, uploadTopFeaturesCSV, uploadClientSubmissionsCSV, isLoading, currentQuarter } = useData();
   const [activeTab, setActiveTab] = useState<'features' | 'collaboration' | 'client-submissions' | 'forums'>('features');
-  const [activeSubTab, setActiveSubTab] = useState<'current' | 'previous'>('current');
   const [localData, setLocalData] = useState<DashboardData>(dashboardData || {
     metricSummary: {
       responsiveness: 0,
@@ -27,6 +26,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
   });
   const [isLocalLoading, setIsLocalLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
+  const [allFeaturesForEditing, setAllFeaturesForEditing] = useState<Feature[]>([]);
 
   // Helper function to get previous quarter
   const getPreviousQuarter = (quarter: string): string => {
@@ -98,13 +98,34 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
   useEffect(() => {
     if (dashboardData) {
       setLocalData(dashboardData);
+      
+      // Combine current and previous quarter features for editing
+      const currentFeatures = (dashboardData.topFeatures || []).map(feature => ({
+        ...feature,
+        feature_quarter: 'current' as const
+      }));
+      const previousFeatures = (dashboardData.previousQuarterFeatures || []).map(feature => ({
+        ...feature,
+        feature_quarter: 'previous' as const
+      }));
+      setAllFeaturesForEditing([...currentFeatures, ...previousFeatures]);
     }
   }, [dashboardData]);
 
   const handleSave = async () => {
     setIsLocalLoading(true);
     try {
-      await updateDashboardData(localData);
+      // Split allFeaturesForEditing back into current and previous quarter features
+      const currentQuarterFeatures = allFeaturesForEditing.filter(feature => feature.feature_quarter === 'current');
+      const previousQuarterFeatures = allFeaturesForEditing.filter(feature => feature.feature_quarter === 'previous');
+      
+      const updatedData = {
+        ...localData,
+        topFeatures: currentQuarterFeatures,
+        previousQuarterFeatures: previousQuarterFeatures
+      };
+      
+      await updateDashboardData(updatedData);
       onClose();
     } catch (error) {
       console.error('Error saving dashboard data:', error);
@@ -126,72 +147,52 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
       previousQuarterFeatures: [],
       data_socialization_forums: []
     });
+    
+    // Reset allFeaturesForEditing as well
+    if (dashboardData) {
+      const currentFeatures = (dashboardData.topFeatures || []).map(feature => ({
+        ...feature,
+        feature_quarter: 'current' as const
+      }));
+      const previousFeatures = (dashboardData.previousQuarterFeatures || []).map(feature => ({
+        ...feature,
+        feature_quarter: 'previous' as const
+      }));
+      setAllFeaturesForEditing([...currentFeatures, ...previousFeatures]);
+    } else {
+      setAllFeaturesForEditing([]);
+    }
+    
     onClose();
   };
 
-  const addFeature = (isCurrentQuarter: boolean) => {
+  const addFeature = () => {
     const newFeature: TopFeature = {
       feature_name: '',
       vote_count: 0,
       status: 'Under Review',
-      client_voters: []
+      client_voters: [],
+      feature_quarter: 'current',
+      status_updated_at: new Date().toISOString().split('T')[0] // Today's date in YYYY-MM-DD format
     };
 
-    if (isCurrentQuarter) {
-      setLocalData(prev => ({
-        ...prev,
-        topFeatures: [...prev.topFeatures, newFeature]
-      }));
-    } else {
-      setLocalData(prev => ({
-        ...prev,
-        previousQuarterFeatures: [...(prev.previousQuarterFeatures || []), newFeature]
-      }));
-    }
+    setAllFeaturesForEditing(prev => [...prev, newFeature]);
   };
 
-  const removeFeature = (index: number, isCurrentQuarter: boolean) => {
-    if (isCurrentQuarter) {
-      setLocalData(prev => ({
-        ...prev,
-        topFeatures: prev.topFeatures.filter((_, i) => i !== index)
-      }));
-    } else {
-      setLocalData(prev => ({
-        ...prev,
-        previousQuarterFeatures: (prev.previousQuarterFeatures || []).filter((_, i) => i !== index)
-      }));
-    }
+  const removeFeature = (index: number) => {
+    setAllFeaturesForEditing(prev => prev.filter((_, i) => i !== index));
   };
 
-  const updateFeature = (index: number, field: keyof TopFeature, value: any, isCurrentQuarter: boolean) => {
-    if (isCurrentQuarter) {
-      setLocalData(prev => ({
-        ...prev,
-        topFeatures: prev.topFeatures.map((feature, i) => {
-          if (i === index) {
-            if (field === 'client_voters' && typeof value === 'string') {
-              return { ...feature, [field]: value.split(',').map(v => v.trim()).filter(v => v) };
-            }
-            return { ...feature, [field]: value };
-          }
-          return feature;
-        })
-      }));
-    } else {
-      setLocalData(prev => ({
-        ...prev,
-        previousQuarterFeatures: (prev.previousQuarterFeatures || []).map((feature, i) => {
-          if (i === index) {
-            if (field === 'client_voters' && typeof value === 'string') {
-              return { ...feature, [field]: value.split(',').map(v => v.trim()).filter(v => v) };
-            }
-            return { ...feature, [field]: value };
-          }
-          return feature;
-        })
-      }));
-    }
+  const updateFeature = (index: number, field: keyof Feature, value: any) => {
+    setAllFeaturesForEditing(prev => prev.map((feature, i) => {
+      if (i === index) {
+        if (field === 'client_voters' && typeof value === 'string') {
+          return { ...feature, [field]: value.split(',').map(v => v.trim()).filter(v => v) };
+        }
+        return { ...feature, [field]: value };
+      }
+      return feature;
+    }));
   };
 
   const addForum = () => {
@@ -361,207 +362,20 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                   </div>
                 </div>
 
-                {/* Sub-tab Navigation */}
-                <div className="border-b border-gray-200">
-                  <nav className="flex space-x-8">
-                    <button
-                      onClick={() => setActiveSubTab('current')}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                        activeSubTab === 'current'
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      Current Quarter ({currentQuarter})
-                    </button>
-                    <button
-                      onClick={() => setActiveSubTab('previous')}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                        activeSubTab === 'previous'
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      Previous Quarter ({previousQuarter})
-                    </button>
-                  </nav>
-                </div>
 
-                {/* Q4 Features (Current Quarter) */}
-                {activeSubTab === 'current' && (
-                  <div className="space-y-6">
-                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <h3 className="text-lg font-medium text-blue-900 mb-2">{currentQuarter} Features (Current Quarter)</h3>
-                      <p className="text-sm text-blue-700">
-                        Manage the top features for the current quarter. These will be displayed in the main dashboard and quarterly trends comparison.
-                      </p>
-                    </div>
 
-                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <h4 className="text-md font-medium text-blue-900 mb-2">Current Quarter Features</h4>
-                      <div className="flex justify-end mb-4">
-                        <button
-                          onClick={() => addFeature(true)}
-                          className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Add Feature
-                        </button>
-                      </div>
 
-                      {localData.topFeatures.map((feature, index) => (
-                        <div key={index} className="bg-white rounded-lg p-4 mb-4 shadow-sm">
-                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Feature Name
-                              </label>
-                              <input
-                                type="text"
-                                value={feature.feature_name}
-                                onChange={(e) => updateFeature(index, 'feature_name', e.target.value, true)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Vote Count
-                              </label>
-                              <input
-                                type="number"
-                                value={feature.vote_count}
-                                onChange={(e) => updateFeature(index, 'vote_count', parseInt(e.target.value) || 0, true)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                min="0"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Status
-                              </label>
-                              <select
-                                value={feature.status}
-                                onChange={(e) => updateFeature(index, 'status', e.target.value, true)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                              >
-                                <option value="Under Review">Under Review</option>
-                                <option value="Committed">Committed</option>
-                                <option value="Delivered">Delivered</option>
-                                <option value="Rejected">Rejected</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Client Voters
-                              </label>
-                              <input
-                                type="text"
-                                value={feature.client_voters.join(', ')}
-                                onChange={(e) => updateFeature(index, 'client_voters', e.target.value, true)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                placeholder="Client A, Client B"
-                              />
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => removeFeature(index, true)}
-                            className="mt-2 text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+
+
+
+                {/* All Features Management */}
+                <div className="space-y-6">
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <h3 className="text-lg font-medium text-blue-900 mb-2">Top Features Management</h3>
+                    <p className="text-sm text-blue-700">
+                      Manage all top features for both current ({currentQuarter}) and previous ({previousQuarter}) quarters. Use the Quarter field to specify which quarter each feature belongs to.
+                    </p>
                   </div>
-                )}
-
-                {/* Q3 Features (Previous Quarter) */}
-                {activeSubTab === 'previous' && (
-                  <div className="space-y-6">
-                    <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                      <h3 className="text-lg font-medium text-yellow-900 mb-2">{previousQuarter} Features (Previous Quarter)</h3>
-                      <p className="text-sm text-yellow-700">
-                        Features from the previous quarter for comparison analysis in the quarterly trends chart.
-                      </p>
-                    </div>
-
-                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <h4 className="text-md font-medium text-blue-900 mb-2">Previous Quarter Features</h4>
-                      <div className="flex justify-end mb-4">
-                        <button
-                          onClick={() => addFeature(false)}
-                          className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Add Feature
-                        </button>
-                      </div>
-
-                      {(localData.previousQuarterFeatures || []).map((feature, index) => (
-                        <div key={index} className="bg-white rounded-lg p-4 mb-4 shadow-sm">
-                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Feature Name
-                              </label>
-                              <input
-                                type="text"
-                                value={feature.feature_name}
-                                onChange={(e) => updateFeature(index, 'feature_name', e.target.value, false)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Vote Count
-                              </label>
-                              <input
-                                type="number"
-                                value={feature.vote_count}
-                                onChange={(e) => updateFeature(index, 'vote_count', parseInt(e.target.value) || 0, false)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                min="0"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Status
-                              </label>
-                              <select
-                                value={feature.status}
-                                onChange={(e) => updateFeature(index, 'status', e.target.value, false)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                              >
-                                <option value="Under Review">Under Review</option>
-                                <option value="Committed">Committed</option>
-                                <option value="Delivered">Delivered</option>
-                                <option value="Rejected">Rejected</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Client Voters
-                              </label>
-                              <input
-                                type="text"
-                                value={feature.client_voters.join(', ')}
-                                onChange={(e) => updateFeature(index, 'client_voters', e.target.value, false)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                placeholder="Client A, Client B"
-                              />
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => removeFeature(index, false)}
-                            className="mt-2 text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 
@@ -709,7 +523,95 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
               </div>
             )}
 
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <h4 className="text-md font-medium text-blue-900 mb-2">Features</h4>
+                    <div className="flex justify-end mb-4">
+                      <button
+                        onClick={() => addFeature()}
+                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Feature
+                      </button>
+                    </div>
 
+                    {allFeaturesForEditing.map((feature, index) => (
+                      <div key={index} className="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Feature Name
+                            </label>
+                            <input
+                              type="text"
+                              value={feature.feature_name}
+                              onChange={(e) => updateFeature(index, 'feature_name', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Vote Count
+                            </label>
+                            <input
+                              type="number"
+                              value={feature.vote_count}
+                              onChange={(e) => updateFeature(index, 'vote_count', parseInt(e.target.value) || 0)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              min="0"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Status
+                            </label>
+                            <select
+                              value={feature.status}
+                              onChange={(e) => updateFeature(index, 'status', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            >
+                              <option value="Under Review">Under Review</option>
+                              <option value="Committed">Committed</option>
+                              <option value="Delivered">Delivered</option>
+                              <option value="Rejected">Rejected</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Quarter
+                            </label>
+                            <select
+                              value={feature.feature_quarter || 'current'}
+                              onChange={(e) => updateFeature(index, 'feature_quarter', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            >
+                              <option value="current">Current ({currentQuarter})</option>
+                              <option value="previous">Previous ({previousQuarter})</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Client Voters
+                            </label>
+                            <input
+                              type="text"
+                              value={feature.client_voters.join(', ')}
+                              onChange={(e) => updateFeature(index, 'client_voters', e.target.value)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                              placeholder="Client A, Client B"
+                            />
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => removeFeature(index)}
+                          className="mt-2 text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
             {/* Client Submissions Tab */}
             {activeTab === 'client-submissions' && (
               <div className="space-y-6">
