@@ -292,62 +292,6 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
               )}
 
               {/* Quarterly Breakdown */}
-              {filteredChartData.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Quarterly Breakdown (Past 4 Quarters)
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    {filteredChartData.map((item, index) => {
-                      const isCurrentQuarter = item.quarter === currentQuarter;
-                      const prevItem = index > 0 ? filteredChartData[index - 1] : null;
-                      const change = prevItem ? item.percentage - prevItem.percentage : 0;
-                      
-                      return (
-                        <div
-                          key={item.quarter}
-                          className={`p-4 rounded-lg border cursor-pointer hover:shadow-lg transition-all ${
-                            isCurrentQuarter 
-                              ? 'bg-blue-50 border-blue-200' 
-                              : 'bg-white border-gray-200'
-                          }`}
-                          onClick={() => {
-                            setSelectedQuarterIdeas(item.ideasList || []);
-                            setSelectedQuarterName(item.quarter);
-                          }}
-                        >
-                          <div className="text-center">
-                            <h4 className="font-medium text-gray-900 mb-2">
-                              {formatQuarterLabel(item.quarter)}
-                            </h4>
-                            <div className="text-2xl font-bold text-gray-900 mb-2">
-                              {item.percentage}%
-                            </div>
-                            {prevItem && (
-                              <div className={`text-sm font-medium mb-2 ${
-                                change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-500'
-                              }`}>
-                                {change > 0 ? '+' : ''}{change.toFixed(1)}% vs prev
-                              </div>
-                            )}
-                            <p className="text-sm text-gray-600">
-                              {item.ideasMovedOutOfReview || Math.round(item.totalIdeas * item.percentage / 100)} of {item.totalIdeas} ideas moved out of review
-                            </p>
-                            {isCurrentQuarter && (
-                              <span className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                Current
-                              </span>
-                            )}
-                            <div className="mt-2 text-xs text-blue-600 font-medium">
-                              Click to view ideas
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
 
               {/* Ideas List for Selected Quarter */}
               {selectedQuarterIdeas && selectedQuarterIdeas.length > 0 && (
