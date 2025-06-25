@@ -5,7 +5,6 @@ import ProductTabs from '../components/navigation/ProductTabs';
 import ActionItemsPanel from '../components/dashboard/ActionItemsPanel';
 import QuarterTabs from '../components/navigation/QuarterTabs';
 import DashboardManagement from '../components/dashboard/DashboardManagement';
-import { CsvUploader } from '../components/upload/CsvUploader';
 import { DashboardGrid } from '../components/dashboard';
 import { BarChart2, Edit, ListTodo, Settings, RefreshCw } from 'lucide-react';
 import SettingsModal from '../components/common/SettingsModal';
@@ -149,7 +148,6 @@ const DashboardLayout: React.FC = () => {
                   Edit Dashboard
                 </button>
               </div>
-              <CsvUploader />
             </div>
           </div>
         </div>
