@@ -612,17 +612,6 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
                         Q{index + 1} 2025 - Q{index + 2} 2025
                       </span>
                     </div>
-                    <div className="text-sm text-gray-600 mt-1">
-                      Expected ROI: {Math.round(trend.growth_rate * trend.strategic_alignment / 5)}% | 
-                      Risk Level: {trend.resource_requirement}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Success Metrics */}
           <div className="bg-yellow-50 rounded-lg p-6 border border-yellow-200">
             <h4 className="text-lg font-medium text-gray-900 mb-4">Success Metrics & KPIs</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
