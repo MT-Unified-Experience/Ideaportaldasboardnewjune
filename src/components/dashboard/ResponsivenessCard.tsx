@@ -338,30 +338,6 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
               )}
 
               {/* Insights */}
-              {filteredChartData.length > 0 && (
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <h3 className="text-lg font-medium text-gray-900 mb-3">
-                    Key Insights
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <p>
-                      • Responsiveness measures the percentage of ideas that moved out of the "Need Review" stage after client submission
-                    </p>
-                    <p>
-                      • Higher percentages indicate better engagement and faster feedback loops with clients
-                    </p>
-                    <p>
-                      • Target responsiveness rate is typically 85% or higher for optimal client satisfaction
-                    </p>
-                    <p>
-                      • The chart shows the past 4 quarters relative to the selected quarter: {pastFourQuarters.map(formatQuarterLabel).join(', ')}
-                    </p>
-                    <p>
-                      • Click on any data point in the chart to view the specific ideas that moved out of review for that quarter
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
