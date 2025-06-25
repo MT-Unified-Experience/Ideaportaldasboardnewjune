@@ -228,7 +228,6 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
             <p className="text-xs text-blue-700">
               <strong>Instructions:</strong> Click on any bullet point to edit it. Use the "Add" button to create new trend analysis points. Remove points by hovering and clicking the X button.
             </p>
-            </div>
           </div>
         </div>
       </div>
