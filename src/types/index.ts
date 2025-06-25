@@ -116,12 +116,11 @@ export interface LineChartData {
 export interface Feature {
   feature_name: string;
   vote_count: number;
-  status: 'Delivered' | 'Under Review' | 'Committed' | 'Rejected';
+  status: 'Delivered' | 'Under Review' | 'Committed';
   status_updated_at: string;
   client_voters: string[];
   created_at?: string;
   updated_at?: string;
-  feature_quarter?: 'current' | 'previous';
   estimated_impact?: 'High' | 'Medium' | 'Low';
   resource_requirement?: 'High' | 'Medium' | 'Low';
   strategic_alignment?: number;
