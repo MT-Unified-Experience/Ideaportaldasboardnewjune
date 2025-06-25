@@ -10,21 +10,28 @@ interface DashboardManagementProps {
 }
 
 const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClose }) => {
-  const { dashboards, saveDashboard, isLoading } = useData();
+  const { allProductsData, saveDashboard, isLoading } = useData();
   const [selectedProduct, setSelectedProduct] = useState<string>('');
   const [selectedQuarter, setSelectedQuarter] = useState<string>('');
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [isLocalLoading, setIsLocalLoading] = useState(false);
 
-  const products = Array.from(new Set(dashboards.map(d => d.product))).sort();
-  const quarters = Array.from(new Set(dashboards.map(d => d.quarter))).sort();
+  const products = Object.keys(allProductsData || {}).sort();
+  const quarters = selectedProduct && allProductsData?.[selectedProduct] 
+    ? Object.keys(allProductsData[selectedProduct]).sort()
+    : [];
 
   useEffect(() => {
     if (selectedProduct && selectedQuarter) {
-      const dashboard = dashboards.find(d => d.product === selectedProduct && d.quarter === selectedQuarter);
-      setDashboardData(dashboard?.data || null);
+      const dashboardData = allProductsData?.[selectedProduct]?.[selectedQuarter];
+      setDashboardData(dashboardData || null);
     }
-  }, [selectedProduct, selectedQuarter, dashboards]);
+  }, [selectedProduct, selectedQuarter, allProductsData]);
+
+  // Reset quarter selection when product changes
+  useEffect(() => {
+    setSelectedQuarter('');
+  }, [selectedProduct]);
 
   const handleSave = async () => {
     if (!selectedProduct || !selectedQuarter || !dashboardData) return;
