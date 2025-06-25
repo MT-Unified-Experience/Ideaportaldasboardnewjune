@@ -241,19 +241,12 @@ const CrossClientCollaborationDetailsModal: React.FC<CrossClientCollaborationDet
                   </table>
                 </div>
               </div>
-            </div>
-
-            {/* Analysis Summary */}
-            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-              <h4 className="text-md font-medium text-blue-900 mb-2">Analysis Summary</h4>
-              <div className="text-sm text-blue-700 space-y-2">
-                <p>
-                  • This quarter shows {data.collaborativeIdeas} collaborative ideas out of {data.totalIdeas} total ideas ({data.collaborationRate}% collaboration rate)
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <button
+          onClick={onClose}
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <X className="h-6 w-6 text-gray-500" />
+        </button>
       </div>
     </>
   );

@@ -8,7 +8,6 @@ import DashboardManagement from '../components/dashboard/DashboardManagement';
 import { CsvUploader } from '../components/upload/CsvUploader';
 import { DashboardGrid } from '../components/dashboard';
 import { BarChart2, Edit, ListTodo, Settings, RefreshCw } from 'lucide-react';
-import ExportToPdfButton from '../components/common/ExportToPdfButton';
 import SettingsModal from '../components/common/SettingsModal';
 
 interface WidgetSettings {
@@ -111,10 +110,6 @@ const DashboardLayout: React.FC = () => {
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
               </button>
-              <ExportToPdfButton 
-                targetRef={dashboardRef}
-                filename={`${currentProduct}_${currentQuarter}_Dashboard`}
-              />
             </div>
           </div>
         </div>
