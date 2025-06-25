@@ -230,55 +230,18 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
             {/* Tabs */}
             <div className="border-b border-gray-200 mb-6">
               <nav className="-mb-px flex space-x-8">
-                <button
-                  onClick={() => setActiveTab('trend')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === 'trend'
-                      ? 'border-green-500 text-green-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
+                <div className="py-2 px-1 border-b-2 border-green-500 font-medium text-sm text-green-600">
                   <div className="flex items-center">
                     <RefreshCw className="h-4 w-4 mr-2" />
                     Quarterly Trends
                   </div>
-                </button>
-                <button
-                  onClick={() => setActiveTab('included')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === 'included'
-                      ? 'border-green-500 text-green-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Ideas with Follow-up ({includedIdeas.length})
-                  </div>
-                </button>
-                <button
-                  onClick={() => setActiveTab('excluded')}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === 'excluded'
-                      ? 'border-gray-500 text-gray-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 mr-2" />
-                    Ideas without Follow-up ({excludedIdeas.length})
-                  </div>
-                </button>
+                </div>
               </nav>
             </div>
 
             <div className="space-y-6">
               {/* CSV Upload Section */}
               <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                <h4 className="text-md font-medium text-green-900 mb-2">Upload Continued Engagement CSV</h4>
-                <p className="text-sm text-green-700 mb-3">
-                  Upload a CSV file containing quarterly engagement data and individual idea tracking. Required columns: quarter, rate, numerator, denominator. Optional: idea_id, idea_name, initial_status_change, subsequent_changes, days_between, included.
-                </p>
                 <div className="flex items-center gap-3">
                   <input
                     type="file"
@@ -308,7 +271,7 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                     </span>
                   )}
                 </div>
-                <div className="mt-2 text-xs text-green-600">
+                <div className="mt-3 text-xs text-green-600">
                   <a 
                     href="data:text/csv;charset=utf-8,quarter,rate,numerator,denominator,idea_id,idea_name,initial_status_change,subsequent_changes,days_between,included%0AFY25%20Q1,72,18,25,ENG-001,AI%20Integration,2025-01-15,%222025-02-01:Under%20Review,2025-02-15:Committed%22,17,true%0AFY25%20Q2,68,17,25,ENG-002,Mobile%20App,2025-02-01,%222025-02-20:In%20Development%22,19,true%0AFY25%20Q3,75,21,28,ENG-003,Reporting%20Tools,2025-03-01,%222025-03-15:Delivered%22,14,true%0AFY25%20Q4,75,15,20,ENG-004,API%20Enhancements,2025-04-01,,0,false"
                     download="continued_engagement_template.csv"
@@ -319,292 +282,205 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                 </div>
               </div>
 
-              {/* Quarterly Trends Tab */}
-              {activeTab === 'trend' && (
-                <div>
-                  {/* Current Quarter Summary */}
-                  <div className="bg-green-50 rounded-lg p-6 mb-6">
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-green-600">{value}%</div>
-                        <div className="text-sm text-gray-600">Current Quarter Rate</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-blue-600">{numerator}</div>
-                        <div className="text-sm text-gray-600">Ideas with Follow-up</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-gray-600">{denominator}</div>
-                        <div className="text-sm text-gray-600">Total Reviewed</div>
-                      </div>
-                    </div>
+              {/* Current Quarter Summary */}
+              <div className="bg-green-50 rounded-lg p-6 mb-6">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-green-600">{value}%</div>
+                    <div className="text-sm text-gray-600">Current Quarter Rate</div>
                   </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-blue-600">{numerator}</div>
+                    <div className="text-sm text-gray-600">Ideas with Follow-up</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-600">{denominator}</div>
+                    <div className="text-sm text-gray-600">Total Reviewed</div>
+                  </div>
+                </div>
+              </div>
 
-                  {/* Trend Chart */}
-                  {quarterlyTrends && quarterlyTrends.length > 0 ? (
-                    <div className="bg-gray-50 rounded-lg p-6 mb-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
-                      FY25 Quarterly Engagement Trends
-                    </h3>
-                    <div className="h-[300px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={quarterlyTrends} onClick={handleChartClick}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis 
-                            dataKey="quarter" 
-                            tickFormatter={formatQuarterLabel}
-                          />
-                          <YAxis 
-                            domain={[0, 100]}
-                            label={{ value: 'Engagement Rate %', angle: -90, position: 'insideLeft' }}
-                          />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Line
-                            type="monotone"
-                            dataKey="rate"
-                            stroke="#22c55e"
-                            strokeWidth={3}
-                            dot={{ fill: '#22c55e', r: 6 }}
-                            activeDot={{ 
-                              r: 8, 
-                              stroke: '#22c55e', 
-                              strokeWidth: 2,
-                              onClick: handleChartClick,
-                              style: { cursor: 'pointer' }
-                            }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                    </div>
-                  ) : (
-                    <div className="bg-gray-50 rounded-lg p-6 mb-6 text-center">
-                      <div className="text-gray-500 mb-4">
-                        <div className="text-lg font-medium">No Quarterly Trends Data Available</div>
-                        <p className="text-sm mt-2">Upload a CSV file above to view quarterly engagement trends.</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Quarterly Breakdown */}
-                  {quarterlyTrends && quarterlyTrends.length > 0 && (
-                    <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      Quarterly Breakdown
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      {quarterlyTrends.map((item, index) => {
-                        const isCurrentQuarter = index === chartData.length - 1;
-                        const prevItem = index > 0 ? quarterlyTrends[index - 1] : null;
-                        const change = prevItem ? item.rate - prevItem.rate : 0;
-                        
-                        return (
-                          <div
-                            key={item.quarter}
-                            onClick={() => handleQuarterBoxClick(item.quarter, item.numerator)}
-                            className={`p-4 rounded-lg border ${
-                              isCurrentQuarter 
-                                ? 'bg-green-50 border-green-200' 
-                                : 'bg-white border-gray-200'
-                            } cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 transform`}
-                          >
-                            <div className="text-center space-y-2">
-                              {/* Title */}
-                              <h4 className="font-medium text-gray-900">
-                                {item.quarter}
-                                {isCurrentQuarter && (
-                                  <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Current
-                                  </span>
-                                )}
-                              </h4>
-                              
-                              {/* Engagement Rate */}
-                              <div className="text-3xl font-bold text-gray-900">
-                                {item.rate}%
-                              </div>
-                              
-                              {/* Engagement Trend Change */}
-                              {prevItem && (
-                                <div className={`text-sm font-medium ${
-                                  change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-500'
-                                }`}>
-                                  {change > 0 ? '+' : ''}{change.toFixed(1)}% vs prev
-                                </div>
-                              )}
-                              
-                              {/* Description Text */}
-                              <p className="text-sm text-gray-600">
-                                {item.numerator} of {item.denominator} ideas had follow-up
-                              </p>
-                              
-                              {/* Link */}
-                              <p className="text-xs text-blue-600 font-medium hover:text-blue-800 transition-colors">
-                                Click to view ideas with follow-up
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    </div>
-                  )}
-
-                  {/* Ideas Data Table */}
-                  {selectedQuarterIdeas && selectedQuarterIdeas.length > 0 && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-medium text-gray-900">
-                          {selectedQuarterName} - Ideas with Follow-up
-                        </h3>
-                        <button
-                          onClick={() => {
-                            setSelectedQuarterIdeas(null);
-                            setSelectedQuarterName(null);
+              {/* Trend Chart */}
+              {quarterlyTrends && quarterlyTrends.length > 0 ? (
+                <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">
+                    FY25 Quarterly Engagement Trends
+                  </h3>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={quarterlyTrends} onClick={handleChartClick}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="quarter" 
+                          tickFormatter={formatQuarterLabel}
+                        />
+                        <YAxis 
+                          domain={[0, 100]}
+                          label={{ value: 'Engagement Rate %', angle: -90, position: 'insideLeft' }}
+                        />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Line
+                          type="monotone"
+                          dataKey="rate"
+                          stroke="#22c55e"
+                          strokeWidth={3}
+                          dot={{ fill: '#22c55e', r: 6 }}
+                          activeDot={{ 
+                            r: 8, 
+                            stroke: '#22c55e', 
+                            strokeWidth: 2,
+                            onClick: handleChartClick,
+                            style: { cursor: 'pointer' }
                           }}
-                          className="text-gray-400 hover:text-gray-500"
-                        >
-                          <X className="h-5 w-5" />
-                        </button>
-                      </div>
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <div className="overflow-x-auto">
-                          <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                            <thead className="bg-gray-100">
-                              <tr>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
-                                  Idea ID
-                                </th>
-                                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
-                                  Idea Summary Title
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                              {selectedQuarterIdeas.map((idea, index) => (
-                                <tr key={index} className="hover:bg-gray-50">
-                                  <td className="px-4 py-3 text-sm font-medium text-blue-600 border-r border-gray-200">
-                                    {idea.id}
-                                  </td>
-                                  <td className="px-4 py-3 text-sm text-gray-900">
-                                    {idea.summary}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-gray-50 rounded-lg p-6 mb-6 text-center">
+                  <div className="text-gray-500 mb-4">
+                    <div className="text-lg font-medium">No Quarterly Trends Data Available</div>
+                    <p className="text-sm mt-2">Upload a CSV file above to view quarterly engagement trends.</p>
+                  </div>
+                </div>
+              )}
 
-                  {/* Calculation Details */}
-                  <div className="bg-gray-50 rounded-lg p-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-3">
-                      Calculation Details
+              {/* Quarterly Breakdown */}
+              {quarterlyTrends && quarterlyTrends.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Quarterly Breakdown
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {quarterlyTrends.map((item, index) => {
+                      const isCurrentQuarter = index === chartData.length - 1;
+                      const prevItem = index > 0 ? quarterlyTrends[index - 1] : null;
+                      const change = prevItem ? item.rate - prevItem.rate : 0;
+                      
+                      return (
+                        <div
+                          key={item.quarter}
+                          onClick={() => handleQuarterBoxClick(item.quarter, item.numerator)}
+                          className={`p-4 rounded-lg border ${
+                            isCurrentQuarter 
+                              ? 'bg-green-50 border-green-200' 
+                              : 'bg-white border-gray-200'
+                          } cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 transform`}
+                        >
+                          <div className="text-center space-y-2">
+                            {/* Title */}
+                            <h4 className="font-medium text-gray-900">
+                              {item.quarter}
+                              {isCurrentQuarter && (
+                                <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  Current
+                                </span>
+                              )}
+                            </h4>
+                            
+                            {/* Engagement Rate */}
+                            <div className="text-3xl font-bold text-gray-900">
+                              {item.rate}%
+                            </div>
+                            
+                            {/* Engagement Trend Change */}
+                            {prevItem && (
+                              <div className={`text-sm font-medium ${
+                                change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-500'
+                              }`}>
+                                {change > 0 ? '+' : ''}{change.toFixed(1)}% vs prev
+                              </div>
+                            )}
+                            
+                            {/* Description Text */}
+                            <p className="text-sm text-gray-600">
+                              {item.numerator} of {item.denominator} ideas had follow-up
+                            </p>
+                            
+                            {/* Link */}
+                            <p className="text-xs text-blue-600 font-medium hover:text-blue-800 transition-colors">
+                              Click to view ideas with follow-up
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Ideas Data Table */}
+              {selectedQuarterIdeas && selectedQuarterIdeas.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                      {selectedQuarterName} - Ideas with Follow-up
                     </h3>
-                    <div className="text-sm text-gray-600 space-y-2">
-                      <p>
-                        <strong>Formula:</strong> (Ideas with follow-up ÷ Total reviewed ideas) × 100
-                      </p>
-                      <p>
-                        <strong>Follow-up criteria:</strong> Ideas that received at least one additional status update 
-                        within 90 days after being moved out of "Needs Review\" status.
-                      </p>
-                      <p>
-                        <strong>Purpose:</strong> This metric helps track whether ideas continue progressing through the pipeline 
-                        after initial review, indicating sustained engagement and follow-through.
-                      </p>
-                      <p>
-                        <strong>Interaction:</strong> Click on any data point in the chart or quarterly breakdown boxes 
-                        to view the specific ideas that had follow-up for that quarter.
-                      </p>
+                    <button
+                      onClick={() => {
+                        setSelectedQuarterIdeas(null);
+                        setSelectedQuarterName(null);
+                      }}
+                      className="text-gray-400 hover:text-gray-500"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
+                              Idea ID
+                            </th>
+                            <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 border-b border-gray-200">
+                              Idea Summary Title
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {selectedQuarterIdeas.map((idea, index) => (
+                            <tr key={index} className="hover:bg-gray-50">
+                              <td className="px-4 py-3 text-sm font-medium text-blue-600 border-r border-gray-200">
+                                {idea.id}
+                              </td>
+                              <td className="px-4 py-3 text-sm text-gray-900">
+                                {idea.summary}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Ideas with Follow-up Tab */}
-              {activeTab === 'included' && (
-                <div className="space-y-3">
-                  {includedIdeas.length > 0 ? (
-                    includedIdeas.map((idea) => (
-                      <div
-                        key={idea.id}
-                        className="bg-white rounded-lg p-4 shadow-sm border border-gray-200"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900 mb-2">{idea.name}</h4>
-                            <div className="text-sm text-gray-600 space-y-1">
-                              <p>
-                                <span className="font-medium">Initial change:</span> {formatDate(idea.initialStatusChange)}
-                              </p>
-                              <p>
-                                <span className="font-medium">Follow-up changes:</span>
-                              </p>
-                              <div className="ml-4 space-y-1">
-                                {idea.subsequentChanges.map((change, index) => (
-                                  <div key={index} className="flex items-center text-xs">
-                                    <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-                                    {formatDate(change.date)} - {change.status}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="ml-4 text-right">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              {idea.daysBetween} days
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      No ideas with follow-up changes found
-                    </div>
-                  )}
+              {/* Calculation Details */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-3">
+                  Calculation Details
+                </h3>
+                <div className="text-sm text-gray-600 space-y-2">
+                  <p>
+                    <strong>Formula:</strong> (Ideas with follow-up ÷ Total reviewed ideas) × 100
+                  </p>
+                  <p>
+                    <strong>Follow-up criteria:</strong> Ideas that received at least one additional status update 
+                    within 90 days after being moved out of "Needs Review\" status.
+                  </p>
+                  <p>
+                    <strong>Purpose:</strong> This metric helps track whether ideas continue progressing through the pipeline 
+                    after initial review, indicating sustained engagement and follow-through.
+                  </p>
+                  <p>
+                    <strong>Interaction:</strong> Click on any data point in the chart or quarterly breakdown boxes 
+                    to view the specific ideas that had follow-up for that quarter.
+                  </p>
                 </div>
-              )}
-
-              {/* Ideas without Follow-up Tab */}
-              {activeTab === 'excluded' && (
-                <div className="space-y-3">
-                  {excludedIdeas.length > 0 ? (
-                    excludedIdeas.map((idea) => (
-                      <div
-                        key={idea.id}
-                        className="bg-white rounded-lg p-4 shadow-sm border border-gray-200"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900 mb-2">{idea.name}</h4>
-                            <div className="text-sm text-gray-600">
-                              <p>
-                                <span className="font-medium">Initial change:</span> {formatDate(idea.initialStatusChange)}
-                              </p>
-                              <p className="text-gray-500 mt-1">
-                                No additional status changes within 90 days
-                              </p>
-                            </div>
-                          </div>
-                          <div className="ml-4 text-right">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                              No follow-up
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      All reviewed ideas had follow-up changes
-                    </div>
-                  )}
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </div>
