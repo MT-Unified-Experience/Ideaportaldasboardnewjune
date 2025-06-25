@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "analyze": "npm run build && npx vite-bundle-analyzer dist"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
@@ -37,6 +38,7 @@
     "tailwindcss": "^3.3.5",
     "typescript": "^5.0.2",
     "vite": "^5.0.12",
-    "vitest": "^0.34.6"
+    "vitest": "^0.34.6",
+    "vite-bundle-analyzer": "^0.7.0"
   }
 }
