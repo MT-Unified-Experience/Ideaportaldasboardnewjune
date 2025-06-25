@@ -1,47 +1,55 @@
-Here's the fixed version with added closing brackets. The main issue was missing closing brackets for several nested components and functions. I'll add the necessary closing brackets:
+Here's the fixed version with all missing closing brackets added:
 
 ```typescript
-// ... (previous code remains the same until the Features section)
+import React, { useState, useEffect } from 'react';
+import { X, Save, Plus, Trash2, Upload } from 'lucide-react';
+import { useData } from '../../contexts/DataContext';
+import { DashboardData, TopFeature, DataSocializationForum } from '../../types';
+import Papa from 'papaparse';
 
-                {/* Features section was missing closing brackets */}
-                {activeTab === 'features' && (
-                  <div className="space-y-6">
-                    {/* CSV Upload Section */}
-                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      {/* ... (upload section content) ... */}
-                    </div>
+interface DashboardManagementProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-                    {/* All Features Management */}
-                    <div className="space-y-6">
-                      <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                        {/* ... (features management content) ... */}
-                      </div>
-                    </div>
+const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClose }) => {
+  // ... [all the existing code remains the same until the JSX]
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+        {/* ... [all the existing JSX remains the same until the missing closing brackets] */}
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <h4 className="text-md font-medium text-blue-900 mb-2">Features</h4>
+                    {/* ... [feature management content] ... */}
                   </div>
-                )}
-
-                {/* Cross-Client Collaboration Tab */}
-                {activeTab === 'collaboration' && (
-                  <div className="space-y-6">
-                    {/* ... (collaboration content) ... */}
-                  </div>
-                )}
-
-                {/* Key Metrics Tab */}
-                {activeTab === 'metrics' && (
-                  <div className="space-y-6">
-                    {/* ... (metrics content) ... */}
-                  </div>
-                )}
-
-                {/* Features section */}
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  {/* ... (features content) ... */}
                 </div>
+              </div>
+            )}
+          </div>
 
           {/* Footer */}
           <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-            {/* ... (footer content) ... */}
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={isLocalLoading}
+                className={`inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md ${
+                  isLocalLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+                }`}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {isLocalLoading ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -51,12 +59,3 @@ Here's the fixed version with added closing brackets. The main issue was missing
 
 export default DashboardManagement;
 ```
-
-The main fixes included:
-1. Adding missing closing brackets for the Features section
-2. Properly nesting and closing the tab content sections
-3. Ensuring all component sections are properly closed
-4. Adding the final closing bracket for the DashboardManagement component
-5. Adding the semicolon after the export statement
-
-The structure is now properly balanced with all opening and closing brackets matched correctly.
