@@ -458,29 +458,6 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
                 </div>
               )}
 
-              {/* Calculation Details */}
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">
-                  Calculation Details
-                </h3>
-                <div className="text-sm text-gray-600 space-y-2">
-                  <p>
-                    <strong>Formula:</strong> (Ideas with follow-up ÷ Total reviewed ideas) × 100
-                  </p>
-                  <p>
-                    <strong>Follow-up criteria:</strong> Ideas that received at least one additional status update 
-                    within 90 days after being moved out of "Needs Review\" status.
-                  </p>
-                  <p>
-                    <strong>Purpose:</strong> This metric helps track whether ideas continue progressing through the pipeline 
-                    after initial review, indicating sustained engagement and follow-through.
-                  </p>
-                  <p>
-                    <strong>Interaction:</strong> Click on any data point in the chart or quarterly breakdown boxes 
-                    to view the specific ideas that had follow-up for that quarter.
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
