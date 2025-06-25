@@ -241,6 +241,9 @@ const CrossClientCollaborationDetailsModal: React.FC<CrossClientCollaborationDet
                   </table>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
         <button
           onClick={onClose}
           className="p-2 hover:bg-gray-100 rounded-full transition-colors"
