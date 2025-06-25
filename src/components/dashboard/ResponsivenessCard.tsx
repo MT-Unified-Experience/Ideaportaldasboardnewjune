@@ -173,7 +173,7 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
 
             <div className="space-y-6">
               {/* CSV Upload Section */}
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+              <div className="bg-white rounded-lg p-4">
                 <div className="flex items-center gap-3">
                   <input
                     type="file"
