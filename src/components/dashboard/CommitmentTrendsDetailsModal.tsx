@@ -169,10 +169,6 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
         <div className="space-y-6 max-h-[80vh] overflow-y-auto">
           {/* CSV Upload Section */}
           <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-            <h4 className="text-md font-medium text-purple-900 mb-2">Upload Commitment Trends CSV</h4>
-            <p className="text-sm text-purple-700 mb-3">
-              Upload a CSV file containing annual commitment and delivery data with columns: year, committed, delivered, quarter (optional), quarterly_delivered (optional), idea_id (optional), idea_summary (optional).
-            </p>
             <div className="flex items-center gap-3">
               <input
                 type="file"
@@ -202,7 +198,7 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
                 </span>
               )}
             </div>
-            <div className="mt-2 text-xs text-purple-600">
+            <div className="mt-3 text-xs text-purple-600">
               <a 
                 href="data:text/csv;charset=utf-8,year,committed,delivered,quarter,quarterly_delivered,idea_id,idea_summary%0A2020,45,42,Q1,12,COMM-2020-001,AI%20Integration%0A2021,52,48,Q2,15,COMM-2021-001,Mobile%20App%0A2022,48,45,Q3,13,COMM-2022-001,Reporting%20Tools%0A2023,55,52,Q4,12,COMM-2023-001,API%20Enhancements%0A2024,60,57,Q1,14,COMM-2024-001,Custom%20Workflows"
                 download="commitment_trends_template.csv"
