@@ -15,23 +15,10 @@ interface Feature {
 
 interface TopFeaturesChartProps {
   features: Feature[];
-  previousFeatures?: Feature[];
-  currentQuarterLabel?: string;
-  previousQuarterLabel?: string;
 }
 
-export const TopFeaturesChart: React.FC<TopFeaturesChartProps> = ({ 
-  features, 
-  previousFeatures = [],
-  currentQuarterLabel = 'Q4',
-  previousQuarterLabel = 'Q3'
-}) => {
+export const TopFeaturesChart: React.FC<TopFeaturesChartProps> = ({ features }) => {
   return (
-    <QuarterlyTrendsComparison 
-      currentFeatures={features} 
-      previousFeatures={previousFeatures} 
-      currentQuarterLabel={currentQuarterLabel}
-      previousQuarterLabel={previousQuarterLabel}
-    />
+    <QuarterlyTrendsComparison features={features} />
   );
 };

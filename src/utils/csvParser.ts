@@ -26,7 +26,6 @@ export const topFeaturesRequiredHeaders = [
   'status',
   'status_updated_at',
   'client_voters',
-  'feature_quarter' // To distinguish between current and previous quarter
   // Optional: estimated_impact, resource_requirement, strategic_alignment, risks
 ];
 
@@ -198,8 +197,7 @@ interface ClientSubmissionsData {
 }
 
 interface TopFeaturesData {
-  currentQuarterFeatures: Feature[];
-  previousQuarterFeatures: Feature[];
+  features: Feature[];
 }
 
 interface CSVRow {
@@ -583,12 +581,11 @@ export const parseTopFeaturesCSV = (csvData: string): Promise<TopFeaturesData> =
           }
 
           const rows = results.data as FeatureCSVRow[];
-          const currentQuarterFeatures: Feature[] = [];
-          const previousQuarterFeatures: Feature[] = [];
+          const features: Feature[] = [];
 
           rows.forEach(row => {
             // Validate required fields
-            if (!row.feature_name || !row.vote_count || !row.status || !row.status_updated_at || !row.client_voters || !row.feature_quarter) {
+            if (!row.feature_name || !row.vote_count || !row.status || !row.status_updated_at || !row.client_voters) {
               return; // Skip invalid rows
             }
 
@@ -604,22 +601,14 @@ export const parseTopFeaturesCSV = (csvData: string): Promise<TopFeaturesData> =
               risks: row.risks ? row.risks.split(',').map(s => s.trim()).filter(s => s.length > 0) : undefined
             };
 
-            // Categorize by quarter
-            const quarter = row.feature_quarter.trim().toLowerCase();
-            if (quarter === 'current' || quarter === 'q4') {
-              currentQuarterFeatures.push(feature);
-            } else if (quarter === 'previous' || quarter === 'q3') {
-              previousQuarterFeatures.push(feature);
-            }
+            features.push(feature);
           });
 
           // Sort by vote count (descending)
-          currentQuarterFeatures.sort((a, b) => b.vote_count - a.vote_count);
-          previousQuarterFeatures.sort((a, b) => b.vote_count - a.vote_count);
+          features.sort((a, b) => b.vote_count - a.vote_count);
 
           resolve({
-            currentQuarterFeatures,
-            previousQuarterFeatures
+            features
           });
         } catch (error) {
           reject(error);

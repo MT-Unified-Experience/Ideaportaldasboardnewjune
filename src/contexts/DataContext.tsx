@@ -203,7 +203,6 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           },
           lineChartData: [...defaultDashboardData.lineChartData],
           topFeatures: [...defaultDashboardData.topFeatures],
-          previousQuarterFeatures: [],
           data_socialization_forums: [
             { name: 'CSC' },
             { name: 'Sprint Reviews' },
@@ -391,8 +390,7 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       // Update the features data
       const updatedData: DashboardData = {
         ...currentData,
-        topFeatures: featuresData.currentQuarterFeatures,
-        previousQuarterFeatures: featuresData.previousQuarterFeatures
+        topFeatures: featuresData.features
       };
 
       // Store data in Supabase

@@ -37,18 +37,10 @@ interface TrendData {
 }
 
 interface QuarterlyTrendsComparisonProps {
-  currentFeatures: Feature[]; // Q4 features
-  previousFeatures: Feature[]; // Q3 features
-  currentQuarterLabel?: string;
-  previousQuarterLabel?: string;
+  features: Feature[];
 }
 
-const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ 
-  currentFeatures, 
-  previousFeatures,
-  currentQuarterLabel = 'Q4',
-  previousQuarterLabel = 'Q3'
-}) => {
+const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({ features }) => {
   const [trendAnalysis, setTrendAnalysis] = useState<string[]>([
     'AI Integration continues to lead with highest vote count across all quarters',
     'Mobile App requests show consistent growth pattern',
@@ -56,24 +48,10 @@ const QuarterlyTrendsComparison: React.FC<QuarterlyTrendsComparisonProps> = ({
   ]);
   const [newBulletPoint, setNewBulletPoint] = useState('');
 
-  // Format quarter labels for display
-  const formatQuarterLabel = (quarter: string) => {
-    const match = quarter.match(/FY(\d+)\s+Q(\d+)/);
-    if (match) {
-      return `FY${match[1]} Q${match[2]}`;
-    }
-    return quarter;
-  };
-
-  const formattedCurrentQuarter = formatQuarterLabel(currentQuarterLabel);
-  const formattedPreviousQuarter = formatQuarterLabel(previousQuarterLabel);
   // Get top 10 most-voted items across all fiscal years
   const getTop10Features = (): Feature[] => {
-    // Combine all features from current and previous quarters
-    const allFeatures = [...currentFeatures, ...previousFeatures];
-    
     // Remove duplicates by feature name, keeping the one with higher vote count
-    const uniqueFeatures = allFeatures.reduce((acc, feature) => {
+    const uniqueFeatures = features.reduce((acc, feature) => {
       const existing = acc.find(f => f.feature_name === feature.feature_name);
       if (!existing || feature.vote_count > existing.vote_count) {
         return [...acc.filter(f => f.feature_name !== feature.feature_name), feature];

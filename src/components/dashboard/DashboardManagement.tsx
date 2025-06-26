@@ -21,7 +21,6 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
     },
     lineChartData: [],
     topFeatures: [],
-    previousQuarterFeatures: [],
     data_socialization_forums: []
   });
   const [isLocalLoading, setIsLocalLoading] = useState(false);
@@ -123,13 +122,12 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
       },
       lineChartData: [],
       topFeatures: [],
-      previousQuarterFeatures: [],
       data_socialization_forums: []
     });
     onClose();
   };
 
-  const addFeature = (isCurrentQuarter: boolean) => {
+  const addFeature = () => {
     const newFeature: TopFeature = {
       feature_name: '',
       vote_count: 0,
@@ -137,61 +135,32 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
       client_voters: []
     };
 
-    if (isCurrentQuarter) {
-      setLocalData(prev => ({
-        ...prev,
-        topFeatures: [...prev.topFeatures, newFeature]
-      }));
-    } else {
-      setLocalData(prev => ({
-        ...prev,
-        previousQuarterFeatures: [...(prev.previousQuarterFeatures || []), newFeature]
-      }));
-    }
+    setLocalData(prev => ({
+      ...prev,
+      topFeatures: [...prev.topFeatures, newFeature]
+    }));
   };
 
-  const removeFeature = (index: number, isCurrentQuarter: boolean) => {
-    if (isCurrentQuarter) {
-      setLocalData(prev => ({
-        ...prev,
-        topFeatures: prev.topFeatures.filter((_, i) => i !== index)
-      }));
-    } else {
-      setLocalData(prev => ({
-        ...prev,
-        previousQuarterFeatures: (prev.previousQuarterFeatures || []).filter((_, i) => i !== index)
-      }));
-    }
+  const removeFeature = (index: number) => {
+    setLocalData(prev => ({
+      ...prev,
+      topFeatures: prev.topFeatures.filter((_, i) => i !== index)
+    }));
   };
 
-  const updateFeature = (index: number, field: keyof TopFeature, value: any, isCurrentQuarter: boolean) => {
-    if (isCurrentQuarter) {
-      setLocalData(prev => ({
-        ...prev,
-        topFeatures: prev.topFeatures.map((feature, i) => {
-          if (i === index) {
-            if (field === 'client_voters' && typeof value === 'string') {
-              return { ...feature, [field]: value.split(',').map(v => v.trim()).filter(v => v) };
-            }
-            return { ...feature, [field]: value };
+  const updateFeature = (index: number, field: keyof TopFeature, value: any) => {
+    setLocalData(prev => ({
+      ...prev,
+      topFeatures: prev.topFeatures.map((feature, i) => {
+        if (i === index) {
+          if (field === 'client_voters' && typeof value === 'string') {
+            return { ...feature, [field]: value.split(',').map(v => v.trim()).filter(v => v) };
           }
-          return feature;
-        })
-      }));
-    } else {
-      setLocalData(prev => ({
-        ...prev,
-        previousQuarterFeatures: (prev.previousQuarterFeatures || []).map((feature, i) => {
-          if (i === index) {
-            if (field === 'client_voters' && typeof value === 'string') {
-              return { ...feature, [field]: value.split(',').map(v => v.trim()).filter(v => v) };
-            }
-            return { ...feature, [field]: value };
-          }
-          return feature;
-        })
-      }));
-    }
+          return { ...feature, [field]: value };
+        }
+        return feature;
+      })
+    }));
   };
 
   const updateForums = (value: string) => {
@@ -330,7 +299,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                     {isLoading ? 'Uploading...' : 'Upload Top Features CSV'}
                   </button>
                   <button
-                    onClick={() => addFeature(true)}
+                    onClick={() => addFeature()}
                     className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -353,7 +322,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                 {/* Current Quarter Features */}
                 <div className="space-y-4">
                   <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
-                    Current Quarter ({currentQuarter}) Features
+                    Top Features
                   </h4>
                   {localData.topFeatures.length === 0 ? (
                     <p className="text-sm text-gray-500 italic">No features added yet. Click "Add Feature" to get started.</p>
@@ -368,7 +337,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                             <input
                               type="text"
                               value={feature.feature_name}
-                              onChange={(e) => updateFeature(index, 'feature_name', e.target.value, true)}
+                              onChange={(e) => updateFeature(index, 'feature_name', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               placeholder="Enter feature name"
                             />
@@ -380,7 +349,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                             <input
                               type="number"
                               value={feature.vote_count}
-                              onChange={(e) => updateFeature(index, 'vote_count', parseInt(e.target.value) || 0, true)}
+                              onChange={(e) => updateFeature(index, 'vote_count', parseInt(e.target.value) || 0)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               min="0"
                               placeholder="0"
@@ -392,7 +361,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                             </label>
                             <select
                               value={feature.status}
-                              onChange={(e) => updateFeature(index, 'status', e.target.value, true)}
+                              onChange={(e) => updateFeature(index, 'status', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
                               <option value="Under Review">Under Review</option>
@@ -408,7 +377,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                             <input
                               type="text"
                               value={feature.client_voters.join(', ')}
-                              onChange={(e) => updateFeature(index, 'client_voters', e.target.value, true)}
+                              onChange={(e) => updateFeature(index, 'client_voters', e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                               placeholder="Client A, Client B, Client C"
                             />
@@ -416,85 +385,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                         </div>
                         <div className="mt-3 flex justify-end">
                           <button
-                            onClick={() => removeFeature(index, true)}
-                            className="inline-flex items-center px-2 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
-                          >
-                            <Trash2 className="h-4 w-4 mr-1" />
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                {/* Previous Quarter Features */}
-                <div className="space-y-4 mt-8">
-                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
-                    Previous Quarter ({previousQuarter}) Features
-                  </h4>
-                  {(localData.previousQuarterFeatures || []).length === 0 ? (
-                    <p className="text-sm text-gray-500 italic">No previous quarter features added yet.</p>
-                  ) : (
-                    (localData.previousQuarterFeatures || []).map((feature, index) => (
-                      <div key={index} className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Feature Name
-                            </label>
-                            <input
-                              type="text"
-                              value={feature.feature_name}
-                              onChange={(e) => updateFeature(index, 'feature_name', e.target.value, false)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="Enter feature name"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Vote Count
-                            </label>
-                            <input
-                              type="number"
-                              value={feature.vote_count}
-                              onChange={(e) => updateFeature(index, 'vote_count', parseInt(e.target.value) || 0, false)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              min="0"
-                              placeholder="0"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Status
-                            </label>
-                            <select
-                              value={feature.status}
-                              onChange={(e) => updateFeature(index, 'status', e.target.value, false)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                              <option value="Under Review">Under Review</option>
-                              <option value="Committed">Committed</option>
-                              <option value="Delivered">Delivered</option>
-                              <option value="Rejected">Rejected</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Client Voters
-                            </label>
-                            <input
-                              type="text"
-                              value={feature.client_voters.join(', ')}
-                              onChange={(e) => updateFeature(index, 'client_voters', e.target.value, false)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="Client A, Client B, Client C"
-                            />
-                          </div>
-                        </div>
-                        <div className="mt-3 flex justify-end">
-                          <button
-                            onClick={() => removeFeature(index, false)}
+                            onClick={() => removeFeature(index)}
                             className="inline-flex items-center px-2 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
                           >
                             <Trash2 className="h-4 w-4 mr-1" />

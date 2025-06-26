@@ -98,12 +98,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
       {widgetSettings.topFeatures && (
         <div className="grid grid-cols-1 gap-6">
           <div className="col-span-full">
-            <TopFeaturesChart 
-              features={topFeatures} 
-              previousFeatures={previousQuarterFeatures || []} 
-              currentQuarterLabel={currentQuarter}
-              previousQuarterLabel={previousQuarter}
-            />
+            <TopFeaturesChart features={topFeatures} />
           </div>
         </div>
       )}
