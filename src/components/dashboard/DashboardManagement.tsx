@@ -316,10 +316,6 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
               <div className="space-y-6">
                 {/* CSV Upload Section */}
                 <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <h4 className="text-md font-medium text-blue-900 mb-2">Upload Top Features CSV</h4>
-                  <p className="text-sm text-blue-700 mb-3">
-                    Upload a CSV file containing top features data with columns: feature_name, vote_count, status, status_updated_at, client_voters, feature_quarter (current/previous).
-                  </p>
                   <div className="flex items-center gap-3">
                     <input
                       type="file"
@@ -348,14 +344,12 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                         {uploadStatus}
                       </span>
                     )}
-                  </div>
-                  <div className="mt-2 text-xs text-blue-600">
                     <a 
                       href="data:text/csv;charset=utf-8,feature_name,vote_count,status,status_updated_at,client_voters,feature_quarter%0AAI%20Integration,35,Committed,2025-01-15,%22Client%20A,Client%20B,Client%20C%22,current%0AMobile%20App,25,Under%20Review,2025-02-01,%22Client%20D,Client%20E%22,current%0AReporting%20Tools,20,Delivered,2025-01-30,%22Client%20F,Client%20G%22,previous%0AAPI%20Enhancements,18,Under%20Review,2025-02-15,%22Client%20H,Client%20I%22,previous"
                       download="top_features_template.csv"
-                      className="hover:underline"
+                      className="text-xs text-blue-600 hover:underline ml-2"
                     >
-                      Download sample CSV template
+                      Download template
                     </a>
                   </div>
                 </div>
