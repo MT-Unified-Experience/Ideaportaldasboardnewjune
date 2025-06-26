@@ -94,6 +94,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
       setTimeout(() => setUploadStatus(''), 5000);
     }
   };
+
   useEffect(() => {
     if (dashboardData) {
       setLocalData(dashboardData);
@@ -191,14 +192,6 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
         })
       }));
     }
-  };
-
-  const addForum = () => {
-    // Not needed anymore - using single input field
-  };
-
-  const removeForum = (index: number) => {
-    // Not needed anymore - using single input field
   };
 
   const updateForums = (value: string) => {
@@ -314,232 +307,203 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
             {/* Top Features Tab */}
             {activeTab === 'features' && (
               <div className="space-y-6">
-                {/* CSV Upload Section */}
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="file"
-                      accept=".csv"
-                      onChange={handleTopFeaturesUpload}
-                      className="hidden"
-                      id="top-features-csv-upload"
-                      disabled={isLoading}
-                    />
-                    <label
-                      htmlFor="top-features-csv-upload"
-                      className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
-                        isLoading 
-                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
-                      }`}
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      {isLoading ? 'Uploading...' : 'Upload Top Features CSV'}
-                    </label>
-                    {uploadStatus && (
-                      <span className={`text-sm ${
-                        uploadStatus.includes('successful') ? 'text-green-600' : 
-                        uploadStatus.includes('failed') ? 'text-red-600' : 'text-blue-600'
-                      }`}>
-                        {uploadStatus}
-                      </span>
-                    )}
-                    <a 
-                      href="data:text/csv;charset=utf-8,feature_name,vote_count,status,status_updated_at,client_voters,feature_quarter%0AAI%20Integration,35,Committed,2025-01-15,%22Client%20A,Client%20B,Client%20C%22,current%0AMobile%20App,25,Under%20Review,2025-02-01,%22Client%20D,Client%20E%22,current%0AReporting%20Tools,20,Delivered,2025-01-30,%22Client%20F,Client%20G%22,previous%0AAPI%20Enhancements,18,Under%20Review,2025-02-15,%22Client%20H,Client%20I%22,previous"
-                      download="top_features_template.csv"
-                      className="text-xs text-blue-600 hover:underline ml-2"
-                    >
-                      Download template
-                    </a>
-                  </div>
+                {/* Action Buttons Header */}
+                <div className="flex justify-end items-center gap-3 mb-6">
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={handleTopFeaturesUpload}
+                    className="hidden"
+                    id="top-features-csv-upload"
+                    disabled={isLoading}
+                  />
+                  <button
+                    onClick={() => document.getElementById('top-features-csv-upload')?.click()}
+                    disabled={isLoading}
+                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      isLoading 
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {isLoading ? 'Uploading...' : 'Upload Top Features CSV'}
+                  </button>
+                  <button
+                    onClick={() => addFeature(true)}
+                    className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Feature
+                  </button>
                 </div>
 
-                {/* Manual Feature Management */}
-                <div className="space-y-6">
-                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                    <h3 className="text-lg font-medium text-blue-900 mb-2">Manage Top Features</h3>
-                    <p className="text-sm text-blue-700">
-                      Add and manage top features manually. These features will be displayed in the Top 10 Trends chart on the dashboard.
-                    </p>
+                {/* Upload Status */}
+                {uploadStatus && (
+                  <div className="mb-4">
+                    <span className={`text-sm ${
+                      uploadStatus.includes('successful') ? 'text-green-600' : 
+                      uploadStatus.includes('failed') ? 'text-red-600' : 'text-blue-600'
+                    }`}>
+                      {uploadStatus}
+                    </span>
                   </div>
+                )}
 
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
-                    <div className="flex justify-between items-center mb-4">
-                      <h4 className="text-md font-medium text-gray-900">Features List</h4>
-                      <button
-                        onClick={() => addFeature(true)}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Feature
-                      </button>
-                    </div>
-
-                    {/* Current Quarter Features */}
-                    <div className="space-y-4">
-                      <h5 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
-                        Current Quarter ({currentQuarter}) Features
-                      </h5>
-                      {localData.topFeatures.length === 0 ? (
-                        <p className="text-sm text-gray-500 italic">No features added yet. Click "Add Feature" to get started.</p>
-                      ) : (
-                        localData.topFeatures.map((feature, index) => (
-                          <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Feature Name
-                                </label>
-                                <input
-                                  type="text"
-                                  value={feature.feature_name}
-                                  onChange={(e) => updateFeature(index, 'feature_name', e.target.value, true)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="Enter feature name"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Vote Count
-                                </label>
-                                <input
-                                  type="number"
-                                  value={feature.vote_count}
-                                  onChange={(e) => updateFeature(index, 'vote_count', parseInt(e.target.value) || 0, true)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  min="0"
-                                  placeholder="0"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Status
-                                </label>
-                                <select
-                                  value={feature.status}
-                                  onChange={(e) => updateFeature(index, 'status', e.target.value, true)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                  <option value="Under Review">Under Review</option>
-                                  <option value="Committed">Committed</option>
-                                  <option value="Delivered">Delivered</option>
-                                  <option value="Rejected">Rejected</option>
-                                </select>
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Client Voters
-                                </label>
-                                <input
-                                  type="text"
-                                  value={feature.client_voters.join(', ')}
-                                  onChange={(e) => updateFeature(index, 'client_voters', e.target.value, true)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="Client A, Client B, Client C"
-                                />
-                              </div>
-                            </div>
-                            <div className="mt-3 flex justify-end">
-                              <button
-                                onClick={() => removeFeature(index, true)}
-                                className="inline-flex items-center px-2 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
-                              >
-                                <Trash2 className="h-4 w-4 mr-1" />
-                                Remove
-                              </button>
-                            </div>
+                {/* Current Quarter Features */}
+                <div className="space-y-4">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
+                    Current Quarter ({currentQuarter}) Features
+                  </h4>
+                  {localData.topFeatures.length === 0 ? (
+                    <p className="text-sm text-gray-500 italic">No features added yet. Click "Add Feature" to get started.</p>
+                  ) : (
+                    localData.topFeatures.map((feature, index) => (
+                      <div key={index} className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Feature Name
+                            </label>
+                            <input
+                              type="text"
+                              value={feature.feature_name}
+                              onChange={(e) => updateFeature(index, 'feature_name', e.target.value, true)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Enter feature name"
+                            />
                           </div>
-                        ))
-                      )}
-                    </div>
-
-                    {/* Previous Quarter Features */}
-                    <div className="space-y-4 mt-8">
-                      <div className="flex justify-between items-center">
-                        <h5 className="text-sm font-medium text-gray-700 border-b border-gray-200 pb-2">
-                          Previous Quarter ({previousQuarter}) Features
-                        </h5>
-                        <button
-                          onClick={() => addFeature(false)}
-                          className="inline-flex items-center px-2 py-1 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Add Previous
-                        </button>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Vote Count
+                            </label>
+                            <input
+                              type="number"
+                              value={feature.vote_count}
+                              onChange={(e) => updateFeature(index, 'vote_count', parseInt(e.target.value) || 0, true)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              min="0"
+                              placeholder="0"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Status
+                            </label>
+                            <select
+                              value={feature.status}
+                              onChange={(e) => updateFeature(index, 'status', e.target.value, true)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                              <option value="Under Review">Under Review</option>
+                              <option value="Committed">Committed</option>
+                              <option value="Delivered">Delivered</option>
+                              <option value="Rejected">Rejected</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Client Voters
+                            </label>
+                            <input
+                              type="text"
+                              value={feature.client_voters.join(', ')}
+                              onChange={(e) => updateFeature(index, 'client_voters', e.target.value, true)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Client A, Client B, Client C"
+                            />
+                          </div>
+                        </div>
+                        <div className="mt-3 flex justify-end">
+                          <button
+                            onClick={() => removeFeature(index, true)}
+                            className="inline-flex items-center px-2 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Remove
+                          </button>
+                        </div>
                       </div>
-                      {(localData.previousQuarterFeatures || []).length === 0 ? (
-                        <p className="text-sm text-gray-500 italic">No previous quarter features added yet.</p>
-                      ) : (
-                        (localData.previousQuarterFeatures || []).map((feature, index) => (
-                          <div key={index} className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Feature Name
-                                </label>
-                                <input
-                                  type="text"
-                                  value={feature.feature_name}
-                                  onChange={(e) => updateFeature(index, 'feature_name', e.target.value, false)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="Enter feature name"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Vote Count
-                                </label>
-                                <input
-                                  type="number"
-                                  value={feature.vote_count}
-                                  onChange={(e) => updateFeature(index, 'vote_count', parseInt(e.target.value) || 0, false)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  min="0"
-                                  placeholder="0"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Status
-                                </label>
-                                <select
-                                  value={feature.status}
-                                  onChange={(e) => updateFeature(index, 'status', e.target.value, false)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                  <option value="Under Review">Under Review</option>
-                                  <option value="Committed">Committed</option>
-                                  <option value="Delivered">Delivered</option>
-                                  <option value="Rejected">Rejected</option>
-                                </select>
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                  Client Voters
-                                </label>
-                                <input
-                                  type="text"
-                                  value={feature.client_voters.join(', ')}
-                                  onChange={(e) => updateFeature(index, 'client_voters', e.target.value, false)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="Client A, Client B, Client C"
-                                />
-                              </div>
-                            </div>
-                            <div className="mt-3 flex justify-end">
-                              <button
-                                onClick={() => removeFeature(index, false)}
-                                className="inline-flex items-center px-2 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
-                              >
-                                <Trash2 className="h-4 w-4 mr-1" />
-                                Remove
-                              </button>
-                            </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Previous Quarter Features */}
+                <div className="space-y-4 mt-8">
+                  <h4 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
+                    Previous Quarter ({previousQuarter}) Features
+                  </h4>
+                  {(localData.previousQuarterFeatures || []).length === 0 ? (
+                    <p className="text-sm text-gray-500 italic">No previous quarter features added yet.</p>
+                  ) : (
+                    (localData.previousQuarterFeatures || []).map((feature, index) => (
+                      <div key={index} className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Feature Name
+                            </label>
+                            <input
+                              type="text"
+                              value={feature.feature_name}
+                              onChange={(e) => updateFeature(index, 'feature_name', e.target.value, false)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Enter feature name"
+                            />
                           </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Vote Count
+                            </label>
+                            <input
+                              type="number"
+                              value={feature.vote_count}
+                              onChange={(e) => updateFeature(index, 'vote_count', parseInt(e.target.value) || 0, false)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              min="0"
+                              placeholder="0"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Status
+                            </label>
+                            <select
+                              value={feature.status}
+                              onChange={(e) => updateFeature(index, 'status', e.target.value, false)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                              <option value="Under Review">Under Review</option>
+                              <option value="Committed">Committed</option>
+                              <option value="Delivered">Delivered</option>
+                              <option value="Rejected">Rejected</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Client Voters
+                            </label>
+                            <input
+                              type="text"
+                              value={feature.client_voters.join(', ')}
+                              onChange={(e) => updateFeature(index, 'client_voters', e.target.value, false)}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Client A, Client B, Client C"
+                            />
+                          </div>
+                        </div>
+                        <div className="mt-3 flex justify-end">
+                          <button
+                            onClick={() => removeFeature(index, false)}
+                            className="inline-flex items-center px-2 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}
@@ -688,7 +652,6 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
               </div>
             )}
 
-
             {/* Client Submissions Tab */}
             {activeTab === 'client-submissions' && (
               <div className="space-y-6">
@@ -768,6 +731,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                 </div>
               </div>
             )}
+
             {/* Data Socialization Forums Tab */}
             {activeTab === 'forums' && (
               <div className="space-y-6">
