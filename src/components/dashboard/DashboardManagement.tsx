@@ -26,6 +26,15 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
   const [isLocalLoading, setIsLocalLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string>('');
 
+  // Define all available forums
+  const allAvailableForums = [
+    'CSC',
+    'Sprint Reviews',
+    'Customer Advisory Board (CAB)',
+    'CWG',
+    'Quarterly Business Reviews (QBRs)'
+  ];
+
   // Helper function to get previous quarter
   const getPreviousQuarter = (quarter: string): string => {
     const quarterMap: { [key: string]: string } = {
@@ -163,22 +172,35 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
     }));
   };
 
-  const updateForums = (value: string) => {
-    // Convert comma-separated string to array of forum objects
-    const forumNames = value.split(',').map(name => name.trim()).filter(name => name.length > 0);
-    const forums = forumNames.map(name => ({ name }));
-    
-    setLocalData(prev => ({
-      ...prev,
-      data_socialization_forums: forums
-    }));
+  // Handle forum toggle
+  const handleForumToggle = (forumName: string, isChecked: boolean) => {
+    setLocalData(prev => {
+      const currentForums = prev.data_socialization_forums || [];
+      
+      if (isChecked) {
+        // Add forum if not already present
+        const forumExists = currentForums.some(forum => forum.name === forumName);
+        if (!forumExists) {
+          return {
+            ...prev,
+            data_socialization_forums: [...currentForums, { name: forumName }]
+          };
+        }
+      } else {
+        // Remove forum
+        return {
+          ...prev,
+          data_socialization_forums: currentForums.filter(forum => forum.name !== forumName)
+        };
+      }
+      
+      return prev;
+    });
   };
 
-  // Helper function to get forums as comma-separated string
-  const getForumsAsString = () => {
-    return (localData.data_socialization_forums || [])
-      .map(forum => forum.name)
-      .join(', ');
+  // Check if a forum is currently enabled
+  const isForumEnabled = (forumName: string): boolean => {
+    return (localData.data_socialization_forums || []).some(forum => forum.name === forumName);
   };
 
   const handleCollaborationUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -629,53 +651,82 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                 <div>
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Data Socialization Forums</h3>
                   <p className="text-sm text-gray-600 mb-4">
-                    Enter forum names separated by commas (e.g., CSC, Sprint Reviews, Customer Advisory Board)
+                    Select which forums are active for data socialization. Enabled forums will show with a green checkmark on the dashboard, while disabled forums will show with a red X.
                   </p>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Forum Names (comma-separated)
-                    </label>
-                    <textarea
-                      value={getForumsAsString()}
-                      onChange={(e) => updateForums(e.target.value)}
-                      className="w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                      placeholder="CSC, Sprint Reviews, Customer Advisory Board (CAB), CWG, Quarterly Product Reviews (QBRs)"
-                      rows={3}
-                    />
-                    <div className="mt-2 text-xs text-gray-500">
-                      Current forums: {(localData.data_socialization_forums || []).length} forum(s)
-                    </div>
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h4 className="text-md font-medium text-gray-900 mb-4">Available Forums</h4>
+                  <div className="space-y-4">
+                    {allAvailableForums.map((forumName, index) => {
+                      const isEnabled = isForumEnabled(forumName);
+                      return (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                              isEnabled ? 'bg-green-100' : 'bg-red-100'
+                            }`}>
+                              {isEnabled ? (
+                                <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              ) : (
+                                <svg className="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </div>
+                            <div>
+                              <h5 className="text-sm font-medium text-gray-900">{forumName}</h5>
+                              <p className="text-xs text-gray-500">
+                                {isEnabled ? 'Active - will show with green checkmark' : 'Inactive - will show with red X'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <button
+                              onClick={() => handleForumToggle(forumName, !isEnabled)}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                                isEnabled ? 'bg-green-600' : 'bg-gray-200'
+                              }`}
+                            >
+                              <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                  isEnabled ? 'translate-x-6' : 'translate-x-1'
+                                }`}
+                              />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Preview of parsed forums */}
-                {(localData.data_socialization_forums || []).length > 0 && (
-                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                    <h4 className="text-sm font-medium text-blue-900 mb-2">Forum Preview</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {(localData.data_socialization_forums || []).map((forum, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                        >
-                          {forum.name}
-                        </span>
-                      ))}
-                    </div>
+                {/* Summary */}
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <h4 className="text-sm font-medium text-blue-900 mb-2">Forum Status Summary</h4>
+                  <div className="text-sm text-blue-700">
+                    <p>
+                      <strong>Active Forums:</strong> {(localData.data_socialization_forums || []).length} of {allAvailableForums.length}
+                    </p>
+                    <p className="mt-1">
+                      <strong>Coverage:</strong> {Math.round(((localData.data_socialization_forums || []).length / allAvailableForums.length) * 100)}%
+                    </p>
                   </div>
-                )}
+                </div>
 
                 {/* Instructions */}
                 <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                  <h4 className="text-sm font-medium text-yellow-900 mb-2">Instructions</h4>
+                  <h4 className="text-sm font-medium text-yellow-900 mb-2">How it Works</h4>
                   <div className="text-sm text-yellow-700 space-y-1">
-                    <p>• Enter each forum name separated by commas</p>
-                    <p>• Extra spaces around forum names will be automatically trimmed</p>
-                    <p>• Empty forum names will be ignored</p>
-                    <p>• These forums will appear in the Data Socialization Forums card on the dashboard</p>
+                    <p>• Toggle forums on/off using the switches on the right</p>
+                    <p>• Enabled forums will display with a green checkmark (✓) on the dashboard</p>
+                    <p>• Disabled forums will display with a red X (✗) on the dashboard</p>
+                    <p>• Changes are saved when you click "Save Changes" at the bottom</p>
                   </div>
                 </div>
               </div>
