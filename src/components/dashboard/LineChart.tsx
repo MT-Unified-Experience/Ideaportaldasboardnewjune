@@ -1,4 +1,5 @@
 import React from 'react';
+import { memo, useCallback } from 'react';
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -216,7 +217,7 @@ interface LineChartProps {
   features?: Feature[];
 }
 
-const LineChart: React.FC<LineChartProps> = ({ data, features }) => {
+const LineChart: React.FC<LineChartProps> = memo(({ data, features }) => {
   const [selectedQuarter, setSelectedQuarter] = React.useState<string | null>(null);
 
   // Generate default clients if none provided
@@ -258,12 +259,13 @@ const LineChart: React.FC<LineChartProps> = ({ data, features }) => {
     const quarterData = data.find(d => d.quarter === quarter);
     return quarterData?.ideas || [];
   };
-  const handleClick = (data: any) => {
+  
+  const handleClick = useCallback((data: any) => {
     if (data && data.activePayload && data.activePayload[0]) {
       const quarter = data.activePayload[0].payload.quarter;
       setSelectedQuarter(quarter);
     }
-  };
+  }, []);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
@@ -320,6 +322,8 @@ const LineChart: React.FC<LineChartProps> = ({ data, features }) => {
       )}
     </div>
   );
-};
+});
+
+LineChart.displayName = 'LineChart';
 
 export default LineChart;
