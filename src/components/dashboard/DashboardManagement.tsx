@@ -604,13 +604,6 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                     )}
                   </div>
                   <div className="mt-2 text-xs text-purple-600">
-                    <a 
-                      href={`/client_submissions_template.csv?v=${Date.now()}`}
-                      download="client_submissions_template.csv"
-                      className="hover:underline"
-                    >
-                      Download sample CSV template
-                    </a>
                   </div>
                 </div>
 
