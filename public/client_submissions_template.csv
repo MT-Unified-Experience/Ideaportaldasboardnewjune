@@ -1,4 +1,4 @@
-quarter,clients_representing,client_names,idea_id,idea_summary,idea_client_name
+Quarter,Clients Representing,Client Names,Idea ID,Idea Summary,Idea Client Name
 FY25 Q1,8,"Client A,Client B,Client C,Client D,Client E,Client F,Client G,Client H",FY25Q1-001,AI-Powered Document Analysis,Client A
 FY25 Q1,,,FY25Q1-002,Mobile App Enhancement,Client A
 FY25 Q1,,,FY25Q1-003,Reporting Dashboard Improvements,Client B
