@@ -1,11 +1,40 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), '')
   
   return {
     plugins: [react()],
+    build: {
+      // Optimize build output
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Separate vendor chunks for better caching
+            vendor: ['react', 'react-dom'],
+            charts: ['recharts'],
+            utils: ['papaparse', 'html2canvas', 'jspdf'],
+            supabase: ['@supabase/supabase-js'],
+          },
+        },
+      },
+      // Enable source maps in development
+      sourcemap: command === 'serve',
+      // Optimize chunk size
+      chunkSizeWarningLimit: 1000,
+    },
+    // Optimize dependencies
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        'recharts',
+        'papaparse',
+        '@supabase/supabase-js',
+        'lucide-react',
+      ],
+    },
     server: {
       open: true,
       host: true,

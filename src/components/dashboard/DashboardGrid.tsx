@@ -1,4 +1,5 @@
 import React from 'react';
+import { memo } from 'react';
 import { DashboardData, Quarter } from '../../types';
 import DashboardSection from './DashboardSection';
 import MetricCardsSection from './MetricCardsSection';
@@ -25,7 +26,7 @@ interface DashboardGridProps {
   widgetSettings: WidgetSettings;
 }
 
-export const DashboardGrid: React.FC<DashboardGridProps> = ({ 
+export const DashboardGrid: React.FC<DashboardGridProps> = memo(({ 
   data, 
   currentQuarter, 
   widgetSettings 
@@ -104,4 +105,6 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
       )}
     </div>
   );
-};
+});
+
+DashboardGrid.displayName = 'DashboardGrid';
