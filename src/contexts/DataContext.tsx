@@ -691,6 +691,8 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         lineChartData: submissionsData.lineChartData
       };
 
+      console.log('Updated dashboard data with client submissions:', updatedData);
+
       // Store data in Supabase
       await safeSupabaseUpsert('dashboards', {
         product: currentProduct,

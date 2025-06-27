@@ -34,6 +34,12 @@ export const DashboardGrid: React.FC<DashboardGridProps> = memo(({
   const { metricSummary, lineChartData, topFeatures, previousQuarterFeatures } = data;
   const { allProductsData, currentProduct } = useData();
 
+  // Debug: Log the data being passed to components
+  React.useEffect(() => {
+    console.log('DashboardGrid data:', data);
+    console.log('LineChart data:', lineChartData);
+  }, [data, lineChartData]);
+
   // Helper function to get previous quarter
   const getPreviousQuarter = (quarter: string): string => {
     const quarterMap: { [key: string]: string } = {
@@ -76,7 +82,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = memo(({
         
         {/* Client Submissions takes up 2 columns */}
         {widgetSettings.clientSubmissions && (
-          <div className="lg:col-span-2">
+              <LineChart data={lineChartData || []} />
             <LineChart data={lineChartData} />
           </div>
         )}

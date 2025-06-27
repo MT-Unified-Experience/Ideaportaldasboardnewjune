@@ -20,6 +20,11 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({
   widgetSettings,
   showCollaborationTrend = true
 }) => {
+  // Debug: Log the lineChartData being passed to this component
+  React.useEffect(() => {
+    console.log('ChartsSection received lineChartData:', lineChartData);
+  }, [lineChartData]);
+
   // Don't render if no charts are visible
   if (!widgetSettings.clientSubmissions && !showCollaborationTrend && !widgetSettings.dataSocialization) {
     return null;

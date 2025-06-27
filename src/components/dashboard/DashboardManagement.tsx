@@ -10,7 +10,7 @@ interface DashboardManagementProps {
 }
 
 const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClose }) => {
-  const { dashboardData, updateDashboardData, uploadCrossClientCollaborationCSV, uploadTopFeaturesCSV, uploadClientSubmissionsCSV, isLoading, currentQuarter } = useData();
+  const { dashboardData, updateDashboardData, uploadCrossClientCollaborationCSV, uploadTopFeaturesCSV, uploadClientSubmissionsCSV, refreshDashboardData, isLoading, currentQuarter } = useData();
   const [activeTab, setActiveTab] = useState<'features' | 'collaboration' | 'client-submissions' | 'forums'>('features');
   const [localData, setLocalData] = useState<DashboardData>(dashboardData || {
     metricSummary: {
@@ -83,16 +83,16 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
 
     setUploadStatus('Uploading...');
     try {
+      console.log('Starting client submissions CSV upload...');
       await uploadClientSubmissionsCSV(file);
       setUploadStatus('Upload successful!');
       
       // Clear the file input
       event.target.value = '';
       
-      // Refresh local data after successful upload
-      if (dashboardData) {
-        setLocalData(dashboardData);
-      }
+      // Force refresh dashboard data from context
+      console.log('Refreshing dashboard data after upload...');
+      await refreshDashboardData();
       
       // Clear success message after 3 seconds
       setTimeout(() => setUploadStatus(''), 3000);

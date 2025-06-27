@@ -220,6 +220,11 @@ interface LineChartProps {
 const LineChart: React.FC<LineChartProps> = memo(({ data, features }) => {
   const [selectedQuarter, setSelectedQuarter] = React.useState<string | null>(null);
 
+  // Debug: Log the data being passed to the chart
+  React.useEffect(() => {
+    console.log('LineChart received data:', data);
+  }, [data]);
+
   // Generate default clients if none provided
   const generateDefaultClients = (count: number): string[] => {
     const clientNames = [
