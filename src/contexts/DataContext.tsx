@@ -5,7 +5,7 @@ import { ActionItem } from '../types';
 import { parseCSV, validateCSVHeaders, CSVError, parseTopFeaturesCSV, topFeaturesRequiredHeaders, parseResponsivenessTrendCSV, responsivenessTrendRequiredHeaders, parseCommitmentTrendsCSV, commitmentTrendsRequiredHeaders } from '../utils/csvParser';
 import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders, parseClientSubmissionsCSV, clientSubmissionsRequiredHeaders, parseCrossClientCollaborationCSV, crossClientCollaborationRequiredHeaders } from '../utils/csvParser';
 import { supabase, checkSupabaseConnection, supabaseFetch } from '../utils/supabaseClient';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { createLRUCache } from '../utils/performance';
 import Papa from 'papaparse';
 
