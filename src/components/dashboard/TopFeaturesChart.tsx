@@ -1,5 +1,4 @@
 import React from 'react';
-import { memo } from 'react';
 import QuarterlyTrendsComparison from './QuarterlyTrendsComparison';
 
 interface Feature {
@@ -18,10 +17,8 @@ interface TopFeaturesChartProps {
   features: Feature[];
 }
 
-export const TopFeaturesChart: React.FC<TopFeaturesChartProps> = memo(({ features }) => {
+export const TopFeaturesChart: React.FC<TopFeaturesChartProps> = ({ features }) => {
   return (
     <QuarterlyTrendsComparison features={features} />
   );
-});
-
-TopFeaturesChart.displayName = 'TopFeaturesChart';
+};

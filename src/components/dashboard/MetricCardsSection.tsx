@@ -1,5 +1,4 @@
 import React from 'react';
-import { memo } from 'react';
 import { MetricSummary, Quarter } from '../../types';
 import ResponsivenessCard from './ResponsivenessCard';
 import CommitmentTrendsCard from './CommitmentTrendsCard';
@@ -17,7 +16,7 @@ interface MetricCardsSectionProps {
   currentQuarter: Quarter;
 }
 
-const MetricCardsSection: React.FC<MetricCardsSectionProps> = memo(({ 
+const MetricCardsSection: React.FC<MetricCardsSectionProps> = ({ 
   metricSummary, 
   widgetSettings,
   currentQuarter
@@ -79,8 +78,6 @@ const MetricCardsSection: React.FC<MetricCardsSectionProps> = memo(({
       )}
     </div>
   );
-});
-
-MetricCardsSection.displayName = 'MetricCardsSection';
+};
 
 export default MetricCardsSection;

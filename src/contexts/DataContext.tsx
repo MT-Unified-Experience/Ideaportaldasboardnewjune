@@ -1,12 +1,10 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { useMemo, useCallback } from 'react';
 import { DashboardData, Product, Quarter, ProductData, ProductQuarterlyData } from '../types';
 import { ActionItem } from '../types';
 import { parseCSV, validateCSVHeaders, CSVError, parseTopFeaturesCSV, topFeaturesRequiredHeaders, parseResponsivenessTrendCSV, responsivenessTrendRequiredHeaders, parseCommitmentTrendsCSV, commitmentTrendsRequiredHeaders } from '../utils/csvParser';
 import { parseContinuedEngagementCSV, continuedEngagementRequiredHeaders, parseClientSubmissionsCSV, clientSubmissionsRequiredHeaders, parseCrossClientCollaborationCSV, crossClientCollaborationRequiredHeaders } from '../utils/csvParser';
 import { supabase, checkSupabaseConnection, supabaseFetch } from '../utils/supabaseClient';
-import { useEffect } from 'react';
-import { createLRUCache } from '../utils/performance';
+import { useEffect, useMemo } from 'react';
 import Papa from 'papaparse';
 
 // Storage keys for persistence
@@ -117,9 +115,6 @@ const safelyMergeNestedObjects = (defaultObj: any, incomingObj: any | null): any
 };
 
 const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Create LRU cache for expensive operations
-  const csvParseCache = useMemo(() => createLRUCache<string, any>(50), []);
-  
   // Initialize state with values from localStorage or defaults
   const [currentProduct, setCurrentProduct] = useState<Product>(() => 
     getStoredValue(STORAGE_KEYS.CURRENT_PRODUCT, 'TeamConnect')
@@ -813,27 +808,11 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   // Function to handle CSV upload
-  const uploadCSV = useCallback(async (file: File): Promise<void> => {
+  const uploadCSV = async (file: File): Promise<void> => {
     setIsLoading(true);
     setError(null);
     
     try {
-      // Create cache key for this file
-      const cacheKey = `${file.name}-${file.size}-${file.lastModified}`;
-      
-      // Check cache first
-      if (csvParseCache.has(cacheKey)) {
-        const cachedData = csvParseCache.get(cacheKey);
-        setAllProductsData(prevData => ({
-          ...prevData,
-          [currentProduct]: {
-            ...prevData[currentProduct],
-            [currentQuarter]: cachedData
-          }
-        }));
-        return;
-      }
-      
       // Check if file is CSV
       if (!file.name.endsWith('.csv')) {
         throw new CSVError(
@@ -851,9 +830,6 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       
       // Parse CSV data
       const parsedData = await parseCSV(fileContent, currentProduct);
-      
-      // Cache the parsed data
-      csvParseCache.set(cacheKey, parsedData);
       
       // Store data in Supabase
       await safeSupabaseUpsert('dashboards', {
@@ -884,10 +860,10 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentProduct, currentQuarter, csvParseCache]);
+  };
 
   // Update dashboard data function
-  const updateDashboardData = useCallback(async (data: DashboardData): Promise<void> => {
+  const updateDashboardData = async (data: DashboardData): Promise<void> => {
     setIsLoading(true);
     setError(null);
     
@@ -913,14 +889,14 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [currentProduct, currentQuarter]);
+  };
 
   // Function to refresh dashboard data
-  const refreshDashboardData = useCallback(async (): Promise<void> => {
+  const refreshDashboardData = async (): Promise<void> => {
     if (isSupabaseAvailable) {
       await fetchDashboardDataFromSupabase();
     }
-  }, [isSupabaseAvailable, fetchDashboardDataFromSupabase]);
+  };
 
   // Action Items functions
   const fetchActionItems = async (product: Product, quarter: Quarter): Promise<ActionItem[]> => {
@@ -1052,3 +1028,4 @@ const useData = (): DataContextType => {
 
 // Export both components
 export { DataProvider, useData };
+    
