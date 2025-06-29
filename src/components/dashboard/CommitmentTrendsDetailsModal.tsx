@@ -168,7 +168,7 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
 
         <div className="space-y-6 max-h-[80vh] overflow-y-auto">
           {/* CSV Upload Section */}
-          <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+          <div className="p-4">
             <div className="flex items-center gap-3">
               <input
                 type="file"
