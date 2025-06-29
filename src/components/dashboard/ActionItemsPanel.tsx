@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckSquare, Square, Edit2, Save, Trash2, Building, Globe } from 'lucide-react';
+import { X, CheckSquare, Square, Edit2, Save, Trash2 } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 import { ActionItem } from '../../types';
 
@@ -21,7 +21,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
   const panelContentRef = React.useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'product' | 'global'>('product');
   const [productActionItems, setProductActionItems] = useState<ActionItem[]>([]);
-  const [globalActionItems, setGlobalActionItems] = useState<ActionItem[]>([]);
+  const [generalActionItems, setGeneralActionItems] = useState<ActionItem[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [isAddingNew, setIsAddingNew] = useState(false);
@@ -45,9 +45,9 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
       const productItems = await fetchActionItems(currentProduct, currentQuarter);
       setProductActionItems(productItems);
       
-      // Load global action items (using 'Global' as product)
-      const globalItems = await fetchActionItems('Global', currentQuarter);
-      setGlobalActionItems(globalItems);
+      // Load general action items (using 'General' as product)
+      const generalItems = await fetchActionItems('General', currentQuarter);
+      setGeneralActionItems(generalItems);
     } catch (err) {
       console.error('Error loading action items:', err);
       setError('Failed to load action items');
@@ -57,19 +57,19 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
   };
 
   const getCurrentActionItems = () => {
-    return activeTab === 'product' ? productActionItems : globalActionItems;
+    return activeTab === 'product' ? productActionItems : generalActionItems;
   };
 
   const setCurrentActionItems = (items: ActionItem[]) => {
     if (activeTab === 'product') {
       setProductActionItems(items);
     } else {
-      setGlobalActionItems(items);
+      setGeneralActionItems(items);
     }
   };
 
   const getCurrentProduct = () => {
-    return activeTab === 'product' ? currentProduct : 'Global';
+    return activeTab === 'product' ? currentProduct : 'General';
   };
 
   const handleToggleComplete = async (id: string) => {
@@ -255,10 +255,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              <div className="flex items-center">
-                <Building className="h-4 w-4 mr-2" />
-                {currentProduct}
-              </div>
+              {currentProduct}
             </button>
             <button
               onClick={() => setActiveTab('global')}
@@ -268,10 +265,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              <div className="flex items-center">
-                <Globe className="h-4 w-4 mr-2" />
-                Global
-              </div>
+              General
             </button>
           </nav>
         </div>
@@ -324,7 +318,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
                   />
                 </div>
                 <div className="text-sm text-gray-600">
-                  <strong>Scope:</strong> {activeTab === 'product' ? currentProduct : 'Global'}<br />
+                  <strong>Scope:</strong> {activeTab === 'product' ? currentProduct : 'General'}<br />
                   <strong>Quarter:</strong> {currentQuarter}
                 </div>
                 <div className="flex justify-end gap-2">
@@ -355,7 +349,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
         <div className="space-y-6">
           {quarters.length === 0 && !isLoading ? (
             <div className="text-center py-8 text-gray-500">
-              <p>No action items found for {activeTab === 'product' ? currentProduct : 'Global'}.</p>
+              <p>No action items found for {activeTab === 'product' ? currentProduct : 'General'}.</p>
               <p className="text-sm mt-2">Click "Add New Action Item" to create your first item.</p>
             </div>
           ) : (
