@@ -82,8 +82,8 @@ export const DashboardGrid: React.FC<DashboardGridProps> = memo(({
         
         {/* Client Submissions takes up 2 columns */}
         {widgetSettings.clientSubmissions && (
-          <div className="lg:col-span-2">
-            <LineChart data={lineChartData || []} />
+              <LineChart data={lineChartData || []} />
+            <LineChart data={lineChartData} />
           </div>
         )}
       </div>
