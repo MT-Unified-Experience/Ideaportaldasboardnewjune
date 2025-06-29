@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckSquare, Square, Edit2, Save, Trash2 } from 'lucide-react';
+import { X, CheckSquare, Square, Edit2, Save, Trash2, Building, Globe } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
 import { ActionItem } from '../../types';
 
@@ -19,7 +19,9 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
     isSupabaseAvailable 
   } = useData();
   const panelContentRef = React.useRef<HTMLDivElement>(null);
-  const [actionItems, setActionItems] = useState<ActionItem[]>([]);
+  const [activeTab, setActiveTab] = useState<'product' | 'global'>('product');
+  const [productActionItems, setProductActionItems] = useState<ActionItem[]>([]);
+  const [globalActionItems, setGlobalActionItems] = useState<ActionItem[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState('');
   const [isAddingNew, setIsAddingNew] = useState(false);
@@ -38,8 +40,14 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
     try {
       setIsLoading(true);
       setError(null);
-      const items = await fetchActionItems(currentProduct, currentQuarter);
-      setActionItems(items);
+      
+      // Load product-specific action items
+      const productItems = await fetchActionItems(currentProduct, currentQuarter);
+      setProductActionItems(productItems);
+      
+      // Load global action items (using 'Global' as product)
+      const globalItems = await fetchActionItems('Global', currentQuarter);
+      setGlobalActionItems(globalItems);
     } catch (err) {
       console.error('Error loading action items:', err);
       setError('Failed to load action items');
@@ -48,19 +56,35 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
     }
   };
 
+  const getCurrentActionItems = () => {
+    return activeTab === 'product' ? productActionItems : globalActionItems;
+  };
+
+  const setCurrentActionItems = (items: ActionItem[]) => {
+    if (activeTab === 'product') {
+      setProductActionItems(items);
+    } else {
+      setGlobalActionItems(items);
+    }
+  };
+
+  const getCurrentProduct = () => {
+    return activeTab === 'product' ? currentProduct : 'Global';
+  };
+
   const handleToggleComplete = async (id: string) => {
     try {
-      const item = actionItems.find(item => item.id === id);
+      const currentItems = getCurrentActionItems();
+      const item = currentItems.find(item => item.id === id);
       if (!item) return;
 
       await updateActionItem(id, { completed: !item.completed });
       
       // Update local state
-      setActionItems(items =>
-        items.map(item =>
-          item.id === id ? { ...item, completed: !item.completed } : item
-        )
+      const updatedItems = currentItems.map(item =>
+        item.id === id ? { ...item, completed: !item.completed } : item
       );
+      setCurrentActionItems(updatedItems);
     } catch (err) {
       console.error('Error toggling action item:', err);
       setError('Failed to update action item');
@@ -77,11 +101,11 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
       await updateActionItem(id, { text: editText.trim() });
       
       // Update local state
-      setActionItems(items =>
-        items.map(item =>
-          item.id === id ? { ...item, text: editText.trim() } : item
-        )
+      const currentItems = getCurrentActionItems();
+      const updatedItems = currentItems.map(item =>
+        item.id === id ? { ...item, text: editText.trim() } : item
       );
+      setCurrentActionItems(updatedItems);
       setEditingId(null);
     } catch (err) {
       console.error('Error saving action item:', err);
@@ -94,7 +118,9 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
       await deleteActionItem(id);
       
       // Update local state
-      setActionItems(items => items.filter(item => item.id !== id));
+      const currentItems = getCurrentActionItems();
+      const updatedItems = currentItems.filter(item => item.id !== id);
+      setCurrentActionItems(updatedItems);
     } catch (err) {
       console.error('Error deleting action item:', err);
       setError('Failed to delete action item');
@@ -104,10 +130,12 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
   const handleAddNew = async () => {
     if (newItemText.trim()) {
       try {
-        const newItem = await createActionItem(currentProduct, currentQuarter, newItemText.trim());
+        const product = getCurrentProduct();
+        const newItem = await createActionItem(product, currentQuarter, newItemText.trim());
         
         // Update local state
-        setActionItems(items => [newItem, ...items]);
+        const currentItems = getCurrentActionItems();
+        setCurrentActionItems([newItem, ...currentItems]);
         setNewItemText('');
         setIsAddingNew(false);
       } catch (err) {
@@ -118,7 +146,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
   };
 
   // Group action items by quarter for display
-  const groupedItems = actionItems.reduce((groups, item) => {
+  const groupedItems = getCurrentActionItems().reduce((groups, item) => {
     const quarter = item.quarter;
     if (!groups[quarter]) {
       groups[quarter] = [];
@@ -151,7 +179,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
-              {currentProduct} Action Items
+              Action Items
             </h2>
             <button
               onClick={onClose}
@@ -206,7 +234,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
       <div ref={panelContentRef} className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">
-            {currentProduct} Action Items
+            Action Items
           </h2>
           <button
             onClick={onClose}
@@ -214,6 +242,38 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
           >
             <X className="h-6 w-6 text-gray-500" />
           </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="border-b border-gray-200 mb-6">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setActiveTab('product')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'product'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <Building className="h-4 w-4 mr-2" />
+                {currentProduct}
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('global')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'global'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <div className="flex items-center">
+                <Globe className="h-4 w-4 mr-2" />
+                Global
+              </div>
+            </button>
+          </nav>
         </div>
 
         {/* Error Display */}
@@ -264,7 +324,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
                   />
                 </div>
                 <div className="text-sm text-gray-600">
-                  <strong>Product:</strong> {currentProduct}<br />
+                  <strong>Scope:</strong> {activeTab === 'product' ? currentProduct : 'Global'}<br />
                   <strong>Quarter:</strong> {currentQuarter}
                 </div>
                 <div className="flex justify-end gap-2">
@@ -295,7 +355,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
         <div className="space-y-6">
           {quarters.length === 0 && !isLoading ? (
             <div className="text-center py-8 text-gray-500">
-              <p>No action items found for {currentProduct}.</p>
+              <p>No action items found for {activeTab === 'product' ? currentProduct : 'Global'}.</p>
               <p className="text-sm mt-2">Click "Add New Action Item" to create your first item.</p>
             </div>
           ) : (
