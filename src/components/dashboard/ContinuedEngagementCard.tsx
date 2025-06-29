@@ -241,7 +241,7 @@ const ContinuedEngagementCard: React.FC<ContinuedEngagementCardProps> = ({
 
             <div className="space-y-6">
               {/* CSV Upload Section */}
-              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+              <div className="p-4">
                 <div className="flex items-center gap-3">
                   <input
                     type="file"
