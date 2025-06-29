@@ -1074,12 +1074,10 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
           rows.forEach(row => {
             // Validate required fields
             if (!row.quarter || !row.clients_representing) {
-              console.warn('Skipping row due to missing required fields:', row);
               return; // Skip invalid rows
             }
 
             const quarter = row.quarter.trim();
-            console.log('Processing quarter:', quarter, 'with clients_representing:', row.clients_representing);
             
             // Initialize quarter data if not exists
             if (!quarterMap.has(quarter)) {
@@ -1119,8 +1117,6 @@ export const parseClientSubmissionsCSV = (csvData: string): Promise<ClientSubmis
             // Update clientsRepresenting to match actual unique client count if we have client data
             clientsRepresenting: quarterData.clients.size > 0 ? quarterData.clients.size : quarterData.clientsRepresenting
           }));
-
-          console.log('Parsed client submissions data:', lineChartData);
 
           // Helper function to sort quarters chronologically across fiscal years
           const sortQuartersChronologically = (a: { quarter: string }, b: { quarter: string }) => {
