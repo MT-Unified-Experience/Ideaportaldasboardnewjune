@@ -605,11 +605,11 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                   </div>
                   <div className="mt-2 text-xs text-purple-600">
                     <a 
-                      href={`/client_submissions_template.csv?v=${Date.now()}`}
+                      href="data:text/csv;charset=utf-8,quarter,clients_representing,client_names,idea_id,idea_summary,idea_client_name%0AFY25%20Q1,8,%22Client%20A,Client%20B,Client%20C,Client%20D,Client%20E,Client%20F,Client%20G,Client%20H%22,FY25Q1-001,AI-Powered%20Document%20Analysis,Client%20A%0AFY25%20Q1,,,FY25Q1-002,Mobile%20App%20Enhancement,Client%20A%0AFY25%20Q1,,,FY25Q1-003,Reporting%20Dashboard%20Improvements,Client%20B%0AFY25%20Q2,10,%22Client%20A,Client%20B,Client%20C,Client%20D,Client%20E,Client%20F,Client%20G,Client%20H,Client%20I,Client%20J%22,FY25Q2-001,Dashboard%20Customization,Client%20A%0AFY25%20Q2,,,FY25Q2-002,Email%20Integration,Client%20A%0AFY25%20Q3,12,%22Client%20A,Client%20B,Client%20C,Client%20D,Client%20E,Client%20F,Client%20G,Client%20H,Client%20I,Client%20J,Client%20K,Client%20L%22,FY25Q3-001,Integration%20with%20Third-party%20Tools,Client%20A%0AFY25%20Q4,15,%22Client%20A,Client%20B,Client%20C,Client%20D,Client%20E,Client%20F,Client%20G,Client%20H,Client%20I,Client%20J,Client%20K,Client%20L,Client%20M,Client%20N,Client%20O%22,FY25Q4-001,Collaboration%20Tools,Client%20A"
                       download="client_submissions_template.csv"
                       className="hover:underline"
                     >
-                      Download CSV template
+                      Download sample CSV template
                     </a>
                   </div>
                 </div>
