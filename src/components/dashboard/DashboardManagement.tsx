@@ -570,10 +570,6 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
               <div className="space-y-6">
                 {/* CSV Upload Section */}
                 <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-                  <h4 className="text-md font-medium text-purple-900 mb-2">Upload Client Submissions CSV</h4>
-                  <p className="text-sm text-purple-700 mb-3">
-                    Upload a CSV file containing quarterly client submission data with columns: quarter, clients_representing, client_names (optional), idea_id (optional), idea_summary (optional), idea_client_name (optional).
-                  </p>
                   <div className="flex items-center gap-3">
                     <input
                       type="file"
@@ -614,34 +610,6 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                   </div>
                 </div>
 
-                {/* Information Section */}
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <h4 className="text-md font-medium text-blue-900 mb-2">About Client Submissions Data</h4>
-                  <div className="text-sm text-blue-700 space-y-2">
-                    <p>
-                      <strong>Purpose:</strong> This data feeds the "Client Submissions by Quarter" line chart on the dashboard.
-                    </p>
-                    <p>
-                      <strong>Required Fields:</strong>
-                    </p>
-                    <ul className="list-disc list-inside ml-4 space-y-1">
-                      <li><code>quarter</code> - The fiscal quarter (e.g., FY25 Q1, FY25 Q2)</li>
-                      <li><code>clients_representing</code> - Number of clients who submitted ideas in that quarter</li>
-                    </ul>
-                    <p>
-                      <strong>Optional Fields:</strong>
-                    </p>
-                    <ul className="list-disc list-inside ml-4 space-y-1">
-                      <li><code>client_names</code> - Comma-separated list of client names for detailed drill-down</li>
-                      <li><code>idea_id</code> - Unique identifier for each idea (enables detailed idea tracking)</li>
-                      <li><code>idea_summary</code> - Brief description of the idea</li>
-                      <li><code>idea_client_name</code> - Name of the client who submitted the idea</li>
-                    </ul>
-                    <p>
-                      <strong>Chart Interaction:</strong> Users can click on data points in the line chart to view detailed client information and actual idea lists for each quarter. If idea details are provided in the CSV, they will be displayed; otherwise, sample ideas will be generated.
-                    </p>
-                  </div>
-                </div>
               </div>
             )}
 
