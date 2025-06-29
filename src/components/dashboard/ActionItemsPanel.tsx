@@ -19,7 +19,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
     isSupabaseAvailable 
   } = useData();
   const panelContentRef = React.useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState<'product' | 'global'>('product');
+  const [activeTab, setActiveTab] = useState<'product' | 'general'>('product');
   const [productActionItems, setProductActionItems] = useState<ActionItem[]>([]);
   const [generalActionItems, setGeneralActionItems] = useState<ActionItem[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -34,7 +34,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
     if (isOpen && isSupabaseAvailable) {
       loadActionItems();
     }
-  }, [isOpen, currentProduct, currentQuarter, isSupabaseAvailable]);
+  }, [isOpen, currentProduct, currentQuarter, isSupabaseAvailable, activeTab]);
 
   const loadActionItems = async () => {
     try {
@@ -258,9 +258,9 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
               {currentProduct}
             </button>
             <button
-              onClick={() => setActiveTab('global')}
+              onClick={() => setActiveTab('general')}
               className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'global'
+                activeTab === 'general'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
