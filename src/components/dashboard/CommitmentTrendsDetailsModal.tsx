@@ -237,7 +237,11 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
               </h3>
               <div className="h-[350px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={commitmentTrends} onClick={handleAnnualChartClick}>
+                  <LineChart 
+                    data={commitmentTrends} 
+                    onClick={handleAnnualChartClick}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
                       dataKey="year"
@@ -259,7 +263,8 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
                         r: 8, 
                         stroke: '#3b82f6', 
                         strokeWidth: 2,
-                        style: { cursor: 'pointer' }
+                        style: { cursor: 'pointer' },
+                        onClick: handleAnnualChartClick
                       }}
                     />
                     <Line
@@ -273,8 +278,8 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
                         r: 8, 
                         stroke: '#22c55e', 
                         strokeWidth: 2,
-                        onClick: handleAnnualChartClick,
-                        style: { cursor: 'pointer' }
+                        style: { cursor: 'pointer' },
+                        onClick: handleAnnualChartClick
                       }}
                     />
                   </LineChart>
@@ -298,7 +303,11 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
               </h3>
               <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={quarterlyDeliveries} onClick={handleQuarterlyChartClick}>
+                  <LineChart 
+                    data={quarterlyDeliveries} 
+                    onClick={handleQuarterlyChartClick}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis 
                       dataKey="quarter"
@@ -330,8 +339,8 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
                         r: 7, 
                         stroke: '#22c55e', 
                         strokeWidth: 2,
-                        onClick: handleQuarterlyChartClick,
-                        style: { cursor: 'pointer' }
+                        style: { cursor: 'pointer' },
+                        onClick: handleQuarterlyChartClick
                       }}
                     />
                   </LineChart>
@@ -349,7 +358,7 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
 
           {/* Ideas Data Table */}
           {selectedDataPoint && selectedDataPoint.ideas.length > 0 && (
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-white rounded-lg border border-gray-200 p-6 mt-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium text-gray-900">
                   {selectedDataPoint.label}
@@ -361,7 +370,7 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <div className="overflow-x-auto">
                   <table className="min-w-full bg-white border border-gray-200 rounded-lg">
                     <thead className="bg-gray-100">
@@ -393,13 +402,16 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
           )}
 
           {/* Key Insights - minimal version */}
-          <div className="bg-gray-50 rounded-lg p-6">
+          <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
             <h3 className="text-lg font-medium text-gray-900 mb-3">
               How to Use
             </h3>
-            <div className="space-y-2 text-sm text-gray-600">
+            <div className="space-y-2 text-sm text-blue-700">
               <p>
-                • Click on any data point in the charts to view the specific ideas delivered for that period
+                <strong>💡 Tip:</strong> Click on any data point (green dots) in the charts above to view the specific ideas delivered for that period
+              </p>
+              <p>
+                The data table will appear below showing Idea IDs and summaries for the selected time period.
               </p>
             </div>
           </div>
