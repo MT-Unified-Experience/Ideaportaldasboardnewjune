@@ -392,6 +392,17 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
             </div>
           )}
 
+          {/* Key Insights - minimal version */}
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-3">
+              How to Use
+            </h3>
+            <div className="space-y-2 text-sm text-gray-600">
+              <p>
+                • Click on any data point in the charts to view the specific ideas delivered for that period
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
