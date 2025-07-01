@@ -347,63 +347,6 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
             </div>
           )}
 
-          {/* Performance Summary */}
-          {commitmentTrends && commitmentTrends.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-lg p-6 border border-gray-200">
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Performance Summary</h4>
-                <div className="space-y-3">
-                  {commitmentTrends.map((item, index) => {
-                    const deliveryRate = Math.round((item.delivered / item.committed) * 100);
-                    return (
-                      <div key={item.year} className="flex items-center justify-between w-full">
-                        <span className="text-sm text-gray-600">{item.year}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">
-                            {item.delivered}/{item.committed}
-                          </span>
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            deliveryRate >= 90 ? 'bg-green-100 text-green-800' :
-                            deliveryRate >= 80 ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {deliveryRate}%
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg p-6 border border-gray-200">
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Key Metrics</h4>
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-2xl font-bold text-purple-600">
-                      {Math.round(commitmentTrends.reduce((sum, item) => sum + (item.delivered / item.committed), 0) / commitmentTrends.length * 100)}%
-                    </div>
-                    <div className="text-sm text-gray-600">Average Delivery Rate</div>
-                  </div>
-                  {quarterlyDeliveries && quarterlyDeliveries.length > 0 && (
-                    <div>
-                      <div className="text-2xl font-bold text-blue-600">
-                        {Math.round(quarterlyDeliveries.reduce((sum, item) => sum + item.delivered, 0) / quarterlyDeliveries.length)}
-                      </div>
-                      <div className="text-sm text-gray-600">Avg Quarterly Deliveries</div>
-                    </div>
-                  )}
-                  <div>
-                    <div className="text-2xl font-bold text-green-600">
-                      {commitmentTrends[commitmentTrends.length - 1]?.delivered || 0}
-                    </div>
-                    <div className="text-sm text-gray-600">Current Year Delivered</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Ideas Data Table */}
           {selectedDataPoint && selectedDataPoint.ideas.length > 0 && (
             <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -449,29 +392,6 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
             </div>
           )}
 
-          {/* Insights */}
-          <div className="bg-gray-50 rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-3">
-              Key Insights
-            </h3>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p>
-                • Blue line shows total ideas committed annually, representing planning targets
-              </p>
-              <p>
-                • Green line shows actual deliveries, indicating execution performance
-              </p>
-              <p>
-                • Quarterly view helps identify seasonal patterns and delivery consistency
-              </p>
-              <p>
-                • Target delivery rate is typically 85% or higher for optimal commitment fulfillment
-              </p>
-              <p>
-                • Click on any data point in the charts to view the specific ideas delivered for that period
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
