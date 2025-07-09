@@ -1,0 +1,8 @@
+# Netlify redirects file for React Router
+# This ensures all routes are handled by the React app
+
+# Handle all routes by serving index.html
+/*    /index.html   200
+
+# Optional: Handle specific API routes if needed
+/api/*  https://your-supabase-url.supabase.co/:splat  200
