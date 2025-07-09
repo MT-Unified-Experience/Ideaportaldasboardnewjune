@@ -285,7 +285,7 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
             className="mx-auto h-12 w-auto"
           />
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">Idea Portal Dashboard</p>
+        <p className="mt-2 text-sm text-muted-foreground">Sign in to Idea Portal Dashboard</p>
       </div>
 
       <AuthError message={formState.error} />
@@ -436,7 +436,7 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
             className="mx-auto h-12 w-auto"
           />
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">Idea Portal Dashboard</p>
+        <p className="mt-2 text-sm text-muted-foreground">Sign in to Idea Portal Dashboard</p>
       </div>
 
       <AuthError message={formState.error} />
@@ -621,7 +621,7 @@ function AuthForgotPassword({ onSignIn, onSuccess }: AuthForgotPasswordProps) {
             className="mx-auto h-12 w-auto"
           />
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">Idea Portal Dashboard</p>
+        <p className="mt-2 text-sm text-muted-foreground">Sign in to Idea Portal Dashboard</p>
       </div>
 
       <AuthError message={formState.error} />
