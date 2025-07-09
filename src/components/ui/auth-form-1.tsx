@@ -42,13 +42,13 @@ interface FormState {
 
 const signInSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(1, "Password is required"),
 });
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(1, "Password is required"),
   terms: z.literal(true, { errorMap: () => ({ message: "You must agree to the terms" }) }),
 });
 
