@@ -35,15 +35,15 @@ const supabaseOptions: SupabaseClientOptions<any> = {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storageKey: 'mitratech-dashboard-auth'
+    storageKey: 'mitratech-dashboard-auth',
+    flowType: 'pkce'
   },
   db: {
     schema: 'public'
   },
   global: {
     headers: {
-      'apikey': supabaseAnonKey,
-      'Authorization': `Bearer ${supabaseAnonKey}`
+      'apikey': supabaseAnonKey
     },
     fetch: (url, options = {}) => {
       // Add timeout and better error handling to all requests
@@ -53,15 +53,34 @@ const supabaseOptions: SupabaseClientOptions<any> = {
         controller.abort();
       }, 30000); // 30 second timeout
 
+      // Ensure proper headers for auth requests
+      const headers = {
+        'apikey': supabaseAnonKey,
+        'Content-Type': 'application/json',
+        'Connection': 'keep-alive',
+        ...options.headers
+      };
+
       return fetch(url, {
         ...options,
+        headers,
         signal: controller.signal,
-        headers: {
-          ...options.headers,
-          'Connection': 'keep-alive',
-        }
       }).then(response => {
         clearTimeout(timeoutId);
+        
+        // Handle auth-specific errors
+        if (!response.ok && url.includes('/auth/')) {
+          console.warn(`🔐 Auth request failed: ${response.status} ${response.statusText} for ${url}`);
+          
+          if (response.status === 403) {
+            console.warn('💡 403 Forbidden - This might be due to:');
+            console.warn('1. Incorrect API key configuration');
+            console.warn('2. Missing CORS settings in Supabase dashboard');
+            console.warn('3. Supabase project not properly configured');
+            console.warn('4. Check your .env file for correct VITE_SUPABASE_ANON_KEY');
+          }
+        }
+        
         return response;
       }).catch(error => {
         clearTimeout(timeoutId);
@@ -112,11 +131,78 @@ export const getApiUrl = (path: string): string => {
 export const getApiHeaders = (): HeadersInit => {
   return {
     'apikey': supabaseAnonKey,
-    'Authorization': `Bearer ${supabaseAnonKey}`,
     'Content-Type': 'application/json',
     'Prefer': 'return=minimal',
     'Connection': 'keep-alive'
   };
+};
+
+// Enhanced auth-specific helper functions
+export const signOut = async (): Promise<{ error: any }> => {
+  try {
+    if (!supabase) {
+      return { error: new Error('Supabase client not initialized') };
+    }
+    
+    console.log('🔐 Attempting to sign out...');
+    const { error } = await supabase.auth.signOut({ scope: 'global' });
+    
+    if (error) {
+      console.warn('🔐 Sign out error:', error.message);
+      
+      // Handle specific auth errors
+      if (error.message?.includes('403') || error.message?.includes('Forbidden')) {
+        console.warn('💡 Sign out failed due to authorization issue. This might be due to:');
+        console.warn('1. Incorrect API key in .env file');
+        console.warn('2. Missing CORS configuration in Supabase dashboard');
+        console.warn('3. Supabase project configuration issues');
+        
+        // Clear local session even if server sign out fails
+        localStorage.removeItem('mitratech-dashboard-auth');
+        sessionStorage.clear();
+        
+        return { error: null }; // Treat as successful local sign out
+      }
+      
+      return { error };
+    }
+    
+    console.log('✅ Successfully signed out');
+    return { error: null };
+  } catch (error: any) {
+    console.warn('🔥 Unexpected error during sign out:', error.message);
+    
+    // Clear local session as fallback
+    localStorage.removeItem('mitratech-dashboard-auth');
+    sessionStorage.clear();
+    
+    return { error: null }; // Treat as successful local sign out
+  }
+};
+
+export const signIn = async (email: string, password: string) => {
+  try {
+    if (!supabase) {
+      return { data: null, error: new Error('Supabase client not initialized') };
+    }
+    
+    console.log('🔐 Attempting to sign in...');
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    
+    if (error) {
+      console.warn('🔐 Sign in error:', error.message);
+      return { data: null, error };
+    }
+    
+    console.log('✅ Successfully signed in');
+    return { data, error: null };
+  } catch (error: any) {
+    console.warn('🔥 Unexpected error during sign in:', error.message);
+    return { data: null, error };
+  }
 };
 
 // Enhanced fetch wrapper for Supabase REST API calls with retry logic
@@ -151,6 +237,9 @@ export const supabaseFetch = async (
         // Handle specific HTTP errors
         if (response.status === 503) {
           throw new Error('Service temporarily unavailable');
+        }
+        if (response.status === 403) {
+          throw new Error('Access forbidden - check API key and CORS settings');
         }
         if (response.status >= 500) {
           throw new Error(`Server error: ${response.status}`);
@@ -223,6 +312,14 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
       console.warn('4. Navigate to Settings > API');
       console.warn('5. Add "http://localhost:5173" to the CORS allowed origins');
       console.warn('6. Save the settings and refresh this page');
+    }
+    
+    if (errorMessage.includes('Access forbidden') || errorMessage.includes('403')) {
+      console.warn('💡 Access forbidden - this might be due to:');
+      console.warn('1. Incorrect VITE_SUPABASE_ANON_KEY in .env file');
+      console.warn('2. Missing CORS configuration in Supabase dashboard');
+      console.warn('3. Supabase project not properly configured');
+      console.warn('4. API key might be expired or invalid');
     }
     
     if (errorMessage.includes('timeout')) {

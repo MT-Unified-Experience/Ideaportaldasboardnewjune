@@ -59,7 +59,17 @@ export default defineConfig(({ mode }) => {
               // Ensure proper headers are set
               if (env.VITE_SUPABASE_ANON_KEY) {
                 proxyReq.setHeader('apikey', env.VITE_SUPABASE_ANON_KEY);
-                proxyReq.setHeader('Authorization', `Bearer ${env.VITE_SUPABASE_ANON_KEY}`);
+                
+                // Only add Authorization header for non-auth requests
+                // Auth requests should only use the apikey header
+                if (!req.url?.includes('/auth/')) {
+                  proxyReq.setHeader('Authorization', `Bearer ${env.VITE_SUPABASE_ANON_KEY}`);
+                }
+              }
+              
+              // Ensure proper content type for auth requests
+              if (req.url?.includes('/auth/')) {
+                proxyReq.setHeader('Content-Type', 'application/json');
               }
             });
             
@@ -69,6 +79,14 @@ export default defineConfig(({ mode }) => {
                 console.log('✅ Successful proxy response:', proxyRes.statusCode, req.url);
               } else {
                 console.warn('⚠️ Proxy response error:', proxyRes.statusCode, req.url);
+                
+                // Provide specific guidance for auth errors
+                if (proxyRes.statusCode === 403 && req.url?.includes('/auth/')) {
+                  console.warn('💡 Auth 403 error - Check:');
+                  console.warn('1. VITE_SUPABASE_ANON_KEY in .env file');
+                  console.warn('2. CORS settings in Supabase dashboard');
+                  console.warn('3. Add http://localhost:5173 to allowed origins');
+                }
               }
             });
             
