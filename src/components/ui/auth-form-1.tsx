@@ -164,7 +164,7 @@ function AuthError({ message }: AuthErrorProps) {
   return (
     <div
       data-slot="auth-error"
-      className="mb-6 animate-in rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive"
+      className="mb-6 animate-in rounded-lg border border-[#CD2026]/20 bg-[#CD2026]/10 p-4 text-sm text-[#CD2026]"
     >
       {displayMessage}
     </div>
@@ -292,10 +292,10 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
             type="email"
             placeholder="name@example.com"
             disabled={formState.isLoading}
-            className={cn(errors.email && "border-destructive")}
+            className={cn(errors.email && "border-[#CD2026] focus:ring-[#CD2026] focus:border-[#CD2026]")}
             {...register("email")}
           />
-          {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+          {errors.email && <p className="text-xs text-[#CD2026]">{errors.email.message}</p>}
         </div>
 
         <div className="space-y-2">
@@ -317,7 +317,7 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
               type={formState.showPassword ? "text" : "password"}
               placeholder="••••••••"
               disabled={formState.isLoading}
-              className={cn(errors.password && "border-destructive")}
+              className={cn(errors.password && "border-[#CD2026] focus:ring-[#CD2026] focus:border-[#CD2026]")}
               {...register("password")}
             />
             <Button
@@ -333,7 +333,7 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
               {formState.showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
           </div>
-          {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
+          {errors.password && <p className="text-xs text-[#CD2026]">{errors.password.message}</p>}
         </div>
 
         <Button type="submit" className="w-full" disabled={formState.isLoading}>
@@ -437,10 +437,10 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
             type="text"
             placeholder="John Doe"
             disabled={formState.isLoading}
-            className={cn(errors.name && "border-destructive")}
+            className={cn(errors.name && "border-[#CD2026] focus:ring-[#CD2026] focus:border-[#CD2026]")}
             {...register("name")}
           />
-          {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+          {errors.name && <p className="text-xs text-[#CD2026]">{errors.name.message}</p>}
         </div>
 
         <div className="space-y-2">
@@ -450,10 +450,10 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
             type="email"
             placeholder="name@example.com"
             disabled={formState.isLoading}
-            className={cn(errors.email && "border-destructive")}
+            className={cn(errors.email && "border-[#CD2026] focus:ring-[#CD2026] focus:border-[#CD2026]")}
             {...register("email")}
           />
-          {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+          {errors.email && <p className="text-xs text-[#CD2026]">{errors.email.message}</p>}
           <p className="text-xs text-gray-500 mt-1">
             Only @mitratech.com email addresses are allowed
           </p>
@@ -467,7 +467,7 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
               type={formState.showPassword ? "text" : "password"}
               placeholder="••••••••"
               disabled={formState.isLoading}
-              className={cn(errors.password && "border-destructive")}
+              className={cn(errors.password && "border-[#CD2026] focus:ring-[#CD2026] focus:border-[#CD2026]")}
               {...register("password")}
             />
             <Button
@@ -483,7 +483,7 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
               {formState.showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
           </div>
-          {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
+          {errors.password && <p className="text-xs text-[#CD2026]">{errors.password.message}</p>}
         </div>
 
         <div className="flex items-center space-x-2">
@@ -510,7 +510,7 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
             </p>
           </div>
         </div>
-        {errors.terms && <p className="text-xs text-destructive">{errors.terms.message}</p>}
+        {errors.terms && <p className="text-xs text-[#CD2026]">{errors.terms.message}</p>}
 
         <Button type="submit" className="w-full" disabled={formState.isLoading}>
           {formState.isLoading ? (
@@ -618,10 +618,10 @@ function AuthForgotPassword({ onSignIn, onSuccess }: AuthForgotPasswordProps) {
             type="email"
             placeholder="name@example.com"
             disabled={formState.isLoading}
-            className={cn(errors.email && "border-destructive")}
+            className={cn(errors.email && "border-[#CD2026] focus:ring-[#CD2026] focus:border-[#CD2026]")}
             {...register("email")}
           />
-          {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+          {errors.email && <p className="text-xs text-[#CD2026]">{errors.email.message}</p>}
         </div>
 
         <Button type="submit" className="w-full" disabled={formState.isLoading}>
