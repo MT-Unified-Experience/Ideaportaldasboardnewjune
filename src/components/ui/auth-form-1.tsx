@@ -47,7 +47,12 @@ const signInSchema = z.object({
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
+  email: z.string()
+    .email("Invalid email address")
+    .refine(
+      (email) => email.toLowerCase().endsWith('@mitratech.com'),
+      "Only @mitratech.com email addresses are allowed"
+    ),
   password: z.string().min(1, "Password is required"),
   terms: z.literal(true, { errorMap: () => ({ message: "You must agree to the terms" }) }),
 });
