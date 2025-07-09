@@ -5,6 +5,7 @@ import { DataProvider } from './contexts/DataContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import DashboardLayout from './layouts/DashboardLayout';
 import LoginPage from './pages/LoginPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <DataProvider>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route 
               path="/" 
               element={
