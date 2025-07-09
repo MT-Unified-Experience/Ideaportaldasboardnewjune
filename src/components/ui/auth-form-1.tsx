@@ -573,10 +573,13 @@ function AuthForgotPassword({ onSignIn, onSuccess }: AuthForgotPasswordProps) {
   const onSubmit = async (data: ForgotPasswordFormValues) => {
     setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
+      console.log('Requesting password reset for:', data.email);
       const result = await resetPassword(data.email);
       if (result.success) {
+        console.log('Password reset request successful');
         onSuccess();
       } else {
+        console.error('Password reset request failed:', result.error);
         setFormState((prev) => ({ ...prev, error: result.error || "Password reset failed" }));
       }
     } catch (error) {

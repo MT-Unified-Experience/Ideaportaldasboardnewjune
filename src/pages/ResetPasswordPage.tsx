@@ -43,19 +43,42 @@ const ResetPasswordPage: React.FC = () => {
     const accessToken = searchParams.get('access_token');
     const refreshToken = searchParams.get('refresh_token');
     const type = searchParams.get('type');
+    const error = searchParams.get('error');
+    const errorDescription = searchParams.get('error_description');
+
+    // Log URL parameters for debugging
+    console.log('Reset password URL params:', {
+      accessToken: accessToken ? 'present' : 'missing',
+      refreshToken: refreshToken ? 'present' : 'missing',
+      type,
+      error,
+      errorDescription,
+      fullUrl: window.location.href
+    });
+
+    // Check for error parameters first
+    if (error) {
+      console.error('Password reset error from URL:', error, errorDescription);
+      setError(`Password reset failed: ${errorDescription || error}`);
+      setTokenValid(false);
+      setValidatingToken(false);
+      return;
+    }
 
     if (type === 'recovery' && accessToken && refreshToken) {
       // Set the session with the tokens from the URL
       if (supabase) {
+        console.log('Setting session with tokens...');
         supabase.auth.setSession({
           access_token: accessToken,
           refresh_token: refreshToken,
         }).then(({ error }) => {
           if (error) {
             console.error('Error setting session:', error);
-            setError('Invalid or expired reset link. Please request a new password reset.');
+            setError(`Session error: ${error.message}. Please request a new password reset.`);
             setTokenValid(false);
           } else {
+            console.log('Session set successfully');
             setTokenValid(true);
           }
           setValidatingToken(false);
@@ -66,7 +89,8 @@ const ResetPasswordPage: React.FC = () => {
         setValidatingToken(false);
       }
     } else {
-      setError('Invalid reset link. Please request a new password reset.');
+      console.error('Missing required parameters:', { type, accessToken: !!accessToken, refreshToken: !!refreshToken });
+      setError('Invalid reset link format. Please request a new password reset.');
       setTokenValid(false);
       setValidatingToken(false);
     }
@@ -139,6 +163,20 @@ const ResetPasswordPage: React.FC = () => {
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Invalid Reset Link</h2>
             <p className="text-gray-600 mb-6">{error}</p>
+            
+            {/* Debug Information */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg text-left">
+              <h3 className="text-sm font-medium text-gray-900 mb-2">Debug Information:</h3>
+              <div className="text-xs text-gray-600 space-y-1">
+                <p><strong>Current URL:</strong> {window.location.href}</p>
+                <p><strong>Access Token:</strong> {searchParams.get('access_token') ? 'Present' : 'Missing'}</p>
+                <p><strong>Refresh Token:</strong> {searchParams.get('refresh_token') ? 'Present' : 'Missing'}</p>
+                <p><strong>Type:</strong> {searchParams.get('type') || 'Missing'}</p>
+                <p><strong>Error:</strong> {searchParams.get('error') || 'None'}</p>
+                <p><strong>Error Description:</strong> {searchParams.get('error_description') || 'None'}</p>
+              </div>
+            </div>
+            
             <Button onClick={handleBackToLogin} className="w-full">
               Back to Login
             </Button>

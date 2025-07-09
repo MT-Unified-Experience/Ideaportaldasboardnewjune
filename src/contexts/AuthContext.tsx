@@ -194,16 +194,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // Get the correct redirect URL for the current environment
       const getRedirectUrl = () => {
-        // Use current origin but ensure it matches what's configured in Supabase
-        const currentOrigin = window.location.origin;
-        
-        // For localhost development
-        if (currentOrigin.includes('localhost')) {
-          return `${currentOrigin}/reset-password`;
-        }
-        
-        // For production, use the current origin (should be the Netlify URL)
-        return `${currentOrigin}/reset-password`;
+        // Always use the current origin to ensure it works in all environments
+        const redirectUrl = `${window.location.origin}/reset-password`;
+        console.log('Password reset redirect URL:', redirectUrl);
+        return redirectUrl;
       };
 
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
@@ -218,6 +212,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         };
       }
 
+      console.log('Password reset email sent successfully');
       return { success: true };
     } catch (error) {
       console.error('Unexpected password reset error:', error);
