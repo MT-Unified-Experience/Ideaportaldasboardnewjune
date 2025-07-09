@@ -147,12 +147,26 @@ interface AuthErrorProps {
 
 function AuthError({ message }: AuthErrorProps) {
   if (!message) return null;
+  
+  // Handle Zod validation errors that come as JSON arrays
+  let displayMessage = message;
+  try {
+    const parsed = JSON.parse(message);
+    if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].message) {
+      // Extract the first error message from Zod validation errors
+      displayMessage = parsed[0].message;
+    }
+  } catch {
+    // If parsing fails, use the original message
+    displayMessage = message;
+  }
+  
   return (
     <div
       data-slot="auth-error"
       className="mb-6 animate-in rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive"
     >
-      {message}
+      {displayMessage}
     </div>
   );
 }
