@@ -192,8 +192,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return { success: false, error: 'Authentication service not available' };
       }
 
+      // Get the correct redirect URL based on environment
+      const getRedirectUrl = () => {
+        // Use environment variable if available, otherwise fall back to window.location.origin
+        const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+        return `${siteUrl}/reset-password`;
+      };
+
+      // Alternative: Auto-detect based on current environment
+      const getRedirectUrlAuto = () => {
+        // Check if we're on the deployed site
+        if (window.location.hostname.includes('netlify.app')) {
+          return `${window.location.origin}/reset-password`;
+        }
+        // In development, use localhost
+        return `${window.location.origin}/reset-password`;
+      };
+
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: getRedirectUrlAuto(),
       });
 
       if (error) {
