@@ -278,7 +278,13 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
       className="p-8"
     >
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-semibold text-foreground">Welcome back</h1>
+        <h1 className="mb-4">
+          <img 
+            src="https://i.postimg.cc/ncRCb0XK/Mitratech-CLC.png" 
+            alt="Mitratech" 
+            className="mx-auto h-12 w-auto"
+          />
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">Sign in to your account</p>
       </div>
 
@@ -423,7 +429,13 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
       className="p-8"
     >
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-semibold text-foreground">Create account</h1>
+        <h1 className="mb-4">
+          <img 
+            src="https://i.postimg.cc/ncRCb0XK/Mitratech-CLC.png" 
+            alt="Mitratech" 
+            className="mx-auto h-12 w-auto"
+          />
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">Get started with your account</p>
       </div>
 
@@ -602,7 +614,13 @@ function AuthForgotPassword({ onSignIn, onSuccess }: AuthForgotPasswordProps) {
       </Button>
 
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-semibold text-foreground">Reset password</h1>
+        <h1 className="mb-4">
+          <img 
+            src="https://i.postimg.cc/ncRCb0XK/Mitratech-CLC.png" 
+            alt="Mitratech" 
+            className="mx-auto h-12 w-auto"
+          />
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Enter your email to receive a reset link
         </p>
@@ -669,11 +687,19 @@ function AuthResetSuccess({ onSignIn }: AuthResetSuccessProps) {
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="flex flex-col items-center p-8 text-center"
     >
-      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-        <MailCheck className="h-8 w-8 text-primary" />
-      </div>
+        <h1 className="mb-6">
+          <img 
+            src="https://i.postimg.cc/ncRCb0XK/Mitratech-CLC.png" 
+            alt="Mitratech" 
+            className="mx-auto h-12 w-auto"
+          />
+        </h1>
+        
+        <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+          <MailCheck className="h-8 w-8 text-primary" />
+        </div>
 
-      <h1 className="text-2xl font-semibold text-foreground">Check your email</h1>
+        <h2 className="text-2xl font-semibold text-foreground">Check your email</h2>
       <p className="mt-2 text-sm text-muted-foreground">
         We sent a password reset link to your email.
       </p>
