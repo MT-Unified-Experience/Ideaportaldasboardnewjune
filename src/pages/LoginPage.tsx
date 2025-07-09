@@ -4,8 +4,20 @@ import { useAuth } from '../contexts/AuthContext';
 import { Auth } from '../components/ui/auth-form-1';
 
 const LoginPage: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
+  
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="text-gray-600">Loading...</span>
+        </div>
+      </div>
+    );
+  }
   
   // If already authenticated, redirect to dashboard or return url
   if (isAuthenticated) {
@@ -37,12 +49,6 @@ const LoginPage: React.FC = () => {
         {/* Footer */}
         <div className="text-center mt-8 text-xs text-gray-500">
           <p>© 2024 Mitratech. All rights reserved.</p>
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-blue-800 font-medium text-sm mb-2">Test Credentials:</p>
-            <p className="text-blue-700 text-xs">Email: test@mitratech.com</p>
-            <p className="text-blue-700 text-xs">Password: password123</p>
-            <p className="text-blue-600 text-xs mt-2">Or use any @mitratech.com email with 8+ character password</p>
-          </div>
         </div>
       </div>
     </div>

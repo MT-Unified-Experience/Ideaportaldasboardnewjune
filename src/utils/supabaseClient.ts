@@ -35,8 +35,7 @@ const supabaseOptions: SupabaseClientOptions<any> = {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storageKey: 'mitratech-dashboard-auth',
-    flowType: 'pkce'
+    storageKey: 'mitratech-dashboard-auth'
   },
   db: {
     schema: 'public'

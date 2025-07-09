@@ -233,15 +233,16 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
   const onSubmit = async (data: SignInFormValues) => {
     setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
-      const success = await login(data.email, data.password);
-      if (success) {
+      const result = await login(data.email, data.password);
+      if (result.success) {
         // Redirect to dashboard or return url
         const from = location.state?.from?.pathname || '/dashboard';
         navigate(from, { replace: true });
       } else {
-        setFormState((prev) => ({ ...prev, error: "Invalid email or password" }));
+        setFormState((prev) => ({ ...prev, error: result.error || "Login failed" }));
       }
-    } catch {
+    } catch (error) {
+      console.error('Login error:', error);
       setFormState((prev) => ({ ...prev, error: "An unexpected error occurred" }));
     } finally {
       setFormState((prev) => ({ ...prev, isLoading: false }));
@@ -360,6 +361,8 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
     error: null,
     showPassword: false,
   });
+  const { signup } = useAuth();
+  const navigate = useNavigate();
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -371,9 +374,20 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
   const onSubmit = async (data: SignUpFormValues) => {
     setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API call
-      setFormState((prev) => ({ ...prev, error: "Email already registered" }));
-    } catch {
+      const result = await signup(data.email, data.password, data.name);
+      if (result.success) {
+        // Show success message or redirect to login
+        setFormState((prev) => ({ 
+          ...prev, 
+          error: null 
+        }));
+        // For now, redirect to sign in after successful signup
+        onSignIn();
+      } else {
+        setFormState((prev) => ({ ...prev, error: result.error || "Signup failed" }));
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
       setFormState((prev) => ({ ...prev, error: "An unexpected error occurred" }));
     } finally {
       setFormState((prev) => ({ ...prev, isLoading: false }));
@@ -521,6 +535,7 @@ function AuthForgotPassword({ onSignIn, onSuccess }: AuthForgotPasswordProps) {
     error: null,
     showPassword: false,
   });
+  const { resetPassword } = useAuth();
 
   const { register, handleSubmit, formState: { errors } } = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -530,9 +545,14 @@ function AuthForgotPassword({ onSignIn, onSuccess }: AuthForgotPasswordProps) {
   const onSubmit = async (data: ForgotPasswordFormValues) => {
     setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API call
-      onSuccess();
-    } catch {
+      const result = await resetPassword(data.email);
+      if (result.success) {
+        onSuccess();
+      } else {
+        setFormState((prev) => ({ ...prev, error: result.error || "Password reset failed" }));
+      }
+    } catch (error) {
+      console.error('Password reset error:', error);
       setFormState((prev) => ({ ...prev, error: "An unexpected error occurred" }));
     } finally {
       setFormState((prev) => ({ ...prev, isLoading: false }));

@@ -102,7 +102,9 @@ const DashboardLayout: React.FC = () => {
               {/* User Info */}
               <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-md">
                 <User className="h-4 w-4 text-gray-600" />
-                <span className="text-sm text-gray-700">{user?.name || user?.email}</span>
+                <span className="text-sm text-gray-700">
+                  {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+                </span>
               </div>
               
               <button
