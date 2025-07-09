@@ -615,7 +615,10 @@ function AuthForgotPassword({ onSignIn, onSuccess }: AuthForgotPasswordProps) {
             className="mx-auto h-12 w-auto"
           />
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">Sign in to Idea Portal Dashboard</p>
+        <h2 className="text-2xl font-semibold text-foreground">Reset password</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Enter your email to receive a reset link
+        </p>
       </div>
 
       <AuthError message={formState.error} />
