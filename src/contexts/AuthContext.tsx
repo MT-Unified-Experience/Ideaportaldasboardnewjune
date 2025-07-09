@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../utils/supabaseClient';
-import { AuthChangeEvent } from '@supabase/supabase-js';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 
 interface AuthContextType {
@@ -51,7 +50,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Listen for auth changes
     if (supabase) {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event: AuthChangeEvent, session) => {
+        async (event, session) => {
           console.log('Auth state changed:', event, session?.user?.email);
           
           // Handle password recovery event
@@ -200,6 +199,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (!supabase) {
         return { success: false, error: 'Authentication service not available' };
       }
+
+      console.log('Requesting password reset for:', email);
 
       // Get the correct redirect URL for the current environment
       const getRedirectUrl = () => {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { AuthChangeEvent } from '@supabase/supabase-js';
 import { supabase } from '../utils/supabaseClient';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -33,102 +32,91 @@ const ResetPasswordPage: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [validatingToken, setValidatingToken] = useState(true);
   const [tokenValid, setTokenValid] = useState(false);
-  const [passwordRecoveryDetected, setPasswordRecoveryDetected] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>({});
 
   const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: { password: "", confirmPassword: "" },
   });
 
-  // Listen for PASSWORD_RECOVERY event
-  useEffect(() => {
-    if (!supabase) return;
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session) => {
-        console.log('Auth event in ResetPasswordPage:', event);
-        
-        if (event === 'PASSWORD_RECOVERY') {
-          console.log('PASSWORD_RECOVERY event detected in ResetPasswordPage');
-          setPasswordRecoveryDetected(true);
-          setTokenValid(true);
-          setValidatingToken(false);
-        }
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
   // Check if we have the required tokens from the URL
   useEffect(() => {
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    const type = searchParams.get('type');
-    const error = searchParams.get('error');
-    const errorDescription = searchParams.get('error_description');
+    const validateResetToken = async () => {
+      const accessToken = searchParams.get('access_token');
+      const refreshToken = searchParams.get('refresh_token');
+      const type = searchParams.get('type');
+      const error = searchParams.get('error');
+      const errorDescription = searchParams.get('error_description');
 
-    // Store debug info
-    const debugData = {
-      accessToken: accessToken ? 'present' : 'missing',
-      refreshToken: refreshToken ? 'present' : 'missing',
-      type,
-      error,
-      errorDescription,
-      fullUrl: window.location.href,
-      origin: window.location.origin,
-      pathname: window.location.pathname,
-      search: window.location.search
-    };
-    setDebugInfo(debugData);
+      console.log('Reset password URL validation:', {
+        accessToken: accessToken ? 'present' : 'missing',
+        refreshToken: refreshToken ? 'present' : 'missing',
+        type,
+        error,
+        errorDescription,
+        fullUrl: window.location.href
+      });
 
-    // Log URL parameters for debugging
-    console.log('Reset password URL params:', debugData);
+      // Check for error parameters first
+      if (error) {
+        console.error('Password reset error from URL:', error, errorDescription);
+        setError(`Password reset failed: ${errorDescription || error}`);
+        setTokenValid(false);
+        setValidatingToken(false);
+        return;
+      }
 
-    // Check for error parameters first
-    if (error) {
-      console.error('Password reset error from URL:', error, errorDescription);
-      setError(`Password reset failed: ${errorDescription || error}`);
-      setTokenValid(false);
-      setValidatingToken(false);
-      return;
-    }
+      // Check for required parameters
+      if (type !== 'recovery') {
+        console.error('Invalid type parameter:', type);
+        setError('Invalid reset link type. Please request a new password reset.');
+        setTokenValid(false);
+        setValidatingToken(false);
+        return;
+      }
 
-    // Check for both URL parameters and PASSWORD_RECOVERY event
-    if ((type === 'recovery' && accessToken && refreshToken) || passwordRecoveryDetected) {
-      console.log('Valid password recovery detected');
-      
-      // Set the session with the tokens from the URL
+      if (!accessToken || !refreshToken) {
+        console.error('Missing tokens:', { accessToken: !!accessToken, refreshToken: !!refreshToken });
+        setError('Invalid reset link format. Missing authentication tokens.');
+        setTokenValid(false);
+        setValidatingToken(false);
+        return;
+      }
+
+      // Try to set the session with the tokens
       if (supabase) {
-        console.log('Setting session with tokens...');
-        supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        }).then(({ error }) => {
-          if (error) {
-            console.error('Error setting session:', error);
-            setError(`Session error: ${error.message}. Please request a new password reset.`);
+        try {
+          console.log('Setting session with recovery tokens...');
+          const { data, error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (sessionError) {
+            console.error('Error setting session:', sessionError);
+            setError(`Invalid or expired reset link: ${sessionError.message}`);
             setTokenValid(false);
-          } else {
-            console.log('Session set successfully');
+          } else if (data.session) {
+            console.log('Session set successfully for password recovery');
             setTokenValid(true);
+          } else {
+            console.error('No session returned after setting tokens');
+            setError('Failed to establish recovery session. Please request a new password reset.');
+            setTokenValid(false);
           }
-          setValidatingToken(false);
-        });
+        } catch (err) {
+          console.error('Exception during session setup:', err);
+          setError('An error occurred while validating the reset link.');
+          setTokenValid(false);
+        }
       } else {
         setError('Authentication service not available');
         setTokenValid(false);
-        setValidatingToken(false);
       }
-    } else if (!passwordRecoveryDetected) {
-      console.error('Missing required parameters:', { type, accessToken: !!accessToken, refreshToken: !!refreshToken });
-      setError('Invalid reset link format. Please request a new password reset.');
-      setTokenValid(false);
+
       setValidatingToken(false);
-    }
+    };
+
+    validateResetToken();
   }, [searchParams]);
 
   const onSubmit = async (formData: ResetPasswordFormValues) => {
@@ -141,6 +129,7 @@ const ResetPasswordPage: React.FC = () => {
     setError(null);
 
     try {
+      console.log('Attempting to update password...');
       const { error } = await supabase.auth.updateUser({
         password: formData.password
       });
@@ -192,7 +181,7 @@ const ResetPasswordPage: React.FC = () => {
   if (!tokenValid) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-lg">
+        <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-2xl">
           <div className="text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 mx-auto mb-4">
               <AlertCircle className="h-8 w-8 text-red-600" />
@@ -219,6 +208,7 @@ const ResetPasswordPage: React.FC = () => {
                   <p>2. Verify Site URL matches your deployed domain</p>
                   <p>3. Ensure redirect URL includes /reset-password</p>
                   <p>4. Check email template uses {`{{ .RedirectTo }}`} (not ConfirmationURL)</p>
+                  <p>5. Try requesting a fresh password reset</p>
                 </div>
               </div>
             </div>
