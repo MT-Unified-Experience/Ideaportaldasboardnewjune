@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../utils/supabaseClient';
+import { AuthChangeEvent } from '@supabase/supabase-js';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 
 interface AuthContextType {
@@ -50,8 +51,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Listen for auth changes
     if (supabase) {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
+        async (event: AuthChangeEvent, session) => {
           console.log('Auth state changed:', event, session?.user?.email);
+          
+          // Handle password recovery event
+          if (event === 'PASSWORD_RECOVERY') {
+            console.log('Password recovery event detected');
+            // The session will contain the user who needs to reset their password
+            // The ResetPasswordPage component will handle the actual password update
+          }
+          
           setSession(session);
           setUser(session?.user ?? null);
           setLoading(false);
@@ -60,6 +69,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       return () => subscription.unsubscribe();
     }
+  }, []);
+        async (event, session) => {
+          console.log('Auth state changed:', event, session?.user?.email);
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      );
+
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {

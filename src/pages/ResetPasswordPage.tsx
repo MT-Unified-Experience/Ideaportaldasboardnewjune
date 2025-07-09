@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { AuthChangeEvent } from '@supabase/supabase-js';
 import { supabase } from '../utils/supabaseClient';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -32,12 +33,35 @@ const ResetPasswordPage: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [validatingToken, setValidatingToken] = useState(true);
   const [tokenValid, setTokenValid] = useState(false);
+  const [passwordRecoveryDetected, setPasswordRecoveryDetected] = useState(false);
   const [debugInfo, setDebugInfo] = useState<any>({});
 
   const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: { password: "", confirmPassword: "" },
   });
+
+  // Listen for PASSWORD_RECOVERY event
+  useEffect(() => {
+    if (!supabase) return;
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event: AuthChangeEvent, session) => {
+        console.log('Auth event in ResetPasswordPage:', event);
+        
+        if (event === 'PASSWORD_RECOVERY') {
+          console.log('PASSWORD_RECOVERY event detected in ResetPasswordPage');
+          setPasswordRecoveryDetected(true);
+          setTokenValid(true);
+          setValidatingToken(false);
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   // Check if we have the required tokens from the URL
   useEffect(() => {
@@ -73,7 +97,10 @@ const ResetPasswordPage: React.FC = () => {
       return;
     }
 
-    if (type === 'recovery' && accessToken && refreshToken) {
+    // Check for both URL parameters and PASSWORD_RECOVERY event
+    if ((type === 'recovery' && accessToken && refreshToken) || passwordRecoveryDetected) {
+      console.log('Valid password recovery detected');
+      
       // Set the session with the tokens from the URL
       if (supabase) {
         console.log('Setting session with tokens...');
@@ -96,7 +123,7 @@ const ResetPasswordPage: React.FC = () => {
         setTokenValid(false);
         setValidatingToken(false);
       }
-    } else {
+    } else if (!passwordRecoveryDetected) {
       console.error('Missing required parameters:', { type, accessToken: !!accessToken, refreshToken: !!refreshToken });
       setError('Invalid reset link format. Please request a new password reset.');
       setTokenValid(false);
@@ -104,7 +131,7 @@ const ResetPasswordPage: React.FC = () => {
     }
   }, [searchParams]);
 
-  const onSubmit = async (data: ResetPasswordFormValues) => {
+  const onSubmit = async (formData: ResetPasswordFormValues) => {
     if (!supabase) {
       setError('Authentication service not available');
       return;
@@ -115,7 +142,7 @@ const ResetPasswordPage: React.FC = () => {
 
     try {
       const { error } = await supabase.auth.updateUser({
-        password: data.password
+        password: formData.password
       });
 
       if (error) {
@@ -124,6 +151,7 @@ const ResetPasswordPage: React.FC = () => {
         return;
       }
 
+      console.log('Password updated successfully');
       setSuccess(true);
       
       // Redirect to login after a short delay
@@ -150,7 +178,7 @@ const ResetPasswordPage: React.FC = () => {
   if (validatingToken) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md">
+        <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-lg">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Validating Reset Link</h2>
@@ -164,7 +192,7 @@ const ResetPasswordPage: React.FC = () => {
   if (!tokenValid) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md">
+        <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-lg">
           <div className="text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 mx-auto mb-4">
               <AlertCircle className="h-8 w-8 text-red-600" />
@@ -175,7 +203,7 @@ const ResetPasswordPage: React.FC = () => {
             {/* Debug Information */}
             <div className="mb-6 p-4 bg-gray-50 rounded-lg text-left">
               <h3 className="text-sm font-medium text-gray-900 mb-2">Debug Information:</h3>
-              <div className="text-xs text-gray-600 space-y-1">
+              <div className="text-xs text-gray-600 space-y-1 font-mono">
                 <p><strong>Expected URL format:</strong> /reset-password?access_token=...&refresh_token=...&type=recovery</p>
                 <p><strong>Current URL:</strong> {window.location.href}</p>
                 <p><strong>Access Token:</strong> {searchParams.get('access_token') ? 'Present' : 'Missing'}</p>
@@ -184,12 +212,14 @@ const ResetPasswordPage: React.FC = () => {
                 <p><strong>Error:</strong> {searchParams.get('error') || 'None'}</p>
                 <p><strong>Error Description:</strong> {searchParams.get('error_description') || 'None'}</p>
               </div>
-              <div className="mt-3 p-2 bg-blue-50 rounded text-xs">
+              <div className="mt-3 p-3 bg-blue-50 rounded text-xs">
                 <p><strong>Troubleshooting:</strong></p>
-                <p>1. Check Supabase Dashboard → Authentication → URL Configuration</p>
-                <p>2. Verify Site URL matches your deployed domain</p>
-                <p>3. Ensure redirect URL includes /reset-password</p>
-                <p>4. Check email template uses {`{{ .RedirectTo }}`}</p>
+                <div className="space-y-1 mt-1">
+                  <p>1. Check Supabase Dashboard → Authentication → URL Configuration</p>
+                  <p>2. Verify Site URL matches your deployed domain</p>
+                  <p>3. Ensure redirect URL includes /reset-password</p>
+                  <p>4. Check email template uses {`{{ .RedirectTo }}`} (not ConfirmationURL)</p>
+                </div>
               </div>
             </div>
             
