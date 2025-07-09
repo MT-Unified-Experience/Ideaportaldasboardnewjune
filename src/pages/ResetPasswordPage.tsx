@@ -32,6 +32,7 @@ const ResetPasswordPage: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [validatingToken, setValidatingToken] = useState(true);
   const [tokenValid, setTokenValid] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>({});
 
   const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -46,15 +47,22 @@ const ResetPasswordPage: React.FC = () => {
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
 
-    // Log URL parameters for debugging
-    console.log('Reset password URL params:', {
+    // Store debug info
+    const debugData = {
       accessToken: accessToken ? 'present' : 'missing',
       refreshToken: refreshToken ? 'present' : 'missing',
       type,
       error,
       errorDescription,
-      fullUrl: window.location.href
-    });
+      fullUrl: window.location.href,
+      origin: window.location.origin,
+      pathname: window.location.pathname,
+      search: window.location.search
+    };
+    setDebugInfo(debugData);
+
+    // Log URL parameters for debugging
+    console.log('Reset password URL params:', debugData);
 
     // Check for error parameters first
     if (error) {
@@ -168,12 +176,20 @@ const ResetPasswordPage: React.FC = () => {
             <div className="mb-6 p-4 bg-gray-50 rounded-lg text-left">
               <h3 className="text-sm font-medium text-gray-900 mb-2">Debug Information:</h3>
               <div className="text-xs text-gray-600 space-y-1">
+                <p><strong>Expected URL format:</strong> /reset-password?access_token=...&refresh_token=...&type=recovery</p>
                 <p><strong>Current URL:</strong> {window.location.href}</p>
                 <p><strong>Access Token:</strong> {searchParams.get('access_token') ? 'Present' : 'Missing'}</p>
                 <p><strong>Refresh Token:</strong> {searchParams.get('refresh_token') ? 'Present' : 'Missing'}</p>
                 <p><strong>Type:</strong> {searchParams.get('type') || 'Missing'}</p>
                 <p><strong>Error:</strong> {searchParams.get('error') || 'None'}</p>
                 <p><strong>Error Description:</strong> {searchParams.get('error_description') || 'None'}</p>
+              </div>
+              <div className="mt-3 p-2 bg-blue-50 rounded text-xs">
+                <p><strong>Troubleshooting:</strong></p>
+                <p>1. Check Supabase Dashboard → Authentication → URL Configuration</p>
+                <p>2. Verify Site URL matches your deployed domain</p>
+                <p>3. Ensure redirect URL includes /reset-password</p>
+                <p>4. Check email template uses {`{{ .RedirectTo }}`}</p>
               </div>
             </div>
             
