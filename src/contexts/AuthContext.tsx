@@ -194,12 +194,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       // Get the correct redirect URL for the current environment
       const getRedirectUrl = () => {
-        // Use the deployed Netlify URL for production, localhost for development
-        if (window.location.hostname === 'localhost') {
-          return `${window.location.origin}/reset-password`;
+        // Use current origin but ensure it matches what's configured in Supabase
+        const currentOrigin = window.location.origin;
+        
+        // For localhost development
+        if (currentOrigin.includes('localhost')) {
+          return `${currentOrigin}/reset-password`;
         }
-        // For production, use the deployed URL
-        return `https://bucolic-gingersnap-b526ad.netlify.app/reset-password`;
+        
+        // For production, use the current origin (should be the Netlify URL)
+        return `${currentOrigin}/reset-password`;
       };
 
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
