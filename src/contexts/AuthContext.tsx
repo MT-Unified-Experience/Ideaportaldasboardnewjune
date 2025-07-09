@@ -69,8 +69,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
       return () => subscription.unsubscribe();
     }
-      return () => subscription.unsubscribe();
-    }
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
