@@ -1,20 +1,38 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import { DataProvider } from './contexts/DataContext';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import DashboardLayout from './layouts/DashboardLayout';
 import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
-    <Router>
-      <DataProvider>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={<DashboardLayout />} />
-          <Route path="/dashboard" element={<DashboardLayout />} />
-        </Routes>
-      </DataProvider>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <DataProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route 
+              path="/" 
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
+        </DataProvider>
+      </Router>
+    </AuthProvider>
   );
 }
 

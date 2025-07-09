@@ -1,7 +1,18 @@
 import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { Auth } from '../components/ui/auth-form-1';
 
 const LoginPage: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  
+  // If already authenticated, redirect to dashboard or return url
+  if (isAuthenticated) {
+    const from = location.state?.from?.pathname || '/dashboard';
+    return <Navigate to={from} replace />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
       {/* Background Pattern */}
@@ -26,6 +37,12 @@ const LoginPage: React.FC = () => {
         {/* Footer */}
         <div className="text-center mt-8 text-xs text-gray-500">
           <p>© 2024 Mitratech. All rights reserved.</p>
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-blue-800 font-medium text-sm mb-2">Test Credentials:</p>
+            <p className="text-blue-700 text-xs">Email: test@mitratech.com</p>
+            <p className="text-blue-700 text-xs">Password: password123</p>
+            <p className="text-blue-600 text-xs mt-2">Or use any @mitratech.com email with 8+ character password</p>
+          </div>
         </div>
       </div>
     </div>

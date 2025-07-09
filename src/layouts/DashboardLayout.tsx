@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import ProductTabs from '../components/navigation/ProductTabs';
 import ActionItemsPanel from '../components/dashboard/ActionItemsPanel';
 import QuarterTabs from '../components/navigation/QuarterTabs';
 import DashboardManagement from '../components/dashboard/DashboardManagement';
 import { DashboardGrid } from '../components/dashboard';
-import { BarChart2, Edit, ListTodo, Settings, RefreshCw } from 'lucide-react';
+import { BarChart2, Edit, ListTodo, Settings, RefreshCw, LogOut, User } from 'lucide-react';
 import SettingsModal from '../components/common/SettingsModal';
 
 interface WidgetSettings {
@@ -53,6 +54,7 @@ const saveSettings = (settings: WidgetSettings): void => {
 
 const DashboardLayout: React.FC = () => {
   const { currentProduct, currentQuarter, dashboardData, refreshDashboardData, isLoading } = useData();
+  const { user, logout } = useAuth();
   const dashboardRef = React.useRef<HTMLDivElement>(null);
   const [isManagementOpen, setIsManagementOpen] = useState(false);
   const [isActionItemsOpen, setIsActionItemsOpen] = useState(false);
@@ -78,6 +80,11 @@ const DashboardLayout: React.FC = () => {
       console.error('Error refreshing data:', error);
     }
   };
+
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -92,6 +99,12 @@ const DashboardLayout: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {/* User Info */}
+              <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-md">
+                <User className="h-4 w-4 text-gray-600" />
+                <span className="text-sm text-gray-700">{user?.name || user?.email}</span>
+              </div>
+              
               <button
                 onClick={handleRefresh}
                 disabled={isLoading}
@@ -108,6 +121,14 @@ const DashboardLayout: React.FC = () => {
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
+              </button>
+              
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center px-3 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
               </button>
             </div>
           </div>

@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Eye, EyeOff, Loader2, MailCheck } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -219,6 +221,9 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
     error: null,
     showPassword: false,
   });
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const { register, handleSubmit, formState: { errors } } = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -228,8 +233,14 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
   const onSubmit = async (data: SignInFormValues) => {
     setFormState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API call
-      setFormState((prev) => ({ ...prev, error: "Invalid email or password" }));
+      const success = await login(data.email, data.password);
+      if (success) {
+        // Redirect to dashboard or return url
+        const from = location.state?.from?.pathname || '/dashboard';
+        navigate(from, { replace: true });
+      } else {
+        setFormState((prev) => ({ ...prev, error: "Invalid email or password" }));
+      }
     } catch {
       setFormState((prev) => ({ ...prev, error: "An unexpected error occurred" }));
     } finally {
