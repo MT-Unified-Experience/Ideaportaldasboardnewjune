@@ -440,6 +440,9 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
             {...register("email")}
           />
           {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+          <p className="text-xs text-gray-500 mt-1">
+            Only @mitratech.com email addresses are allowed
+          </p>
         </div>
 
         <div className="space-y-2">

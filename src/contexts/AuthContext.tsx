@@ -259,6 +259,13 @@ const getAuthErrorMessage = (error: AuthError): string => {
       return 'Account registration is currently disabled. Please contact your administrator.';
     case 'Only @mitratech.com email addresses are allowed':
       return 'Only Mitratech email addresses (@mitratech.com) are allowed to register.';
+    case 'Only @mitratech.com email addresses are allowed':
+      return 'Only Mitratech email addresses (@mitratech.com) are allowed to register.';
+    default:
+      // Check if the error message contains the domain restriction
+      if (error.message?.includes('@mitratech.com')) {
+        return 'Only Mitratech email addresses (@mitratech.com) are allowed to register.';
+      }
     default:
       // Return the original error message if we don't have a specific mapping
       return error.message || 'An authentication error occurred. Please try again.';
