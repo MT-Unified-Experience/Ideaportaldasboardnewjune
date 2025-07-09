@@ -37,7 +37,7 @@ const LoginPage: React.FC = () => {
         
         {/* Footer */}
         <div className="text-center mt-8 text-xs text-gray-500">
-          <p>© 2024 Mitratech. All rights reserved.</p>
+          <p>© 2025 Mitratech. All rights reserved.</p>
         </div>
       </div>
     </div>
