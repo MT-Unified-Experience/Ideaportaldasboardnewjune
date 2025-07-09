@@ -354,9 +354,6 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
         </Button>
       </AuthForm>
 
-      <AuthSeparator />
-      <AuthSocialButtons isLoading={formState.isLoading} />
-
       <p className="mt-8 text-center text-sm text-muted-foreground">
         No account?{" "}
         <Button
@@ -535,9 +532,6 @@ function AuthSignUp({ onSignIn }: AuthSignUpProps) {
           )}
         </Button>
       </AuthForm>
-
-      <AuthSeparator />
-      <AuthSocialButtons isLoading={formState.isLoading} />
 
       <p className="mt-8 text-center text-sm text-muted-foreground">
         Have an account?{" "}
