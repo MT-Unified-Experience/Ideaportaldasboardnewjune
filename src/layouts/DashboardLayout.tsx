@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
@@ -55,6 +55,24 @@ const saveSettings = (settings: WidgetSettings): void => {
 const DashboardLayout: React.FC = () => {
   const { currentProduct, currentQuarter, dashboardData, refreshDashboardData, isLoading } = useData();
   const { user, logout } = useAuth();
+  
+  // Calculate user initials
+  const userInitials = useMemo(() => {
+    if (user?.user_metadata?.full_name) {
+      // Get initials from full name
+      return user.user_metadata.full_name
+        .split(' ')
+        .map((name: string) => name.charAt(0))
+        .join('')
+        .toUpperCase()
+        .slice(0, 2); // Limit to 2 characters
+    } else if (user?.email) {
+      // Get first letter from email
+      return user.email.charAt(0).toUpperCase();
+    }
+    return 'U'; // Fallback
+  }, [user]);
+  
   const dashboardRef = React.useRef<HTMLDivElement>(null);
   const [isManagementOpen, setIsManagementOpen] = useState(false);
   const [isActionItemsOpen, setIsActionItemsOpen] = useState(false);
@@ -101,7 +119,11 @@ const DashboardLayout: React.FC = () => {
             <div className="flex items-center gap-3">
               {/* User Info */}
               <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-md">
-                <User className="h-4 w-4 text-gray-600" />
+                <div className="h-8 w-8 rounded-full bg-purple-600 flex items-center justify-center">
+                  <span className="text-white font-semibold text-sm">
+                    {userInitials}
+                  </span>
+                </div>
                 <span className="text-sm text-gray-700">
                   {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
                 </span>
