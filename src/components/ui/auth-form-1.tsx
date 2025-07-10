@@ -319,18 +319,7 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="password">Password</Label>
-            <Button
-              type="button"
-              variant="link"
-              className="h-auto p-0 text-xs"
-              onClick={onForgotPassword}
-              disabled={formState.isLoading}
-            >
-              Forgot password?
-            </Button>
-          </div>
+          <Label htmlFor="password">Password</Label>
           <div className="relative">
             <Input
               id="password"
@@ -368,17 +357,6 @@ function AuthSignIn({ onForgotPassword, onSignUp }: AuthSignInProps) {
         </Button>
       </AuthForm>
 
-      <p className="mt-8 text-center text-sm text-muted-foreground">
-        No account?{" "}
-        <Button
-          variant="link"
-          className="h-auto p-0 text-sm"
-          onClick={onSignUp}
-          disabled={formState.isLoading}
-        >
-          Create one
-        </Button>
-      </p>
     </motion.div>
   );
 }
