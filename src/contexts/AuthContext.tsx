@@ -265,7 +265,7 @@ const getAuthErrorMessage = (error: AuthError): string => {
     case 'Invalid login credentials':
       return 'Invalid email or password. Please check your credentials and try again.';
     case 'Email not confirmed':
-      return 'Please check your email and click the confirmation link before signing in.';
+      return 'Please check your email (including spam folder) and click the confirmation link to activate your account before signing in.';
     case 'User not found':
       return 'No account found with this email address.';
     case 'Invalid email':
@@ -282,6 +282,10 @@ const getAuthErrorMessage = (error: AuthError): string => {
       // Check if the error message contains the domain restriction
       if (error.message?.includes('@mitratech.com')) {
         return 'Only Mitratech email addresses (@mitratech.com) are allowed to register.';
+      }
+      // Check for email confirmation related errors
+      if (error.message?.toLowerCase().includes('email') && error.message?.toLowerCase().includes('confirm')) {
+        return 'Please check your email (including spam folder) and click the confirmation link to activate your account before signing in.';
       }
       // Return the original error message if we don't have a specific mapping
       return error.message || 'An authentication error occurred. Please try again.';

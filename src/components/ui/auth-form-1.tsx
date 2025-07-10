@@ -161,12 +161,26 @@ function AuthError({ message }: AuthErrorProps) {
     displayMessage = message;
   }
   
+  // Check if this is an email confirmation error
+  const isEmailConfirmationError = displayMessage.toLowerCase().includes('email') && 
+    (displayMessage.toLowerCase().includes('confirm') || displayMessage.toLowerCase().includes('activation'));
+  
   return (
     <div
       data-slot="auth-error"
       className="mb-6 animate-in rounded-lg border border-[#CD2026]/20 bg-[#CD2026]/10 p-4 text-sm text-[#CD2026]"
     >
-      {displayMessage}
+      <div className="space-y-2">
+        <p>{displayMessage}</p>
+        {isEmailConfirmationError && (
+          <div className="text-xs text-[#CD2026]/80 space-y-1">
+            <p>• Check your email inbox and spam/junk folder</p>
+            <p>• Look for an email from Supabase or your app</p>
+            <p>• Click the confirmation link in the email</p>
+            <p>• Return here to sign in after confirming</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
