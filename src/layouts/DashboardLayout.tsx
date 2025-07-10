@@ -134,7 +134,7 @@ const DashboardLayout: React.FC = () => {
               <img 
                 src="https://i.postimg.cc/GtRsttRk/CLC-Color.png" 
                 alt="Mitratech CLC" 
-                className="h-8 object-contain mr-3"
+                className="h-12 object-contain mr-3"
                 style={{ width: '250px' }}
               />
             </div>
