@@ -124,9 +124,6 @@ const DashboardLayout: React.FC = () => {
                     {userInitials}
                   </span>
                 </div>
-                <span className="text-sm text-gray-700">
-                  {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-                </span>
               </div>
               
               <button
