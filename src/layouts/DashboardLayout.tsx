@@ -130,11 +130,11 @@ const DashboardLayout: React.FC = () => {
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center">
+            <div className="flex items-center w-48">
               <img 
                 src="https://i.postimg.cc/GtRsttRk/CLC-Color.png" 
                 alt="Mitratech CLC" 
-                className="h-8 w-8 mr-3"
+                className="h-10 w-auto mr-3"
               />
             </div>
             <div className="flex items-center gap-3">
