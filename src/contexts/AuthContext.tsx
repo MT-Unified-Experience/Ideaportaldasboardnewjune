@@ -19,55 +19,109 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      try {
-        if (!supabase) {
-          console.warn('Supabase not available, using offline mode');
+    let mounted = true;
+    
+    const initializeAuth = async () => {
+      if (!supabase) {
+        console.warn('Supabase client not available');
+        if (mounted) {
           setLoading(false);
-          return;
+          setInitialized(true);
+        }
+        return;
+      }
+
+      try {
+        // Clear any potentially corrupted tokens first
+        const storageKeys = ['sb-auth-token', 'mitratech-dashboard-auth'];
+        const hasCorruptedTokens = storageKeys.some(key => {
+          const stored = localStorage.getItem(key);
+          return stored && (stored.includes('undefined') || stored.includes('null'));
+        });
+
+        if (hasCorruptedTokens) {
+          console.warn('🧹 Clearing potentially corrupted tokens');
+          storageKeys.forEach(key => {
+            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
+          });
         }
 
+        // Get current session
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error getting session:', error);
-        } else {
-          setSession(session);
+          console.warn('Session error:', error.message);
+          // Clear storage if there's a session error
+          if (error.message?.includes('refresh') || error.message?.includes('token')) {
+            storageKeys.forEach(key => {
+              localStorage.removeItem(key);
+              sessionStorage.removeItem(key);
+            });
+          }
+        }
+        
+        if (mounted) {
           setUser(session?.user ?? null);
+          setSession(session);
         }
       } catch (error) {
-        console.error('Error in getInitialSession:', error);
+        console.warn('Error during auth initialization:', error);
+        if (mounted) {
+          setUser(null);
+          setSession(null);
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+          setInitialized(true);
+        }
       }
     };
 
-    getInitialSession();
+    initializeAuth();
+
+    if (!supabase) {
+      return () => { mounted = false; };
+    }
 
     // Listen for auth changes
-    if (supabase) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          console.log('Auth state changed:', event, session?.user?.email);
-          
-          // Handle password recovery event
-          if (event === 'PASSWORD_RECOVERY') {
-            console.log('Password recovery event detected');
-            // The session will contain the user who needs to reset their password
-            // The ResetPasswordPage component will handle the actual password update
-          }
-          
-          setSession(session);
-          setUser(session?.user ?? null);
-          setLoading(false);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
+      
+      if (mounted) {
+        setUser(session?.user ?? null);
+        setSession(session);
+        
+        // Handle specific auth events
+        if (event === 'SIGNED_OUT') {
+          // Clear all storage on sign out
+          const storageKeys = ['sb-auth-token', 'mitratech-dashboard-auth'];
+          storageKeys.forEach(key => {
+            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
+          });
         }
-      );
+        
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('✅ Token refreshed successfully');
+        }
+        
+        if (event === 'SIGNED_IN') {
+          console.log('✅ User signed in successfully');
+        }
+      }
+    });
 
-      return () => subscription.unsubscribe();
-    }
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
@@ -174,11 +228,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return;
       }
 
+      // Clear storage before attempting logout
+      const storageKeys = ['sb-auth-token', 'mitratech-dashboard-auth'];
+      storageKeys.forEach(key => {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+      });
+
       setLoading(true);
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error('Logout error:', error);
+        // Even if logout fails, clear local state
+        setUser(null);
+        setSession(null);
       }
       
       // Clear state regardless of error

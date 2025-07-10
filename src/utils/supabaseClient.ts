@@ -35,7 +35,7 @@ const supabaseOptions: SupabaseClientOptions<any> = {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storageKey: 'mitratech-dashboard-auth',
+    storageKey: 'sb-auth-token',
     flowType: 'pkce'
   },
   db: {
@@ -145,6 +145,14 @@ export const signOut = async (): Promise<{ error: any }> => {
     }
     
     console.log('🔐 Attempting to sign out...');
+    
+    // Clear local storage first to prevent token conflicts
+    const storageKeys = ['sb-auth-token', 'mitratech-dashboard-auth'];
+    storageKeys.forEach(key => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
+    
     const { error } = await supabase.auth.signOut({ scope: 'global' });
     
     if (error) {
@@ -156,12 +164,13 @@ export const signOut = async (): Promise<{ error: any }> => {
         console.warn('1. Incorrect API key in .env file');
         console.warn('2. Missing CORS configuration in Supabase dashboard');
         console.warn('3. Supabase project configuration issues');
-        
-        // Clear local session even if server sign out fails
-        localStorage.removeItem('mitratech-dashboard-auth');
-        sessionStorage.clear();
-        
         return { error: null }; // Treat as successful local sign out
+      }
+      
+      // For refresh token errors, clear storage and treat as success
+      if (error.message?.includes('refresh') || error.message?.includes('token')) {
+        console.warn('💡 Token-related error during sign out, clearing local storage');
+        return { error: null };
       }
       
       return { error };
@@ -173,8 +182,11 @@ export const signOut = async (): Promise<{ error: any }> => {
     console.warn('🔥 Unexpected error during sign out:', error.message);
     
     // Clear local session as fallback
-    localStorage.removeItem('mitratech-dashboard-auth');
-    sessionStorage.clear();
+    const storageKeys = ['sb-auth-token', 'mitratech-dashboard-auth'];
+    storageKeys.forEach(key => {
+      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
+    });
     
     return { error: null }; // Treat as successful local sign out
   }
