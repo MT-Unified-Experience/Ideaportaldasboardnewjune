@@ -147,7 +147,7 @@ const DashboardLayout: React.FC = () => {
                 }`}
                 title={isLoading ? 'Refreshing...' : 'Refresh'}
               >
-                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
               </button>
               
               {/* User Profile Dropdown */}
@@ -161,7 +161,7 @@ const DashboardLayout: React.FC = () => {
                       {userInitials}
                     </span>
                   </div>
-                  <ChevronDown className={`h-4 w-4 text-gray-600 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-5 w-5 text-gray-600 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Dropdown Menu */}
