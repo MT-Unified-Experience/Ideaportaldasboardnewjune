@@ -130,16 +130,13 @@ const DashboardLayout: React.FC = () => {
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex flex-col items-start w-48">
+            <div className="flex items-center w-48">
               <img 
                 src="https://i.postimg.cc/GtRsttRk/CLC-Color.png" 
                 alt="Mitratech CLC" 
-                className="h-12 object-contain"
+                className="h-12 object-contain mr-3"
                 style={{ width: '250px' }}
               />
-              <p className="text-sm text-gray-500 font-medium mt-1 ml-1">
-                Idea Portal Dashboard
-              </p>
             </div>
             <div className="flex items-center gap-3">
               {/* Refresh Button */}
