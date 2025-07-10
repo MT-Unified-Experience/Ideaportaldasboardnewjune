@@ -1,5 +1,4 @@
-import React, { useState, useMemo } from 'react';
-import { useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import ProductTabs from '../components/navigation/ProductTabs';
@@ -7,7 +6,7 @@ import ActionItemsPanel from '../components/dashboard/ActionItemsPanel';
 import QuarterTabs from '../components/navigation/QuarterTabs';
 import DashboardManagement from '../components/dashboard/DashboardManagement';
 import { DashboardGrid } from '../components/dashboard';
-import { BarChart2, Edit, ListTodo, Settings, RefreshCw, LogOut, User } from 'lucide-react';
+import { BarChart2, Edit, ListTodo, Settings, RefreshCw, LogOut, User, ChevronDown } from 'lucide-react';
 import SettingsModal from '../components/common/SettingsModal';
 
 interface WidgetSettings {
@@ -78,6 +77,8 @@ const DashboardLayout: React.FC = () => {
   const [isActionItemsOpen, setIsActionItemsOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [widgetSettings, setWidgetSettings] = useState<WidgetSettings>(getStoredSettings);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Load settings from localStorage on component mount
   useEffect(() => {
@@ -91,6 +92,20 @@ const DashboardLayout: React.FC = () => {
     saveSettings(newSettings);
   };
 
+  // Handle clicks outside dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleRefresh = async () => {
     try {
       await refreshDashboardData();
@@ -100,7 +115,13 @@ const DashboardLayout: React.FC = () => {
   };
 
   const handleLogout = () => {
+    setIsDropdownOpen(false);
     logout();
+  };
+
+  const handleSettingsClick = () => {
+    setIsDropdownOpen(false);
+    setIsSettingsOpen(true);
   };
 
   return (
@@ -117,12 +138,47 @@ const DashboardLayout: React.FC = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {/* User Info */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-md">
-                <div className="h-8 w-8 rounded-full bg-purple-600 flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">
-                    {userInitials}
-                  </span>
+              {/* User Profile Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                >
+                  <div className="h-8 w-8 rounded-full bg-purple-600 flex items-center justify-center">
+                    <span className="text-white font-semibold text-sm">
+                      {userInitials}
+                    </span>
+                  </div>
+                  <ChevronDown className={`h-4 w-4 text-gray-600 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-900">
+                        {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+                      </p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
+                    </div>
+                    
+                    <button
+                      onClick={handleSettingsClick}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                    >
+                      <Settings className="h-4 w-4 mr-3" />
+                      Settings
+                    </button>
+                    
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
+                    >
+                      <LogOut className="h-4 w-4 mr-3" />
+                      Logout
+                    </button>
+                  </div>
+                )}
                 </div>
               </div>
               
@@ -135,21 +191,6 @@ const DashboardLayout: React.FC = () => {
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
                 {isLoading ? 'Refreshing...' : 'Refresh'}
-              </button>
-              <button
-                onClick={() => setIsSettingsOpen(true)}
-                className="inline-flex items-center px-3 py-2 bg-white text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 border border-gray-200"
-              >
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </button>
-              
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center px-3 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
               </button>
             </div>
           </div>
