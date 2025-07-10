@@ -179,7 +179,6 @@ const DashboardLayout: React.FC = () => {
                     </button>
                   </div>
                 )}
-                </div>
               </div>
               
               <button
