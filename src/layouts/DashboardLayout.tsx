@@ -136,10 +136,6 @@ const DashboardLayout: React.FC = () => {
                 alt="Mitratech CLC" 
                 className="h-8 w-8 mr-3"
               />
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Idea Portal Dashboard</h1>
-                <p className="text-sm text-gray-600">Track and analyze idea submissions and progress</p>
-              </div>
             </div>
             <div className="flex items-center gap-3">
               {/* Refresh Button */}
