@@ -147,7 +147,7 @@ const DashboardLayout: React.FC = () => {
                 }`}
                 title={isLoading ? 'Refreshing...' : 'Refresh'}
               >
-                <RefreshCw className={`h-5 w-5 ${isLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-6 w-6 ${isLoading ? 'animate-spin' : ''}`} />
               </button>
               
               {/* User Profile Dropdown */}
