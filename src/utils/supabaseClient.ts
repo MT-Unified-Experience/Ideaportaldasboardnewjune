@@ -221,7 +221,7 @@ export const signIn = async (email: string, password: string) => {
 export const supabaseFetch = async (
   path: string, 
   options: RequestInit = {},
-  retries: number = 3
+  retries: number = 1
 ): Promise<Response> => {
   const url = getApiUrl(path);
   const headers = {
@@ -235,7 +235,7 @@ export const supabaseFetch = async (
       const timeoutId = setTimeout(() => {
         console.warn(`⏰ Request timeout (attempt ${attempt}/${retries}):`, url);
         controller.abort();
-      }, 30000); // 30 second timeout
+      }, 5000); // 5 second timeout
 
       const response = await fetch(url, {
         ...options,
@@ -263,8 +263,14 @@ export const supabaseFetch = async (
     } catch (error: any) {
       console.warn(`🔥 Supabase fetch error (attempt ${attempt}/${retries}):`, error.message);
       
-      // Don't retry on certain errors
-      if (error.name === 'AbortError' || error.message?.includes('timeout')) {
+      // Handle socket hang up and connection errors
+      if (error.message?.includes('socket hang up') || 
+          error.message?.includes('ECONNRESET') ||
+          error.message?.includes('network error')) {
+        if (attempt === retries) {
+          throw new Error('Connection lost to Supabase. Please check your internet connection and try again.');
+        }
+      } else if (error.name === 'AbortError' || error.message?.includes('timeout')) {
         if (attempt === retries) {
           throw new Error('Request timeout - please check your connection and try again');
         }
@@ -279,7 +285,7 @@ export const supabaseFetch = async (
       
       // Wait before retrying (exponential backoff)
       if (attempt < retries) {
-        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+        const delay = Math.min(500 * Math.pow(2, attempt - 1), 2000);
         console.log(`⏳ Retrying in ${delay}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       } else {
@@ -303,11 +309,27 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
       return false;
     }
     
-    // Test connection with a simple query and timeout
-    const response = await supabaseFetch('rest/v1/dashboards?select=id&limit=1');
-    
-    console.log('✅ Supabase connection successful');
-    return true;
+    // Test connection with a simple query and shorter timeout
+    try {
+      const response = await supabaseFetch('rest/v1/dashboards?select=id&limit=1');
+      console.log('✅ Supabase connection successful');
+      return true;
+    } catch (connectionError: any) {
+      // If connection fails, don't throw error but return false gracefully
+      console.warn('🔥 Supabase connection test failed:', connectionError.message);
+      
+      // Check if it's a socket hang up error specifically
+      if (connectionError.message?.includes('socket hang up') || 
+          connectionError.message?.includes('Connection lost')) {
+        console.warn('💡 Socket hang up detected. This usually indicates:');
+        console.warn('1. Temporary network connectivity issues');
+        console.warn('2. Supabase service temporarily unavailable');
+        console.warn('3. VPN or firewall blocking the connection');
+        console.warn('4. Try refreshing the page or checking your internet connection');
+      }
+      
+      return false;
+    }
       
   } catch (error: any) {
     // Handle all types of errors gracefully
@@ -315,8 +337,15 @@ export const checkSupabaseConnection = async (): Promise<boolean> => {
     
     console.warn('🔥 Failed to connect to Supabase:', errorMessage);
     
-    // Provide helpful debugging information
-    if (errorMessage.includes('Failed to fetch') || errorMessage.includes('Network error')) {
+    // Provide helpful debugging information for socket hang up
+    if (errorMessage.includes('socket hang up') || errorMessage.includes('ECONNRESET')) {
+      console.warn('💡 Socket hang up error detected. To fix this issue:');
+      console.warn('1. Check your internet connection stability');
+      console.warn('2. Verify your Supabase project is active at https://supabase.com/dashboard');
+      console.warn('3. Try accessing your Supabase project URL directly in browser');
+      console.warn('4. If using VPN, try disabling it temporarily');
+      console.warn('5. Restart your development server with: npm run dev');
+    } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('Network error')) {
       console.warn('💡 To fix this issue:');
       console.warn('1. Check your internet connection');
       console.warn('2. Verify your Supabase project is active');
