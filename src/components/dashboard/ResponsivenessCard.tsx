@@ -41,13 +41,12 @@ const ResponsivenessCard: React.FC<ResponsivenessCardProps> = ({
   // Helper function to get the past four quarters based on current quarter
   const getPastFourQuarters = (currentQuarter: Quarter): string[] => {
     const quarterMap: { [key: string]: string[] } = {
-      'FY25 Q1': ['FY24 Q2', 'FY24 Q3', 'FY24 Q4', 'FY25 Q1'],
-      'FY25 Q2': ['FY24 Q3', 'FY24 Q4', 'FY25 Q1', 'FY25 Q2'],
-      'FY25 Q3': ['FY24 Q4', 'FY25 Q1', 'FY25 Q2', 'FY25 Q3'],
+      'FY26 Q2': ['FY25 Q3', 'FY25 Q4', 'FY26 Q1', 'FY26 Q2'],
+      'FY26 Q1': ['FY25 Q2', 'FY25 Q3', 'FY25 Q4', 'FY26 Q1'],
       'FY25 Q4': ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'],
-      'FY26 Q1': ['FY25 Q2', 'FY25 Q3', 'FY25 Q4', 'FY26 Q1']
+      'FY25 Q3': ['FY24 Q4', 'FY25 Q1', 'FY25 Q2', 'FY25 Q3']
     };
-    return quarterMap[currentQuarter] || ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4'];
+    return quarterMap[currentQuarter] || ['FY26 Q2', 'FY26 Q1', 'FY25 Q4', 'FY25 Q3'];
   };
 
   // Filter quarterly data to show only the past four quarters

@@ -65,7 +65,7 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     getStoredValue(STORAGE_KEYS.CURRENT_PRODUCT, 'TeamConnect')
   );
   const [currentQuarter, setCurrentQuarterState] = useState<Quarter>(() => 
-    getStoredValue(STORAGE_KEYS.CURRENT_QUARTER, 'FY25 Q1')
+    getStoredValue(STORAGE_KEYS.CURRENT_QUARTER, 'FY26 Q2')
   );
   const [allProductsData, setAllProductsData] = useState<Record<Product, ProductData>>(() => 
     getStoredValue(STORAGE_KEYS.DASHBOARD_DATA, createDummyProductData())

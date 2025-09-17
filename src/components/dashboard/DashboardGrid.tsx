@@ -36,13 +36,12 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({
   // Helper function to get previous quarter
   const getPreviousQuarter = (quarter: string): string => {
     const quarterMap: { [key: string]: string } = {
-      'FY25 Q1': 'FY24 Q4',
-      'FY25 Q2': 'FY25 Q1',
-      'FY25 Q3': 'FY25 Q2',
+      'FY26 Q2': 'FY26 Q1',
+      'FY26 Q1': 'FY25 Q4',
       'FY25 Q4': 'FY25 Q3',
-      'FY26 Q1': 'FY25 Q4'
+      'FY25 Q3': 'FY24 Q4'
     };
-    return quarterMap[quarter] || 'FY25 Q3';
+    return quarterMap[quarter] || 'FY25 Q4';
   };
 
   // Get previous quarter data

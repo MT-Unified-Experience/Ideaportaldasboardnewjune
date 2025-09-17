@@ -2,17 +2,17 @@ import { DashboardData, Product, Quarter, ProductData, ActionItem } from '../typ
 
 // Generate realistic dummy data for the dashboard
 const generateDummyDashboardData = (product: Product, quarter: Quarter): DashboardData => {
-  const quarterIndex = ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4', 'FY26 Q1'].indexOf(quarter);
+  const quarterIndex = ['FY26 Q2', 'FY26 Q1', 'FY25 Q4', 'FY25 Q3'].indexOf(quarter);
   const baseValue = quarterIndex * 5 + 70; // Creates variation across quarters
 
   return {
     metricSummary: {
       responsiveness: Math.min(95, baseValue + Math.floor(Math.random() * 10)),
       responsivenessQuarterlyData: [
-        { quarter: 'FY25 Q1', percentage: 82, totalIdeas: 45, ideasMovedOutOfReview: 37, ideasList: ['AI Integration', 'Mobile App', 'Reporting Tools'] },
-        { quarter: 'FY25 Q2', percentage: 78, totalIdeas: 52, ideasMovedOutOfReview: 41, ideasList: ['API Enhancements', 'Custom Workflows', 'Document Management'] },
-        { quarter: 'FY25 Q3', percentage: 85, totalIdeas: 38, ideasMovedOutOfReview: 32, ideasList: ['Search Improvements', 'Bulk Actions', 'Dashboard Customization'] },
-        { quarter: 'FY25 Q4', percentage: 95, totalIdeas: 41, ideasMovedOutOfReview: 39, ideasList: ['Email Integration', 'Advanced Analytics', 'Performance Optimization'] }
+        { quarter: 'FY26 Q2', percentage: 95, totalIdeas: 41, ideasMovedOutOfReview: 39, ideasList: ['Email Integration', 'Advanced Analytics', 'Performance Optimization'] },
+        { quarter: 'FY26 Q1', percentage: 85, totalIdeas: 38, ideasMovedOutOfReview: 32, ideasList: ['Search Improvements', 'Bulk Actions', 'Dashboard Customization'] },
+        { quarter: 'FY25 Q4', percentage: 78, totalIdeas: 52, ideasMovedOutOfReview: 41, ideasList: ['API Enhancements', 'Custom Workflows', 'Document Management'] },
+        { quarter: 'FY25 Q3', percentage: 82, totalIdeas: 45, ideasMovedOutOfReview: 37, ideasList: ['AI Integration', 'Mobile App', 'Reporting Tools'] }
       ],
       roadmapAlignment: {
         committed: 12 + quarterIndex * 2,
@@ -37,10 +37,10 @@ const generateDummyDashboardData = (product: Product, quarter: Quarter): Dashboa
         numerator: 15 + quarterIndex * 2,
         denominator: 20 + quarterIndex * 2,
         quarterlyTrends: [
-          { quarter: 'FY25 Q1', rate: 72, numerator: 18, denominator: 25 },
-          { quarter: 'FY25 Q2', rate: 68, numerator: 17, denominator: 25 },
-          { quarter: 'FY25 Q3', rate: 75, numerator: 21, denominator: 28 },
-          { quarter: 'FY25 Q4', rate: 80, numerator: 24, denominator: 30 }
+          { quarter: 'FY26 Q2', rate: 80, numerator: 24, denominator: 30 },
+          { quarter: 'FY26 Q1', rate: 75, numerator: 21, denominator: 28 },
+          { quarter: 'FY25 Q4', rate: 68, numerator: 17, denominator: 25 },
+          { quarter: 'FY25 Q3', rate: 72, numerator: 18, denominator: 25 }
         ],
         ideas: [
           {
@@ -73,43 +73,43 @@ const generateDummyDashboardData = (product: Product, quarter: Quarter): Dashboa
     },
     lineChartData: [
       { 
-        quarter: 'FY25 Q1', 
-        clientsRepresenting: 8,
-        clients: ['Client A', 'Client B', 'Client C', 'Client D', 'Client E', 'Client F', 'Client G', 'Client H'],
+        quarter: 'FY26 Q2', 
+        clientsRepresenting: 15,
+        clients: ['Client A', 'Client B', 'Client C', 'Client D', 'Client E', 'Client F', 'Client G', 'Client H', 'Client I', 'Client J', 'Client K', 'Client L', 'Client M', 'Client N', 'Client O'],
         ideas: [
-          { id: 'FY25Q1-001', clientName: 'Client A', summary: 'AI-Powered Document Analysis' },
-          { id: 'FY25Q1-002', clientName: 'Client B', summary: 'Mobile App Enhancement' },
-          { id: 'FY25Q1-003', clientName: 'Client C', summary: 'Reporting Dashboard Improvements' }
+          { id: 'FY26Q2-001', clientName: 'Client A', summary: 'Collaboration Tools' },
+          { id: 'FY26Q2-002', clientName: 'Client B', summary: 'Version Control System' },
+          { id: 'FY26Q2-003', clientName: 'Client C', summary: 'Automated Backup Solutions' }
         ]
       },
       { 
-        quarter: 'FY25 Q2', 
-        clientsRepresenting: 10,
-        clients: ['Client A', 'Client B', 'Client C', 'Client D', 'Client E', 'Client F', 'Client G', 'Client H', 'Client I', 'Client J'],
-        ideas: [
-          { id: 'FY25Q2-001', clientName: 'Client A', summary: 'Dashboard Customization' },
-          { id: 'FY25Q2-002', clientName: 'Client B', summary: 'Email Integration' },
-          { id: 'FY25Q2-003', clientName: 'Client C', summary: 'Advanced Analytics Dashboard' }
-        ]
-      },
-      { 
-        quarter: 'FY25 Q3', 
+        quarter: 'FY26 Q1', 
         clientsRepresenting: 12,
         clients: ['Client A', 'Client B', 'Client C', 'Client D', 'Client E', 'Client F', 'Client G', 'Client H', 'Client I', 'Client J', 'Client K', 'Client L'],
         ideas: [
-          { id: 'FY25Q3-001', clientName: 'Client A', summary: 'Integration with Third-party Tools' },
-          { id: 'FY25Q3-002', clientName: 'Client B', summary: 'Mobile Responsive Design' },
-          { id: 'FY25Q3-003', clientName: 'Client C', summary: 'Advanced Search Filters' }
+          { id: 'FY26Q1-001', clientName: 'Client A', summary: 'Integration with Third-party Tools' },
+          { id: 'FY26Q1-002', clientName: 'Client B', summary: 'Mobile Responsive Design' },
+          { id: 'FY26Q1-003', clientName: 'Client C', summary: 'Advanced Search Filters' }
         ]
       },
       { 
         quarter: 'FY25 Q4', 
-        clientsRepresenting: 15,
-        clients: ['Client A', 'Client B', 'Client C', 'Client D', 'Client E', 'Client F', 'Client G', 'Client H', 'Client I', 'Client J', 'Client K', 'Client L', 'Client M', 'Client N', 'Client O'],
+        clientsRepresenting: 10,
+        clients: ['Client A', 'Client B', 'Client C', 'Client D', 'Client E', 'Client F', 'Client G', 'Client H', 'Client I', 'Client J'],
         ideas: [
-          { id: 'FY25Q4-001', clientName: 'Client A', summary: 'Collaboration Tools' },
-          { id: 'FY25Q4-002', clientName: 'Client B', summary: 'Version Control System' },
-          { id: 'FY25Q4-003', clientName: 'Client C', summary: 'Automated Backup Solutions' }
+          { id: 'FY25Q4-001', clientName: 'Client A', summary: 'Dashboard Customization' },
+          { id: 'FY25Q4-002', clientName: 'Client B', summary: 'Email Integration' },
+          { id: 'FY25Q4-003', clientName: 'Client C', summary: 'Advanced Analytics Dashboard' }
+        ]
+      },
+      { 
+        quarter: 'FY25 Q3', 
+        clientsRepresenting: 8,
+        clients: ['Client A', 'Client B', 'Client C', 'Client D', 'Client E', 'Client F', 'Client G', 'Client H'],
+        ideas: [
+          { id: 'FY25Q3-001', clientName: 'Client A', summary: 'AI-Powered Document Analysis' },
+          { id: 'FY25Q3-002', clientName: 'Client B', summary: 'Mobile App Enhancement' },
+          { id: 'FY25Q3-003', clientName: 'Client C', summary: 'Reporting Dashboard Improvements' }
         ]
       }
     ],
@@ -127,33 +127,52 @@ const generateDummyDashboardData = (product: Product, quarter: Quarter): Dashboa
     ],
     collaborationTrendData: [
       {
-        quarter: 'FY25 Q1',
+        quarter: 'FY26 Q2',
         year: 2025,
-        collaborativeIdeas: 5,
-        totalIdeas: 25,
-        collaborationRate: 20,
+        collaborativeIdeas: 15,
+        totalIdeas: 40,
+        collaborationRate: 38,
         topCollaborativeIdeas: [
           {
-            id: 'COLLAB-Q1-001',
-            name: 'AI-Powered Document Analysis',
+            id: 'COLLAB-Q2-001',
+            name: 'Advanced Analytics Platform',
             originalSubmitter: 'Client A',
             contributors: ['Client A', 'Client B', 'Client C'],
-            submissionDate: '2024-10-01',
-            collaborationScore: 85,
+            submissionDate: '2025-07-01',
+            collaborationScore: 93,
             status: 'Active',
-            comments: 'Multiple clients have requested enhanced AI capabilities for document processing and analysis.'
+            comments: 'Comprehensive analytics platform requested by multiple enterprise clients.'
           }
         ]
       },
       {
-        quarter: 'FY25 Q2',
+        quarter: 'FY26 Q1',
+        year: 2025,
+        collaborativeIdeas: 12,
+        totalIdeas: 35,
+        collaborationRate: 34,
+        topCollaborativeIdeas: [
+          {
+            id: 'COLLAB-Q1-001',
+            name: 'Advanced Search Capabilities',
+            originalSubmitter: 'Client E',
+            contributors: ['Client E', 'Client F', 'Client G'],
+            submissionDate: '2025-04-01',
+            collaborationScore: 90,
+            status: 'Delivered',
+            comments: 'Advanced search requested by clients dealing with large document repositories.'
+          }
+        ]
+      },
+      {
+        quarter: 'FY25 Q4',
         year: 2025,
         collaborativeIdeas: 8,
         totalIdeas: 30,
         collaborationRate: 27,
         topCollaborativeIdeas: [
           {
-            id: 'COLLAB-Q2-001',
+            id: 'COLLAB-Q4-001',
             name: 'Collaborative Review Dashboard',
             originalSubmitter: 'Client A',
             contributors: ['Client A', 'Client B', 'Client D'],
@@ -161,6 +180,25 @@ const generateDummyDashboardData = (product: Product, quarter: Quarter): Dashboa
             collaborationScore: 88,
             status: 'Delivered',
             comments: 'Collaborative review features requested to improve multi-stakeholder decision making.'
+          }
+        ]
+      },
+      {
+        quarter: 'FY25 Q3',
+        year: 2025,
+        collaborativeIdeas: 5,
+        totalIdeas: 25,
+        collaborationRate: 20,
+        topCollaborativeIdeas: [
+          {
+            id: 'COLLAB-Q3-001',
+            name: 'AI-Powered Document Analysis',
+            originalSubmitter: 'Client A',
+            contributors: ['Client A', 'Client B', 'Client C'],
+            submissionDate: '2024-10-01',
+            collaborationScore: 85,
+            status: 'Active',
+            comments: 'Multiple clients have requested enhanced AI capabilities for document processing and analysis.'
           }
         ]
       }
@@ -186,7 +224,7 @@ export const createDummyProductData = (): Record<Product, ProductData> => {
     'CaseCloud',
   ];
   
-  const quarters: Quarter[] = ['FY25 Q1', 'FY25 Q2', 'FY25 Q3', 'FY25 Q4', 'FY26 Q1'];
+  const quarters: Quarter[] = ['FY26 Q2', 'FY26 Q1', 'FY25 Q4', 'FY25 Q3'];
   
   const dummyData: Record<Product, ProductData> = {} as Record<Product, ProductData>;
   
