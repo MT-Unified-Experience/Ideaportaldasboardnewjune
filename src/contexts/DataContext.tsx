@@ -1,6 +1,22 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
 import { DashboardData, Product, Quarter, ProductData, ActionItem } from '../types';
 import { createDummyProductData, generateDummyActionItems } from '../utils/dummyData';
+import { 
+  parseResponsivenessTrendCSV, 
+  validateCSVHeaders, 
+  responsivenessTrendRequiredHeaders,
+  parseTopFeaturesCSV,
+  topFeaturesRequiredHeaders,
+  parseCommitmentTrendsCSV,
+  commitmentTrendsRequiredHeaders,
+  parseContinuedEngagementCSV,
+  continuedEngagementRequiredHeaders,
+  parseClientSubmissionsCSV,
+  clientSubmissionsRequiredHeaders,
+  parseCrossClientCollaborationCSV,
+  crossClientCollaborationRequiredHeaders,
+  CSVError
+} from '../utils/csvParser';
 
 // Storage keys for persistence
 const STORAGE_KEYS = {
@@ -155,10 +171,40 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setError(null);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      console.log('Top features CSV uploaded successfully (demo mode)');
+      // Read file content
+      const fileContent = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsText(file);
+      });
+
+      // Validate CSV headers
+      await validateCSVHeaders(fileContent, topFeaturesRequiredHeaders);
+
+      // Parse CSV data
+      const { features } = await parseTopFeaturesCSV(fileContent);
+
+      // Update dashboard data with new top features data
+      setAllProductsData(prevData => {
+        const updatedData = { ...prevData };
+        
+        // Update current product's current quarter data
+        if (updatedData[currentProduct] && updatedData[currentProduct][currentQuarter]) {
+          const currentData = { ...updatedData[currentProduct][currentQuarter] };
+          currentData.topFeatures = features;
+          updatedData[currentProduct][currentQuarter] = currentData;
+        }
+        
+        return updatedData;
+      });
+
+      console.log('Top features CSV uploaded and processed successfully');
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Upload failed'));
+      const errorMessage = err instanceof CSVError ? err.message : 
+                          err instanceof Error ? err.message : 'Upload failed';
+      setError(new Error(errorMessage));
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -169,10 +215,52 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setError(null);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      console.log('Responsiveness trend CSV uploaded successfully (demo mode)');
+      // Read file content
+      const fileContent = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsText(file);
+      });
+
+      // Validate CSV headers
+      await validateCSVHeaders(fileContent, responsivenessTrendRequiredHeaders);
+
+      // Parse CSV data
+      const responsivenessData = await parseResponsivenessTrendCSV(fileContent);
+
+      // Update dashboard data with new responsiveness trend data
+      setAllProductsData(prevData => {
+        const updatedData = { ...prevData };
+        
+        // Update current product's current quarter data
+        if (updatedData[currentProduct] && updatedData[currentProduct][currentQuarter]) {
+          const currentData = { ...updatedData[currentProduct][currentQuarter] };
+          
+          // Update responsiveness quarterly data
+          currentData.metricSummary = {
+            ...currentData.metricSummary,
+            responsivenessQuarterlyData: responsivenessData
+          };
+          
+          // Update main responsiveness value to the latest quarter's percentage
+          if (responsivenessData.length > 0) {
+            const latestQuarter = responsivenessData[responsivenessData.length - 1];
+            currentData.metricSummary.responsiveness = latestQuarter.percentage;
+          }
+          
+          updatedData[currentProduct][currentQuarter] = currentData;
+        }
+        
+        return updatedData;
+      });
+
+      console.log('Responsiveness trend CSV uploaded and processed successfully');
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Upload failed'));
+      const errorMessage = err instanceof CSVError ? err.message : 
+                          err instanceof Error ? err.message : 'Upload failed';
+      setError(new Error(errorMessage));
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -183,10 +271,49 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setError(null);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      console.log('Commitment trends CSV uploaded successfully (demo mode)');
+      // Read file content
+      const fileContent = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsText(file);
+      });
+
+      // Validate CSV headers
+      await validateCSVHeaders(fileContent, commitmentTrendsRequiredHeaders);
+
+      // Parse CSV data
+      const { commitmentTrends, quarterlyDeliveries } = await parseCommitmentTrendsCSV(fileContent);
+
+      // Update dashboard data with new commitment trends data
+      setAllProductsData(prevData => {
+        const updatedData = { ...prevData };
+        
+        // Update current product's current quarter data
+        if (updatedData[currentProduct] && updatedData[currentProduct][currentQuarter]) {
+          const currentData = { ...updatedData[currentProduct][currentQuarter] };
+          
+          currentData.metricSummary = {
+            ...currentData.metricSummary,
+            roadmapAlignment: {
+              ...currentData.metricSummary.roadmapAlignment,
+              commitmentTrends,
+              quarterlyDeliveries
+            }
+          };
+          
+          updatedData[currentProduct][currentQuarter] = currentData;
+        }
+        
+        return updatedData;
+      });
+
+      console.log('Commitment trends CSV uploaded and processed successfully');
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Upload failed'));
+      const errorMessage = err instanceof CSVError ? err.message : 
+                          err instanceof Error ? err.message : 'Upload failed';
+      setError(new Error(errorMessage));
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -197,10 +324,55 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setError(null);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      console.log('Continued engagement CSV uploaded successfully (demo mode)');
+      // Read file content
+      const fileContent = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsText(file);
+      });
+
+      // Validate CSV headers
+      await validateCSVHeaders(fileContent, continuedEngagementRequiredHeaders);
+
+      // Parse CSV data
+      const { quarterlyTrends, ideas } = await parseContinuedEngagementCSV(fileContent);
+
+      // Update dashboard data with new continued engagement data
+      setAllProductsData(prevData => {
+        const updatedData = { ...prevData };
+        
+        // Update current product's current quarter data
+        if (updatedData[currentProduct] && updatedData[currentProduct][currentQuarter]) {
+          const currentData = { ...updatedData[currentProduct][currentQuarter] };
+          
+          // Find current quarter data or use the latest available
+          const currentQuarterData = quarterlyTrends.find(q => q.quarter === currentQuarter) || 
+                                   quarterlyTrends[quarterlyTrends.length - 1];
+          
+          currentData.metricSummary = {
+            ...currentData.metricSummary,
+            continuedEngagement: {
+              rate: currentQuarterData?.rate || currentData.metricSummary.continuedEngagement.rate,
+              numerator: currentQuarterData?.numerator || currentData.metricSummary.continuedEngagement.numerator,
+              denominator: currentQuarterData?.denominator || currentData.metricSummary.continuedEngagement.denominator,
+              quarterlyTrends,
+              ideas
+            }
+          };
+          
+          updatedData[currentProduct][currentQuarter] = currentData;
+        }
+        
+        return updatedData;
+      });
+
+      console.log('Continued engagement CSV uploaded and processed successfully');
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Upload failed'));
+      const errorMessage = err instanceof CSVError ? err.message : 
+                          err instanceof Error ? err.message : 'Upload failed';
+      setError(new Error(errorMessage));
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -211,10 +383,40 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setError(null);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      console.log('Client submissions CSV uploaded successfully (demo mode)');
+      // Read file content
+      const fileContent = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsText(file);
+      });
+
+      // Validate CSV headers
+      await validateCSVHeaders(fileContent, clientSubmissionsRequiredHeaders);
+
+      // Parse CSV data
+      const { lineChartData } = await parseClientSubmissionsCSV(fileContent);
+
+      // Update dashboard data with new client submissions data
+      setAllProductsData(prevData => {
+        const updatedData = { ...prevData };
+        
+        // Update current product's current quarter data
+        if (updatedData[currentProduct] && updatedData[currentProduct][currentQuarter]) {
+          const currentData = { ...updatedData[currentProduct][currentQuarter] };
+          currentData.lineChartData = lineChartData;
+          updatedData[currentProduct][currentQuarter] = currentData;
+        }
+        
+        return updatedData;
+      });
+
+      console.log('Client submissions CSV uploaded and processed successfully');
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Upload failed'));
+      const errorMessage = err instanceof CSVError ? err.message : 
+                          err instanceof Error ? err.message : 'Upload failed';
+      setError(new Error(errorMessage));
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -225,10 +427,40 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setError(null);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      console.log('Cross-client collaboration CSV uploaded successfully (demo mode)');
+      // Read file content
+      const fileContent = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsText(file);
+      });
+
+      // Validate CSV headers
+      await validateCSVHeaders(fileContent, crossClientCollaborationRequiredHeaders);
+
+      // Parse CSV data
+      const { collaborationTrendData } = await parseCrossClientCollaborationCSV(fileContent);
+
+      // Update dashboard data with new collaboration data
+      setAllProductsData(prevData => {
+        const updatedData = { ...prevData };
+        
+        // Update current product's current quarter data
+        if (updatedData[currentProduct] && updatedData[currentProduct][currentQuarter]) {
+          const currentData = { ...updatedData[currentProduct][currentQuarter] };
+          currentData.collaborationTrendData = collaborationTrendData;
+          updatedData[currentProduct][currentQuarter] = currentData;
+        }
+        
+        return updatedData;
+      });
+
+      console.log('Cross-client collaboration CSV uploaded and processed successfully');
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Upload failed'));
+      const errorMessage = err instanceof CSVError ? err.message : 
+                          err instanceof Error ? err.message : 'Upload failed';
+      setError(new Error(errorMessage));
+      throw err;
     } finally {
       setIsLoading(false);
     }
