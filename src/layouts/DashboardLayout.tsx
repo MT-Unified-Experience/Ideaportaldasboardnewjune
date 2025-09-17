@@ -267,7 +267,7 @@ const DashboardLayout: React.FC = () => {
         />
 
       </main>
-    getStoredValue(STORAGE_KEYS.CURRENT_QUARTER, 'FY26 Q2')
+    </div>
   );
 };
 
