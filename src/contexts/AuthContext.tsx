@@ -1,11 +1,16 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '../utils/supabaseClient';
-import { User, Session, AuthError } from '@supabase/supabase-js';
+
+interface User {
+  id: string;
+  email: string;
+  user_metadata?: {
+    full_name?: string;
+  };
+}
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  session: Session | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (email: string, password: string, fullName?: string) => Promise<{ success: boolean; error?: string }>;
@@ -17,283 +22,127 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [initialized, setInitialized] = useState(false);
+  const [loading, setLoading] = useState(false);
 
+  // Check for stored user session on mount
   useEffect(() => {
-    let mounted = true;
-    
-    const initializeAuth = async () => {
-      if (!supabase) {
-        console.warn('Supabase client not available');
-        if (mounted) {
-          setLoading(false);
-          setInitialized(true);
-        }
-        return;
-      }
-
+    const storedUser = localStorage.getItem('demo-user');
+    if (storedUser) {
       try {
-        // Clear any potentially corrupted tokens first
-        const storageKeys = ['sb-auth-token', 'mitratech-dashboard-auth'];
-        const hasCorruptedTokens = storageKeys.some(key => {
-          const stored = localStorage.getItem(key);
-          return stored && (stored.includes('undefined') || stored.includes('null'));
-        });
-
-        if (hasCorruptedTokens) {
-          console.warn('🧹 Clearing potentially corrupted tokens');
-          storageKeys.forEach(key => {
-            localStorage.removeItem(key);
-            sessionStorage.removeItem(key);
-          });
-        }
-
-        // Get current session
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.warn('Session error:', error.message);
-          // Clear storage if there's a session error
-          if (error.message?.includes('refresh') || error.message?.includes('token')) {
-            storageKeys.forEach(key => {
-              localStorage.removeItem(key);
-              sessionStorage.removeItem(key);
-            });
-          }
-        }
-        
-        if (mounted) {
-          setUser(session?.user ?? null);
-          setSession(session);
-        }
+        setUser(JSON.parse(storedUser));
       } catch (error) {
-        console.warn('Error during auth initialization:', error);
-        if (mounted) {
-          setUser(null);
-          setSession(null);
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-          setInitialized(true);
-        }
+        console.warn('Error parsing stored user:', error);
+        localStorage.removeItem('demo-user');
       }
-    };
-
-    initializeAuth();
-
-    if (!supabase) {
-      return () => { mounted = false; };
     }
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state change:', event, session?.user?.email);
-      
-      if (mounted) {
-        setUser(session?.user ?? null);
-        setSession(session);
-        
-        // Handle specific auth events
-        if (event === 'SIGNED_OUT') {
-          // Clear all storage on sign out
-          const storageKeys = ['sb-auth-token', 'mitratech-dashboard-auth'];
-          storageKeys.forEach(key => {
-            localStorage.removeItem(key);
-            sessionStorage.removeItem(key);
-          });
-        }
-        
-        if (event === 'TOKEN_REFRESHED') {
-          console.log('✅ Token refreshed successfully');
-        }
-        
-        if (event === 'SIGNED_IN') {
-          console.log('✅ User signed in successfully');
-        }
-      }
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
   }, []);
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    setLoading(true);
+    
     try {
-      if (!supabase) {
-        // Fallback for offline mode - use the previous mock logic
-        if (email.endsWith('@mitratech.com') && password.length >= 8) {
-          // Create a mock user for offline mode
-          const mockUser = {
-            id: 'mock-user-id',
-            email: email,
-            user_metadata: {
-              full_name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase())
-            }
-          } as User;
-          
-          setUser(mockUser);
-          setSession({ user: mockUser } as Session);
-          return { success: true };
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Demo validation - accept any @mitratech.com email with password length >= 6
+      if (!email.endsWith('@mitratech.com')) {
+        return { success: false, error: 'Only @mitratech.com email addresses are allowed' };
+      }
+      
+      if (password.length < 6) {
+        return { success: false, error: 'Password must be at least 6 characters' };
+      }
+      
+      // Create demo user
+      const demoUser: User = {
+        id: 'demo-user-id',
+        email: email,
+        user_metadata: {
+          full_name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase())
         }
-        return { success: false, error: 'Invalid email or password' };
-      }
-
-      setLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password: password,
-      });
-
-      if (error) {
-        console.error('Login error:', error);
-        return { 
-          success: false, 
-          error: getAuthErrorMessage(error)
-        };
-      }
-
-      if (data.user) {
-        setUser(data.user);
-        setSession(data.session);
-        return { success: true };
-      }
-
-      return { success: false, error: 'Login failed' };
-    } catch (error) {
-      console.error('Unexpected login error:', error);
-      return { 
-        success: false, 
-        error: 'An unexpected error occurred. Please try again.' 
       };
+      
+      setUser(demoUser);
+      localStorage.setItem('demo-user', JSON.stringify(demoUser));
+      
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'An unexpected error occurred' };
     } finally {
       setLoading(false);
     }
   };
 
   const signup = async (email: string, password: string, fullName?: string): Promise<{ success: boolean; error?: string }> => {
+    setLoading(true);
+    
     try {
-      if (!supabase) {
-        return { success: false, error: 'Authentication service not available' };
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      
+      // Demo validation
+      if (!email.endsWith('@mitratech.com')) {
+        return { success: false, error: 'Only @mitratech.com email addresses are allowed' };
       }
-
-      setLoading(true);
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password: password,
-        options: {
-          data: {
-            full_name: fullName || email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase())
-          }
+      
+      if (password.length < 6) {
+        return { success: false, error: 'Password must be at least 6 characters' };
+      }
+      
+      // Create demo user
+      const demoUser: User = {
+        id: 'demo-user-id',
+        email: email,
+        user_metadata: {
+          full_name: fullName || email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase())
         }
-      });
-
-      if (error) {
-        console.error('Signup error:', error);
-        return { 
-          success: false, 
-          error: getAuthErrorMessage(error)
-        };
-      }
-
-      if (data.user) {
-        // Note: User might need to confirm email depending on Supabase settings
-        return { success: true };
-      }
-
-      return { success: false, error: 'Signup failed' };
-    } catch (error) {
-      console.error('Unexpected signup error:', error);
-      return { 
-        success: false, 
-        error: 'An unexpected error occurred. Please try again.' 
       };
+      
+      setUser(demoUser);
+      localStorage.setItem('demo-user', JSON.stringify(demoUser));
+      
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: 'An unexpected error occurred' };
     } finally {
       setLoading(false);
     }
   };
 
   const logout = async (): Promise<void> => {
+    setLoading(true);
+    
     try {
-      if (!supabase) {
-        // Offline mode logout
-        setUser(null);
-        setSession(null);
-        return;
-      }
-
-      // Clear storage before attempting logout
-      const storageKeys = ['sb-auth-token', 'mitratech-dashboard-auth'];
-      storageKeys.forEach(key => {
-        localStorage.removeItem(key);
-        sessionStorage.removeItem(key);
-      });
-
-      setLoading(true);
-      const { error } = await supabase.auth.signOut();
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      if (error) {
-        console.error('Logout error:', error);
-        // Even if logout fails, clear local state
-        setUser(null);
-        setSession(null);
-      }
-      
-      // Clear state regardless of error
       setUser(null);
-      setSession(null);
+      localStorage.removeItem('demo-user');
     } catch (error) {
-      console.error('Unexpected logout error:', error);
-      // Clear state even if there's an error
-      setUser(null);
-      setSession(null);
+      console.error('Logout error:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const resetPassword = async (email: string): Promise<{ success: boolean; error?: string }> => {
+    setLoading(true);
+    
     try {
-      if (!supabase) {
-        return { success: false, error: 'Authentication service not available' };
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Demo validation
+      if (!email.endsWith('@mitratech.com')) {
+        return { success: false, error: 'Only @mitratech.com email addresses are allowed' };
       }
-
-      console.log('Requesting password reset for:', email);
-
-      // Get the correct redirect URL for the current environment
-      const getRedirectUrl = () => {
-        // Always use the current origin to ensure it works in all environments
-        const redirectUrl = `${window.location.origin}/reset-password`;
-        console.log('Password reset redirect URL:', redirectUrl);
-        return redirectUrl;
-      };
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: getRedirectUrl(),
-      });
-
-      if (error) {
-        console.error('Password reset error:', error);
-        return { 
-          success: false, 
-          error: getAuthErrorMessage(error)
-        };
-      }
-
-      console.log('Password reset email sent successfully');
+      
+      // In demo mode, always return success
       return { success: true };
     } catch (error) {
-      console.error('Unexpected password reset error:', error);
-      return { 
-        success: false, 
-        error: 'An unexpected error occurred. Please try again.' 
-      };
+      return { success: false, error: 'An unexpected error occurred' };
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -303,7 +152,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     <AuthContext.Provider value={{ 
       isAuthenticated, 
       user, 
-      session, 
       loading, 
       login, 
       signup, 
@@ -321,37 +169,4 @@ export const useAuth = (): AuthContextType => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
-
-// Helper function to convert Supabase auth errors to user-friendly messages
-const getAuthErrorMessage = (error: AuthError): string => {
-  switch (error.message) {
-    case 'Invalid login credentials':
-      return 'Invalid email or password. Please check your credentials and try again.';
-    case 'Email not confirmed':
-      return 'Please check your email (including spam folder) and click the confirmation link to activate your account before signing in.';
-    case 'User not found':
-      return 'No account found with this email address.';
-    case 'Invalid email':
-      return 'Please enter a valid email address.';
-    case 'Password should be at least 6 characters':
-      return 'Password must be at least 6 characters long.';
-    case 'User already registered':
-      return 'An account with this email already exists. Please sign in instead.';
-    case 'Signup is disabled':
-      return 'Account registration is currently disabled. Please contact your administrator.';
-    case 'Only @mitratech.com email addresses are allowed':
-      return 'Only Mitratech email addresses (@mitratech.com) are allowed to register.';
-    default:
-      // Check if the error message contains the domain restriction
-      if (error.message?.includes('@mitratech.com')) {
-        return 'Only Mitratech email addresses (@mitratech.com) are allowed to register.';
-      }
-      // Check for email confirmation related errors
-      if (error.message?.toLowerCase().includes('email') && error.message?.toLowerCase().includes('confirm')) {
-        return 'Please check your email (including spam folder) and click the confirmation link to activate your account before signing in.';
-      }
-      // Return the original error message if we don't have a specific mapping
-      return error.message || 'An authentication error occurred. Please try again.';
-  }
 };

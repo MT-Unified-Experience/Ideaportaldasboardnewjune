@@ -15,8 +15,7 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
     fetchActionItems, 
     createActionItem, 
     updateActionItem, 
-    deleteActionItem,
-    isSupabaseAvailable 
+    deleteActionItem
   } = useData();
   const panelContentRef = React.useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<'product' | 'general'>('product');
@@ -31,10 +30,10 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
 
   // Load action items when panel opens or product/quarter changes
   useEffect(() => {
-    if (isOpen && isSupabaseAvailable) {
+    if (isOpen) {
       loadActionItems();
     }
-  }, [isOpen, currentProduct, currentQuarter, isSupabaseAvailable, activeTab]);
+  }, [isOpen, currentProduct, currentQuarter, activeTab]);
 
   const loadActionItems = async () => {
     try {
@@ -172,69 +171,12 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
 
   if (!isOpen) return null;
 
-  // Show message if Supabase is not available
-  if (!isSupabaseAvailable) {
-    return (
-      <div className="fixed inset-y-0 right-0 w-full md:w-[600px] bg-white shadow-xl z-50 overflow-y-auto">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Action Items
-            </h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="h-6 w-6 text-gray-500" />
-            </button>
-          </div>
-          <div className="space-y-4">
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-yellow-800">Database Connection Unavailable</h3>
-                  <div className="mt-2 text-sm text-yellow-700">
-                    <p>Action items cannot be saved or loaded because the database connection is not available.</p>
-                  </div>
-                  <div className="mt-4">
-                    <div className="text-sm">
-                      <p className="font-medium text-yellow-800 mb-2">To fix this issue:</p>
-                      <ol className="list-decimal list-inside space-y-1 text-yellow-700">
-                        <li>Check that your Supabase environment variables are correctly configured</li>
-                        <li>Verify your internet connection</li>
-                        <li>Ensure your Supabase project is active and accessible</li>
-                        <li>Try refreshing the page</li>
-                      </ol>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-blue-800 mb-2">Environment Variables Check</h4>
-              <div className="text-sm text-blue-700 space-y-1">
-                <p>• VITE_SUPABASE_URL: {import.meta.env.VITE_SUPABASE_URL ? '✓ Set' : '✗ Missing'}</p>
-                <p>• VITE_SUPABASE_ANON_KEY: {import.meta.env.VITE_SUPABASE_ANON_KEY ? '✓ Set' : '✗ Missing'}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="fixed inset-y-0 right-0 w-full md:w-[600px] bg-white shadow-xl z-50 overflow-y-auto">
       <div ref={panelContentRef} className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">
-            Action Items
+            Action Items (Demo Mode)
           </h2>
           <button
             onClick={onClose}
@@ -242,6 +184,23 @@ const ActionItemsPanel: React.FC<ActionItemsPanelProps> = ({ isOpen, onClose }) 
           >
             <X className="h-6 w-6 text-gray-500" />
           </button>
+        </div>
+
+        {/* Demo Mode Notice */}
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-blue-800">Demo Mode Active</h3>
+              <div className="mt-2 text-sm text-blue-700">
+                <p>Action items are stored locally in your browser. Data will persist during your session but won't be saved permanently.</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Tabs */}

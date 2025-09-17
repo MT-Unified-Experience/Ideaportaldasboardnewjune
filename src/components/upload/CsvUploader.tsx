@@ -1,40 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { Upload, CheckCircle } from 'lucide-react';
 import { useData } from '../../contexts/DataContext';
-import ErrorModal from '../common/ErrorModal';
-import { CSVError, validateCSVData } from '../../utils/csvParser';
 
 export const CsvUploader: React.FC = () => {
-  const { uploadCSV, isLoading, error, currentProduct } = useData();
+  const { uploadCSV, isLoading, currentProduct } = useData();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [showError, setShowError] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [errorDetails, setErrorDetails] = useState<{
-    message: string;
-    type?: 'file' | 'data' | 'application';
-    details?: string[];
-  }>({ message: '' });
-
-  // Show error modal when error state changes
-  React.useEffect(() => {
-    if (error) {
-      if (error instanceof CSVError) {
-        setErrorDetails({
-          message: error.message,
-          type: error.type,
-          details: error.details
-        });
-      } else {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        setErrorDetails({
-          message: errorMessage,
-          type: 'application'
-        });
-      }
-      setShowError(true);
-      setUploadSuccess(false);
-    }
-  }, [error]);
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -48,10 +19,6 @@ export const CsvUploader: React.FC = () => {
     try {
       setUploadSuccess(false);
       
-      // Validate that the CSV contains data for the current product
-      const fileContent = await file.text();
-      await validateCSVData(fileContent, currentProduct);
-      
       await uploadCSV(file);
       
       // Show success message
@@ -64,24 +31,12 @@ export const CsvUploader: React.FC = () => {
       }
       
     } catch (err) {
-      if (err instanceof CSVError) {
-        setErrorDetails({
-          message: err.message,
-          type: err.type,
-          details: err.details
-        });
-        setShowError(true);
-      }
-      console.error(err);
+      console.error('Upload error:', err);
     }
   };
 
   const handleButtonClick = () => {
     fileInputRef.current?.click();
-  };
-
-  const handleCloseError = () => {
-    setShowError(false);
   };
   
   return (
@@ -113,7 +68,7 @@ export const CsvUploader: React.FC = () => {
             ) : (
               <>
                 <Upload className="h-[0.7rem] w-[0.7rem] mr-2" />
-                {isLoading ? 'Uploading...' : 'Upload CSV'}
+                {isLoading ? 'Uploading...' : 'Upload CSV (Demo)'}
               </>
             )}
           </button>
@@ -130,11 +85,6 @@ export const CsvUploader: React.FC = () => {
           Download sample CSV<br />template
         </a>
       </div>
-      <ErrorModal
-        isOpen={showError}
-        onClose={handleCloseError}
-        error={errorDetails}
-      />
     </div>
   );
 };
