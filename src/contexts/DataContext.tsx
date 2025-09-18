@@ -215,6 +215,8 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setError(null);
     
     try {
+      console.log('Starting CSV upload for file:', file.name, 'Size:', file.size);
+      
       // Read file content
       const fileContent = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -223,16 +225,22 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         reader.readAsText(file);
       });
 
+      console.log('File content read successfully, length:', fileContent.length);
+      console.log('First 200 characters:', fileContent.substring(0, 200));
+      
       // Validate CSV headers - make validation more lenient
       try {
         await validateCSVHeaders(fileContent, responsivenessTrendRequiredHeaders);
+        console.log('Header validation passed');
       } catch (headerError) {
         console.warn('Header validation failed, proceeding with parsing:', headerError);
         // Continue with parsing even if headers don't match exactly
       }
 
       // Parse CSV data
+      console.log('Starting CSV parsing...');
       const responsivenessData = await parseResponsivenessTrendCSV(fileContent);
+      console.log('CSV parsing completed, data:', responsivenessData);
 
       // Update dashboard data with new responsiveness trend data
       setAllProductsData(prevData => {

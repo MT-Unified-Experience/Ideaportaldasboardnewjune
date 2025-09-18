@@ -655,10 +655,12 @@ export const parseResponsivenessTrendCSV = (csvData: string): Promise<Array<{
       complete: (results) => {
         try {
           console.log('CSV parsing results:', results);
+          console.log('Parse errors:', results.errors);
           console.log('Headers found:', results.meta.fields);
           
           // Validate data structure
           if (!Array.isArray(results.data) || results.data.length === 0) {
+            console.error('Invalid data structure - no data found');
             throw new CSVError(
               'Invalid data structure',
               'data',
@@ -686,8 +688,16 @@ export const parseResponsivenessTrendCSV = (csvData: string): Promise<Array<{
             const totalIdeas = row.total_ideas || '';
             const ideasMovedOut = row.ideas_moved_out_of_review || '';
             
+            console.log('Field values:', { quarter, percentage, totalIdeas, ideasMovedOut });
+            
             if (!quarter || !percentage || !totalIdeas || !ideasMovedOut) {
               console.warn('Skipping row due to missing fields:', row);
+              console.warn('Missing fields check:', {
+                hasQuarter: !!quarter,
+                hasPercentage: !!percentage,
+                hasTotalIdeas: !!totalIdeas,
+                hasIdeasMovedOut: !!ideasMovedOut
+              });
               return; // Skip invalid rows
             }
 
