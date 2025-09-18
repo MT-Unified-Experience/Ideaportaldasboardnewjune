@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '../lib/supabase';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface User {
   id: string;
@@ -22,52 +24,67 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Check for stored user session on mount
+  // Check for Supabase session on mount and listen for auth changes
   useEffect(() => {
-    const storedUser = localStorage.getItem('demo-user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.warn('Error parsing stored user:', error);
-        localStorage.removeItem('demo-user');
+    // Get initial session
+    const getInitialSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(transformSupabaseUser(session.user));
       }
-    }
+      setLoading(false);
+    };
+
+    getInitialSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          setUser(transformSupabaseUser(session.user));
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  // Transform Supabase user to our User interface
+  const transformSupabaseUser = (supabaseUser: SupabaseUser): User => {
+    return {
+      id: supabaseUser.id,
+      email: supabaseUser.email || '',
+      user_metadata: {
+        full_name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0]
+      }
+    };
+  };
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Only allow specific credentials
-      if (email !== 'unifiedux@mitratech.com') {
-        return { success: false, error: 'Invalid email address' };
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
       }
-      
-      if (password !== 'Test123') {
-        return { success: false, error: 'Invalid password' };
+
+      if (data.user) {
+        setUser(transformSupabaseUser(data.user));
       }
-      
-      // Create demo user
-      const demoUser: User = {
-        id: 'demo-user-id',
-        email: 'unifiedux@mitratech.com',
-        user_metadata: {
-          full_name: 'Unified UX'
-        }
-      };
-      
-      setUser(demoUser);
-      localStorage.setItem('demo-user', JSON.stringify(demoUser));
-      
+
       return { success: true };
     } catch (error) {
-      return { success: false, error: 'An unexpected error occurred' };
+      return { success: false, error: error instanceof Error ? error.message : 'An unexpected error occurred' };
     } finally {
       setLoading(false);
     }
@@ -77,33 +94,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      
-      // Demo validation
-      if (!email.endsWith('@mitratech.com')) {
-        return { success: false, error: 'Only @mitratech.com email addresses are allowed' };
-      }
-      
-      if (password.length < 6) {
-        return { success: false, error: 'Password must be at least 6 characters' };
-      }
-      
-      // Create demo user
-      const demoUser: User = {
-        id: 'demo-user-id',
-        email: email,
-        user_metadata: {
-          full_name: fullName || email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase())
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName || email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase())
+          }
         }
-      };
-      
-      setUser(demoUser);
-      localStorage.setItem('demo-user', JSON.stringify(demoUser));
-      
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      // Note: User will be set via the auth state change listener
       return { success: true };
     } catch (error) {
-      return { success: false, error: 'An unexpected error occurred' };
+      return { success: false, error: error instanceof Error ? error.message : 'An unexpected error occurred' };
     } finally {
       setLoading(false);
     }
@@ -113,11 +121,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setUser(null);
-      localStorage.removeItem('demo-user');
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Logout error:', error);
+      }
+      // User state will be cleared via auth state change listener
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -129,18 +137,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(true);
     
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Demo validation
-      if (!email.endsWith('@mitratech.com')) {
-        return { success: false, error: 'Only @mitratech.com email addresses are allowed' };
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
       }
-      
-      // In demo mode, always return success
+
       return { success: true };
     } catch (error) {
-      return { success: false, error: 'An unexpected error occurred' };
+      return { success: false, error: error instanceof Error ? error.message : 'An unexpected error occurred' };
     } finally {
       setLoading(false);
     }
