@@ -308,10 +308,9 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                     id="top-features-csv-upload"
                     disabled={isLoading}
                   />
-                  <button
-                      {isLoading ? 'Uploading...' : 'Upload Top Features CSV (Supabase)'}
-                    disabled={isLoading}
-                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  <label
+                    htmlFor="top-features-csv-upload"
+                    className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
                       isLoading 
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
                         : 'bg-blue-600 text-white hover:bg-blue-700'
@@ -319,7 +318,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                   >
                     <Upload className="h-4 w-4 mr-2" />
                     {isLoading ? 'Uploading...' : 'Upload Top Features CSV'}
-                  </button>
+                  </label>
                   <button
                     onClick={() => addFeature()}
                     className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
@@ -719,7 +718,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
               >
                 <Save className="h-4 w-4 mr-2" />
                 {isLocalLoading ? 'Saving...' : 'Save Changes'}
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Dashboard Management</h2>
+              </button>
             </div>
           </div>
         </div>
@@ -728,4 +727,4 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
   );
 };
 
-export default DashboardManagement
+export default DashboardManagement;
