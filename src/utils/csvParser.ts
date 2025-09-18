@@ -383,6 +383,10 @@ export const validateCSVHeaders = (csvData: string, requiredHeaders: string[]): 
     Papa.parse(csvData, {
       header: true,
       preview: 1, // Parse only first row to check headers
+      transformHeader: (header: string) => {
+        // Normalize headers to handle variations
+        return header.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+      },
       complete: (results) => {
         // Check if file is empty
         if (!results.data || results.data.length === 0) {
@@ -394,8 +398,13 @@ export const validateCSVHeaders = (csvData: string, requiredHeaders: string[]): 
           return;
         }
 
-        const headers = results.meta.fields || [];
-        const missingHeaders = requiredHeaders.filter(header => !headers.includes(header));
+        const headers = (results.meta.fields || []).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, '_'));
+        const normalizedRequired = requiredHeaders.map(h => h.toLowerCase().replace(/[^a-z0-9]/g, '_'));
+        const missingHeaders = normalizedRequired.filter(header => !headers.includes(header));
+        
+        console.log('Found headers:', headers);
+        console.log('Required headers:', normalizedRequired);
+        console.log('Missing headers:', missingHeaders);
         
         if (missingHeaders.length > 0) {
           reject(new CSVError(
@@ -403,7 +412,7 @@ export const validateCSVHeaders = (csvData: string, requiredHeaders: string[]): 
             'data',
             [
               'The following required columns are missing:',
-              ...missingHeaders.map(header => `- ${header}`)
+              ...missingHeaders.map(header => `- ${header} (or similar variation)`)
             ]
           ));
         } else {
@@ -411,6 +420,7 @@ export const validateCSVHeaders = (csvData: string, requiredHeaders: string[]): 
         }
       },
       error: (error) => {
+        console.error('Header validation error:', error);
         reject(error);
       }
     });
@@ -638,8 +648,15 @@ export const parseResponsivenessTrendCSV = (csvData: string): Promise<Array<{
       header: true,
       dynamicTyping: false,
       skipEmptyLines: true,
+      transformHeader: (header: string) => {
+        // Normalize headers to handle variations
+        return header.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+      },
       complete: (results) => {
         try {
+          console.log('CSV parsing results:', results);
+          console.log('Headers found:', results.meta.fields);
+          
           // Validate data structure
           if (!Array.isArray(results.data) || results.data.length === 0) {
             throw new CSVError(
@@ -650,6 +667,8 @@ export const parseResponsivenessTrendCSV = (csvData: string): Promise<Array<{
           }
 
           const rows = results.data as ResponsivenessTrendCSVRow[];
+          console.log('First few rows:', rows.slice(0, 3));
+          
           const responsivenessData: Array<{
             quarter: string;
             percentage: number;
@@ -659,24 +678,43 @@ export const parseResponsivenessTrendCSV = (csvData: string): Promise<Array<{
           }> = [];
 
           rows.forEach(row => {
+            console.log('Processing row:', row);
+            
             // Validate required fields
-            if (!row.quarter || !row.percentage || !row.total_ideas || !row.ideas_moved_out_of_review) {
+            const quarter = row.quarter || row['quarter'] || '';
+            const percentage = row.percentage || row['percentage'] || '';
+            const totalIdeas = row.total_ideas || row['total_ideas'] || '';
+            const ideasMovedOut = row.ideas_moved_out_of_review || row['ideas_moved_out_of_review'] || '';
+            
+            if (!quarter || !percentage || !totalIdeas || !ideasMovedOut) {
+              console.warn('Skipping row due to missing fields:', row);
               return; // Skip invalid rows
             }
 
             const data = {
-              quarter: row.quarter.trim(),
-              percentage: safeNumberConversion(row.percentage),
-              totalIdeas: safeNumberConversion(row.total_ideas),
-              ideasMovedOutOfReview: safeNumberConversion(row.ideas_moved_out_of_review),
+              quarter: quarter.toString().trim(),
+              percentage: safeNumberConversion(percentage),
+              totalIdeas: safeNumberConversion(totalIdeas),
+              ideasMovedOutOfReview: safeNumberConversion(ideasMovedOut),
               ideasList: row.ideas_list ? 
                 row.ideas_list.split(',').map(s => s.trim()).filter(s => s.length > 0) : 
                 undefined
             };
 
+            console.log('Processed data:', data);
             responsivenessData.push(data);
           });
 
+          console.log('Final responsiveness data:', responsivenessData);
+          
+          if (responsivenessData.length === 0) {
+            throw new CSVError(
+              'No valid data rows found',
+              'data',
+              ['Please check that your CSV has the required columns: quarter, percentage, total_ideas, ideas_moved_out_of_review']
+            );
+          }
+          
           // Helper function to sort quarters chronologically across fiscal years
           const sortQuartersChronologically = (a: { quarter: string }, b: { quarter: string }) => {
             const parseQuarter = (quarter: string) => {
@@ -708,10 +746,12 @@ export const parseResponsivenessTrendCSV = (csvData: string): Promise<Array<{
 
           resolve(responsivenessData);
         } catch (error) {
+          console.error('Error in parseResponsivenessTrendCSV:', error);
           reject(error);
         }
       },
       error: (error) => {
+        console.error('Papa Parse error:', error);
         reject(new CSVError(
           'Failed to parse CSV file',
           'file',

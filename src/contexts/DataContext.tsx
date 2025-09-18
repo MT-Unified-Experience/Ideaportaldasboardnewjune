@@ -223,8 +223,13 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         reader.readAsText(file);
       });
 
-      // Validate CSV headers
-      await validateCSVHeaders(fileContent, responsivenessTrendRequiredHeaders);
+      // Validate CSV headers - make validation more lenient
+      try {
+        await validateCSVHeaders(fileContent, responsivenessTrendRequiredHeaders);
+      } catch (headerError) {
+        console.warn('Header validation failed, proceeding with parsing:', headerError);
+        // Continue with parsing even if headers don't match exactly
+      }
 
       // Parse CSV data
       const responsivenessData = await parseResponsivenessTrendCSV(fileContent);
@@ -257,8 +262,18 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
       console.log('Responsiveness trend CSV uploaded and processed successfully');
     } catch (err) {
-      const errorMessage = err instanceof CSVError ? err.message : 
-                          err instanceof Error ? err.message : 'Upload failed';
+      console.error('CSV upload error:', err);
+      let errorMessage = 'Upload failed. Please check the file format.';
+      
+      if (err instanceof CSVError) {
+        errorMessage = `CSV Error: ${err.message}`;
+        if (err.details && err.details.length > 0) {
+          errorMessage += `\nDetails: ${err.details.join(', ')}`;
+        }
+      } else if (err instanceof Error) {
+        errorMessage = `Error: ${err.message}`;
+      }
+      
       setError(new Error(errorMessage));
       throw err;
     } finally {
