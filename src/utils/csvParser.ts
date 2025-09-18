@@ -681,10 +681,10 @@ export const parseResponsivenessTrendCSV = (csvData: string): Promise<Array<{
             console.log('Processing row:', row);
             
             // Validate required fields
-            const quarter = row.quarter || row['quarter'] || '';
-            const percentage = row.percentage || row['percentage'] || '';
-            const totalIdeas = row.total_ideas || row['total_ideas'] || '';
-            const ideasMovedOut = row.ideas_moved_out_of_review || row['ideas_moved_out_of_review'] || '';
+            const quarter = row.quarter || '';
+            const percentage = row.percentage || '';
+            const totalIdeas = row.total_ideas || '';
+            const ideasMovedOut = row.ideas_moved_out_of_review || '';
             
             if (!quarter || !percentage || !totalIdeas || !ideasMovedOut) {
               console.warn('Skipping row due to missing fields:', row);
