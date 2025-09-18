@@ -44,21 +44,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Demo validation - accept any @mitratech.com email with password length >= 6
-      if (!email.endsWith('@mitratech.com')) {
-        return { success: false, error: 'Only @mitratech.com email addresses are allowed' };
+      // Only allow specific credentials
+      if (email !== 'unifiedux@mitratech.com') {
+        return { success: false, error: 'Invalid email address' };
       }
       
-      if (password.length < 6) {
-        return { success: false, error: 'Password must be at least 6 characters' };
+      if (password !== 'Test123') {
+        return { success: false, error: 'Invalid password' };
       }
       
       // Create demo user
       const demoUser: User = {
         id: 'demo-user-id',
-        email: email,
+        email: 'unifiedux@mitratech.com',
         user_metadata: {
-          full_name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase())
+          full_name: 'Unified UX'
         }
       };
       
