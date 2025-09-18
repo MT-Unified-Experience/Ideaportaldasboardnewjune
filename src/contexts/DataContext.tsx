@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useMemo } from 'react';
+import { supabase } from '../lib/supabase';
 import { DashboardData, Product, Quarter, ProductData, ActionItem } from '../types';
-import { createDummyProductData, generateDummyActionItems } from '../utils/dummyData';
+import { createDummyProductData } from '../utils/dummyData';
 import { 
   parseResponsivenessTrendCSV, 
   validateCSVHeaders, 
@@ -83,15 +84,10 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentQuarter, setCurrentQuarterState] = useState<Quarter>(() => 
     getStoredValue(STORAGE_KEYS.CURRENT_QUARTER, 'FY26 Q2')
   );
-  const [allProductsData, setAllProductsData] = useState<Record<Product, ProductData>>(() => 
-    getStoredValue(STORAGE_KEYS.DASHBOARD_DATA, createDummyProductData())
-  );
-  const [actionItemsData, setActionItemsData] = useState<Record<string, ActionItem[]>>(() =>
-    getStoredValue(STORAGE_KEYS.ACTION_ITEMS, {})
-  );
+  const [allProductsData, setAllProductsData] = useState<Record<Product, ProductData>>({} as Record<Product, ProductData>);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
-  const isSupabaseAvailable = false; // Always false since we removed Supabase
+  const isSupabaseAvailable = true; // Now using Supabase
 
   // Persist data to localStorage whenever it changes
   useEffect(() => {
@@ -106,16 +102,278 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setStoredValue(STORAGE_KEYS.DASHBOARD_DATA, allProductsData);
   }, [allProductsData]);
 
+  // Load dashboard data from Supabase on mount
   useEffect(() => {
-    setStoredValue(STORAGE_KEYS.ACTION_ITEMS, actionItemsData);
-  }, [actionItemsData]);
+    loadDashboardDataFromSupabase();
+  }, [currentProduct, currentQuarter]);
 
-  // Initialize dummy data if not already present
-  useEffect(() => {
-    if (Object.keys(allProductsData).length === 0) {
-      setAllProductsData(createDummyProductData());
+  // Load dashboard data from Supabase
+  const loadDashboardDataFromSupabase = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const dashboardData = await fetchDashboardDataFromSupabase(currentProduct, currentQuarter);
+      
+      setAllProductsData(prevData => ({
+        ...prevData,
+        [currentProduct]: {
+          ...prevData[currentProduct],
+          [currentQuarter]: dashboardData
+        }
+      }));
+    } catch (err) {
+      console.error('Error loading dashboard data:', err);
+      setError(err instanceof Error ? err : new Error('Failed to load dashboard data'));
+      
+      // Fallback to dummy data if Supabase fails
+      if (Object.keys(allProductsData).length === 0) {
+        setAllProductsData(createDummyProductData());
+      }
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  };
+
+  // Fetch dashboard data from Supabase
+  const fetchDashboardDataFromSupabase = async (product: Product, quarter: Quarter): Promise<DashboardData> => {
+    // Fetch features
+    const { data: features, error: featuresError } = await supabase
+      .from('features')
+      .select('*')
+      .eq('product', product)
+      .eq('quarter', quarter)
+      .order('vote_count', { ascending: false });
+
+    if (featuresError) throw featuresError;
+
+    // Fetch responsiveness trends
+    const { data: responsivenessData, error: responsivenessError } = await supabase
+      .from('responsiveness_trends')
+      .select('*')
+      .eq('product', product)
+      .order('quarter');
+
+    if (responsivenessError) throw responsivenessError;
+
+    // Fetch commitment trends
+    const { data: commitmentData, error: commitmentError } = await supabase
+      .from('commitment_trends')
+      .select('*')
+      .eq('product', product)
+      .order('year');
+
+    if (commitmentError) throw commitmentError;
+
+    // Fetch continued engagement
+    const { data: engagementData, error: engagementError } = await supabase
+      .from('continued_engagement')
+      .select('*')
+      .eq('product', product)
+      .order('quarter');
+
+    if (engagementError) throw engagementError;
+
+    // Fetch client submissions
+    const { data: submissionsData, error: submissionsError } = await supabase
+      .from('client_submissions')
+      .select('*')
+      .eq('product', product)
+      .order('quarter');
+
+    if (submissionsError) throw submissionsError;
+
+    // Fetch collaboration data
+    const { data: collaborationData, error: collaborationError } = await supabase
+      .from('cross_client_collaboration')
+      .select('*')
+      .eq('product', product)
+      .order('quarter');
+
+    if (collaborationError) throw collaborationError;
+
+    // Fetch forums
+    const { data: forumsData, error: forumsError } = await supabase
+      .from('data_socialization_forums')
+      .select('*')
+      .eq('product', product)
+      .eq('is_active', true);
+
+    if (forumsError) throw forumsError;
+
+    // Transform data into DashboardData format
+    return transformSupabaseDataToDashboard({
+      features: features || [],
+      responsivenessData: responsivenessData || [],
+      commitmentData: commitmentData || [],
+      engagementData: engagementData || [],
+      submissionsData: submissionsData || [],
+      collaborationData: collaborationData || [],
+      forumsData: forumsData || []
+    }, quarter);
+  };
+
+  // Transform Supabase data to DashboardData format
+  const transformSupabaseDataToDashboard = (data: any, quarter: Quarter): DashboardData => {
+    // Get current quarter responsiveness data
+    const currentResponsiveness = data.responsivenessData.find((r: any) => r.quarter === quarter);
+    const currentEngagement = data.engagementData.find((e: any) => e.quarter === quarter);
+    
+    // Calculate roadmap alignment from commitment data
+    const currentYearCommitment = data.commitmentData.find((c: any) => c.committed !== null);
+    
+    // Transform client submissions to line chart data
+    const lineChartData = data.submissionsData
+      .reduce((acc: any[], submission: any) => {
+        const existing = acc.find(item => item.quarter === submission.quarter);
+        if (existing) {
+          if (submission.idea_id && submission.idea_summary && submission.idea_client_name) {
+            existing.ideas = existing.ideas || [];
+            existing.ideas.push({
+              id: submission.idea_id,
+              clientName: submission.idea_client_name,
+              summary: submission.idea_summary
+            });
+          }
+        } else {
+          const newItem: any = {
+            quarter: submission.quarter,
+            clientsRepresenting: submission.clients_representing || 0,
+            clients: submission.client_names || []
+          };
+          
+          if (submission.idea_id && submission.idea_summary && submission.idea_client_name) {
+            newItem.ideas = [{
+              id: submission.idea_id,
+              clientName: submission.idea_client_name,
+              summary: submission.idea_summary
+            }];
+          }
+          
+          acc.push(newItem);
+        }
+        return acc;
+      }, [])
+      .sort((a: any, b: any) => a.quarter.localeCompare(b.quarter));
+
+    // Transform collaboration data
+    const collaborationTrendData = data.collaborationData
+      .reduce((acc: any[], collab: any) => {
+        const existing = acc.find(item => item.quarter === collab.quarter);
+        if (existing) {
+          if (collab.idea_id && collab.idea_name) {
+            existing.topCollaborativeIdeas = existing.topCollaborativeIdeas || [];
+            existing.topCollaborativeIdeas.push({
+              id: collab.idea_id,
+              name: collab.idea_name,
+              originalSubmitter: collab.original_submitter || 'Unknown',
+              contributors: collab.contributors || [],
+              submissionDate: collab.submission_date || new Date().toISOString(),
+              collaborationScore: collab.collaboration_score || 0,
+              status: collab.status || 'Active',
+              comments: collab.comments || ''
+            });
+          }
+        } else if (collab.collaborative_ideas_count !== null) {
+          acc.push({
+            quarter: collab.quarter,
+            year: parseInt(collab.year?.replace('FY', '20') || new Date().getFullYear().toString()),
+            collaborativeIdeas: collab.collaborative_ideas_count,
+            totalIdeas: collab.total_ideas_count || 0,
+            collaborationRate: collab.collaboration_rate || 0,
+            topCollaborativeIdeas: []
+          });
+        }
+        return acc;
+      }, [])
+      .sort((a: any, b: any) => a.quarter.localeCompare(b.quarter));
+
+    return {
+      metricSummary: {
+        responsiveness: currentResponsiveness?.percentage || 0,
+        responsivenessQuarterlyData: data.responsivenessData.map((r: any) => ({
+          quarter: r.quarter,
+          percentage: r.percentage,
+          totalIdeas: r.total_ideas,
+          ideasMovedOutOfReview: r.ideas_moved_out_of_review,
+          ideasList: r.ideas_list || []
+        })),
+        roadmapAlignment: {
+          committed: currentYearCommitment?.committed || 0,
+          total: currentYearCommitment?.delivered || 0,
+          commitmentTrends: data.commitmentData
+            .filter((c: any) => c.committed !== null)
+            .map((c: any) => ({
+              year: c.year,
+              committed: c.committed,
+              delivered: c.delivered,
+              ideas: data.commitmentData
+                .filter((idea: any) => idea.year === c.year && idea.idea_id)
+                .map((idea: any) => ({
+                  id: idea.idea_id,
+                  summary: idea.idea_summary
+                }))
+            })),
+          quarterlyDeliveries: data.commitmentData
+            .filter((c: any) => c.quarterly_delivered !== null)
+            .map((c: any) => ({
+              quarter: c.quarter,
+              year: c.year,
+              delivered: c.quarterly_delivered,
+              ideas: data.commitmentData
+                .filter((idea: any) => idea.quarter === c.quarter && idea.year === c.year && idea.idea_id)
+                .map((idea: any) => ({
+                  id: idea.idea_id,
+                  summary: idea.idea_summary
+                }))
+            }))
+        },
+        continuedEngagement: {
+          rate: currentEngagement?.rate || 0,
+          numerator: currentEngagement?.numerator || 0,
+          denominator: currentEngagement?.denominator || 0,
+          quarterlyTrends: data.engagementData
+            .filter((e: any) => e.rate !== null)
+            .map((e: any) => ({
+              quarter: e.quarter,
+              rate: e.rate,
+              numerator: e.numerator,
+              denominator: e.denominator
+            })),
+          ideas: data.engagementData
+            .filter((e: any) => e.idea_id)
+            .map((e: any) => ({
+              id: e.idea_id,
+              name: e.idea_name || '',
+              initialStatusChange: e.initial_status_change || '',
+              subsequentChanges: e.subsequent_changes || [],
+              daysBetween: e.days_between || 0,
+              included: e.included || false
+            }))
+        },
+        ideaVolume: {
+          quarterly: features?.length || 0,
+          total: features?.reduce((sum, f) => sum + f.vote_count, 0) || 0
+        }
+      },
+      lineChartData,
+      topFeatures: (features || []).map((f: any) => ({
+        feature_name: f.feature_name,
+        vote_count: f.vote_count,
+        status: f.status,
+        status_updated_at: f.status_updated_at || '',
+        client_voters: f.client_voters || [],
+        estimated_impact: f.estimated_impact,
+        resource_requirement: f.resource_requirement,
+        strategic_alignment: f.strategic_alignment,
+        risks: f.risks
+      })),
+      collaborationTrendData,
+      data_socialization_forums: (data.forumsData || []).map((f: any) => ({
+        name: f.forum_name
+      }))
+    };
+  };
 
   // Compute dashboardData based on current product and quarter
   const dashboardData = useMemo(() => {
@@ -140,11 +398,8 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setError(null);
     
     try {
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // For demo purposes, just show success
-      console.log('CSV uploaded successfully (demo mode)');
+      // This is a generic upload function - redirect to specific upload functions
+      console.log('CSV uploaded successfully');
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Upload failed'));
     } finally {
@@ -157,8 +412,7 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setError(null);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      console.log('Product quarterly CSV uploaded successfully (demo mode)');
+      console.log('Product quarterly CSV uploaded successfully');
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Upload failed'));
     } finally {
@@ -185,19 +439,36 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       // Parse CSV data
       const { features } = await parseTopFeaturesCSV(fileContent);
 
-      // Update dashboard data with new top features data
-      setAllProductsData(prevData => {
-        const updatedData = { ...prevData };
-        
-        // Update current product's current quarter data
-        if (updatedData[currentProduct] && updatedData[currentProduct][currentQuarter]) {
-          const currentData = { ...updatedData[currentProduct][currentQuarter] };
-          currentData.topFeatures = features;
-          updatedData[currentProduct][currentQuarter] = currentData;
-        }
-        
-        return updatedData;
-      });
+      // Save to Supabase
+      const supabaseFeatures = features.map(feature => ({
+        product: currentProduct,
+        quarter: currentQuarter,
+        feature_name: feature.feature_name,
+        vote_count: feature.vote_count,
+        status: feature.status,
+        status_updated_at: feature.status_updated_at || null,
+        client_voters: feature.client_voters || [],
+        estimated_impact: feature.estimated_impact || null,
+        resource_requirement: feature.resource_requirement || null,
+        strategic_alignment: feature.strategic_alignment || null,
+        risks: feature.risks || null
+      }));
+
+      // Delete existing features for this product/quarter and insert new ones
+      await supabase
+        .from('features')
+        .delete()
+        .eq('product', currentProduct)
+        .eq('quarter', currentQuarter);
+
+      const { error: insertError } = await supabase
+        .from('features')
+        .insert(supabaseFeatures);
+
+      if (insertError) throw insertError;
+
+      // Reload dashboard data
+      await loadDashboardDataFromSupabase();
 
       console.log('Top features CSV uploaded and processed successfully');
     } catch (err) {
@@ -215,8 +486,6 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setError(null);
     
     try {
-      console.log('Starting CSV upload for file:', file.name, 'Size:', file.size);
-      
       // Read file content
       const fileContent = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -225,52 +494,44 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         reader.readAsText(file);
       });
 
-      console.log('File content read successfully, length:', fileContent.length);
-      console.log('First 200 characters:', fileContent.substring(0, 200));
-      
       // Validate CSV headers - make validation more lenient
       try {
         await validateCSVHeaders(fileContent, responsivenessTrendRequiredHeaders);
-        console.log('Header validation passed');
       } catch (headerError) {
         console.warn('Header validation failed, proceeding with parsing:', headerError);
         // Continue with parsing even if headers don't match exactly
       }
 
       // Parse CSV data
-      console.log('Starting CSV parsing...');
       const responsivenessData = await parseResponsivenessTrendCSV(fileContent);
-      console.log('CSV parsing completed, data:', responsivenessData);
 
-      // Update dashboard data with new responsiveness trend data
-      setAllProductsData(prevData => {
-        const updatedData = { ...prevData };
-        
-        // Update current product's current quarter data
-        if (updatedData[currentProduct] && updatedData[currentProduct][currentQuarter]) {
-          const currentData = { ...updatedData[currentProduct][currentQuarter] };
-          
-          // Update responsiveness quarterly data
-          currentData.metricSummary = {
-            ...currentData.metricSummary,
-            responsivenessQuarterlyData: responsivenessData
-          };
-          
-          // Update main responsiveness value to the latest quarter's percentage
-          if (responsivenessData.length > 0) {
-            const latestQuarter = responsivenessData[responsivenessData.length - 1];
-            currentData.metricSummary.responsiveness = latestQuarter.percentage;
-          }
-          
-          updatedData[currentProduct][currentQuarter] = currentData;
-        }
-        
-        return updatedData;
-      });
+      // Save to Supabase
+      const supabaseResponsivenessData = responsivenessData.map(item => ({
+        product: currentProduct,
+        quarter: item.quarter,
+        percentage: item.percentage,
+        total_ideas: item.totalIdeas,
+        ideas_moved_out_of_review: item.ideasMovedOutOfReview,
+        ideas_list: item.ideasList || null
+      }));
+
+      // Delete existing responsiveness data for this product and insert new ones
+      await supabase
+        .from('responsiveness_trends')
+        .delete()
+        .eq('product', currentProduct);
+
+      const { error: insertError } = await supabase
+        .from('responsiveness_trends')
+        .insert(supabaseResponsivenessData);
+
+      if (insertError) throw insertError;
+
+      // Reload dashboard data
+      await loadDashboardDataFromSupabase();
 
       console.log('Responsiveness trend CSV uploaded and processed successfully');
     } catch (err) {
-      console.error('CSV upload error:', err);
       let errorMessage = 'Upload failed. Please check the file format.';
       
       if (err instanceof CSVError) {
@@ -308,28 +569,83 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       // Parse CSV data
       const { commitmentTrends, quarterlyDeliveries } = await parseCommitmentTrendsCSV(fileContent);
 
-      // Update dashboard data with new commitment trends data
-      setAllProductsData(prevData => {
-        const updatedData = { ...prevData };
+      // Save to Supabase
+      const supabaseCommitmentData: any[] = [];
+      
+      // Add annual commitment data
+      commitmentTrends.forEach(trend => {
+        supabaseCommitmentData.push({
+          product: currentProduct,
+          year: trend.year,
+          committed: trend.committed,
+          delivered: trend.delivered,
+          quarter: null,
+          quarterly_delivered: null,
+          idea_id: null,
+          idea_summary: null
+        });
         
-        // Update current product's current quarter data
-        if (updatedData[currentProduct] && updatedData[currentProduct][currentQuarter]) {
-          const currentData = { ...updatedData[currentProduct][currentQuarter] };
-          
-          currentData.metricSummary = {
-            ...currentData.metricSummary,
-            roadmapAlignment: {
-              ...currentData.metricSummary.roadmapAlignment,
-              commitmentTrends,
-              quarterlyDeliveries
-            }
-          };
-          
-          updatedData[currentProduct][currentQuarter] = currentData;
+        // Add ideas for this year
+        if (trend.ideas) {
+          trend.ideas.forEach(idea => {
+            supabaseCommitmentData.push({
+              product: currentProduct,
+              year: trend.year,
+              committed: null,
+              delivered: null,
+              quarter: null,
+              quarterly_delivered: null,
+              idea_id: idea.id,
+              idea_summary: idea.summary
+            });
+          });
         }
-        
-        return updatedData;
       });
+      
+      // Add quarterly delivery data
+      quarterlyDeliveries.forEach(delivery => {
+        supabaseCommitmentData.push({
+          product: currentProduct,
+          year: delivery.year,
+          committed: null,
+          delivered: null,
+          quarter: delivery.quarter,
+          quarterly_delivered: delivery.delivered,
+          idea_id: null,
+          idea_summary: null
+        });
+        
+        // Add ideas for this quarter
+        if (delivery.ideas) {
+          delivery.ideas.forEach(idea => {
+            supabaseCommitmentData.push({
+              product: currentProduct,
+              year: delivery.year,
+              committed: null,
+              delivered: null,
+              quarter: delivery.quarter,
+              quarterly_delivered: null,
+              idea_id: idea.id,
+              idea_summary: idea.summary
+            });
+          });
+        }
+      });
+
+      // Delete existing commitment data for this product and insert new ones
+      await supabase
+        .from('commitment_trends')
+        .delete()
+        .eq('product', currentProduct);
+
+      const { error: insertError } = await supabase
+        .from('commitment_trends')
+        .insert(supabaseCommitmentData);
+
+      if (insertError) throw insertError;
+
+      // Reload dashboard data
+      await loadDashboardDataFromSupabase();
 
       console.log('Commitment trends CSV uploaded and processed successfully');
     } catch (err) {
@@ -361,34 +677,57 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       // Parse CSV data
       const { quarterlyTrends, ideas } = await parseContinuedEngagementCSV(fileContent);
 
-      // Update dashboard data with new continued engagement data
-      setAllProductsData(prevData => {
-        const updatedData = { ...prevData };
-        
-        // Update current product's current quarter data
-        if (updatedData[currentProduct] && updatedData[currentProduct][currentQuarter]) {
-          const currentData = { ...updatedData[currentProduct][currentQuarter] };
-          
-          // Find current quarter data or use the latest available
-          const currentQuarterData = quarterlyTrends.find(q => q.quarter === currentQuarter) || 
-                                   quarterlyTrends[quarterlyTrends.length - 1];
-          
-          currentData.metricSummary = {
-            ...currentData.metricSummary,
-            continuedEngagement: {
-              rate: currentQuarterData?.rate || currentData.metricSummary.continuedEngagement.rate,
-              numerator: currentQuarterData?.numerator || currentData.metricSummary.continuedEngagement.numerator,
-              denominator: currentQuarterData?.denominator || currentData.metricSummary.continuedEngagement.denominator,
-              quarterlyTrends,
-              ideas
-            }
-          };
-          
-          updatedData[currentProduct][currentQuarter] = currentData;
-        }
-        
-        return updatedData;
+      // Save to Supabase
+      const supabaseEngagementData: any[] = [];
+      
+      // Add quarterly trends data
+      quarterlyTrends.forEach(trend => {
+        supabaseEngagementData.push({
+          product: currentProduct,
+          quarter: trend.quarter,
+          rate: trend.rate,
+          numerator: trend.numerator,
+          denominator: trend.denominator,
+          idea_id: null,
+          idea_name: null,
+          initial_status_change: null,
+          subsequent_changes: null,
+          days_between: null,
+          included: null
+        });
       });
+      
+      // Add individual ideas data
+      ideas.forEach(idea => {
+        supabaseEngagementData.push({
+          product: currentProduct,
+          quarter: currentQuarter, // Associate with current quarter
+          rate: null,
+          numerator: null,
+          denominator: null,
+          idea_id: idea.id,
+          idea_name: idea.name,
+          initial_status_change: idea.initialStatusChange,
+          subsequent_changes: idea.subsequentChanges,
+          days_between: idea.daysBetween,
+          included: idea.included
+        });
+      });
+
+      // Delete existing engagement data for this product and insert new ones
+      await supabase
+        .from('continued_engagement')
+        .delete()
+        .eq('product', currentProduct);
+
+      const { error: insertError } = await supabase
+        .from('continued_engagement')
+        .insert(supabaseEngagementData);
+
+      if (insertError) throw insertError;
+
+      // Reload dashboard data
+      await loadDashboardDataFromSupabase();
 
       console.log('Continued engagement CSV uploaded and processed successfully');
     } catch (err) {
@@ -420,19 +759,51 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       // Parse CSV data
       const { lineChartData } = await parseClientSubmissionsCSV(fileContent);
 
-      // Update dashboard data with new client submissions data
-      setAllProductsData(prevData => {
-        const updatedData = { ...prevData };
+      // Save to Supabase
+      const supabaseSubmissionsData: any[] = [];
+      
+      lineChartData.forEach(submission => {
+        // Add quarter summary data
+        supabaseSubmissionsData.push({
+          product: currentProduct,
+          quarter: submission.quarter,
+          clients_representing: submission.clientsRepresenting,
+          client_names: submission.clients || [],
+          idea_id: null,
+          idea_summary: null,
+          idea_client_name: null
+        });
         
-        // Update current product's current quarter data
-        if (updatedData[currentProduct] && updatedData[currentProduct][currentQuarter]) {
-          const currentData = { ...updatedData[currentProduct][currentQuarter] };
-          currentData.lineChartData = lineChartData;
-          updatedData[currentProduct][currentQuarter] = currentData;
+        // Add individual ideas if available
+        if (submission.ideas) {
+          submission.ideas.forEach(idea => {
+            supabaseSubmissionsData.push({
+              product: currentProduct,
+              quarter: submission.quarter,
+              clients_representing: null,
+              client_names: null,
+              idea_id: idea.id,
+              idea_summary: idea.summary,
+              idea_client_name: idea.clientName
+            });
+          });
         }
-        
-        return updatedData;
       });
+
+      // Delete existing submissions data for this product and insert new ones
+      await supabase
+        .from('client_submissions')
+        .delete()
+        .eq('product', currentProduct);
+
+      const { error: insertError } = await supabase
+        .from('client_submissions')
+        .insert(supabaseSubmissionsData);
+
+      if (insertError) throw insertError;
+
+      // Reload dashboard data
+      await loadDashboardDataFromSupabase();
 
       console.log('Client submissions CSV uploaded and processed successfully');
     } catch (err) {
@@ -464,19 +835,65 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       // Parse CSV data
       const { collaborationTrendData } = await parseCrossClientCollaborationCSV(fileContent);
 
-      // Update dashboard data with new collaboration data
-      setAllProductsData(prevData => {
-        const updatedData = { ...prevData };
+      // Save to Supabase
+      const supabaseCollaborationData: any[] = [];
+      
+      collaborationTrendData.forEach(trend => {
+        // Add quarter summary data
+        supabaseCollaborationData.push({
+          product: currentProduct,
+          quarter: trend.quarter,
+          year: `FY${trend.year.toString().slice(-2)}`,
+          collaborative_ideas_count: trend.collaborativeIdeas,
+          total_ideas_count: trend.totalIdeas,
+          collaboration_rate: trend.collaborationRate,
+          idea_id: null,
+          idea_name: null,
+          original_submitter: null,
+          contributors: null,
+          submission_date: null,
+          collaboration_score: null,
+          status: null,
+          comments: null
+        });
         
-        // Update current product's current quarter data
-        if (updatedData[currentProduct] && updatedData[currentProduct][currentQuarter]) {
-          const currentData = { ...updatedData[currentProduct][currentQuarter] };
-          currentData.collaborationTrendData = collaborationTrendData;
-          updatedData[currentProduct][currentQuarter] = currentData;
+        // Add individual collaborative ideas if available
+        if (trend.topCollaborativeIdeas) {
+          trend.topCollaborativeIdeas.forEach(idea => {
+            supabaseCollaborationData.push({
+              product: currentProduct,
+              quarter: trend.quarter,
+              year: `FY${trend.year.toString().slice(-2)}`,
+              collaborative_ideas_count: null,
+              total_ideas_count: null,
+              collaboration_rate: null,
+              idea_id: idea.id,
+              idea_name: idea.name,
+              original_submitter: idea.originalSubmitter,
+              contributors: idea.contributors,
+              submission_date: idea.submissionDate,
+              collaboration_score: idea.collaborationScore,
+              status: idea.status,
+              comments: idea.comments
+            });
+          });
         }
-        
-        return updatedData;
       });
+
+      // Delete existing collaboration data for this product and insert new ones
+      await supabase
+        .from('cross_client_collaboration')
+        .delete()
+        .eq('product', currentProduct);
+
+      const { error: insertError } = await supabase
+        .from('cross_client_collaboration')
+        .insert(supabaseCollaborationData);
+
+      if (insertError) throw insertError;
+
+      // Reload dashboard data
+      await loadDashboardDataFromSupabase();
 
       console.log('Cross-client collaboration CSV uploaded and processed successfully');
     } catch (err) {
@@ -494,18 +911,32 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setError(null);
     
     try {
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Update local state
-      setAllProductsData(prevData => ({
-        ...prevData,
-        [currentProduct]: {
-          ...prevData[currentProduct],
-          [currentQuarter]: data
+      // Update forums in Supabase
+      if (data.data_socialization_forums) {
+        // Delete existing forums for this product
+        await supabase
+          .from('data_socialization_forums')
+          .delete()
+          .eq('product', currentProduct);
+
+        // Insert new forums
+        const forumsToInsert = data.data_socialization_forums.map(forum => ({
+          product: currentProduct,
+          forum_name: forum.name,
+          is_active: true
+        }));
+
+        if (forumsToInsert.length > 0) {
+          const { error: forumsError } = await supabase
+            .from('data_socialization_forums')
+            .insert(forumsToInsert);
+
+          if (forumsError) throw forumsError;
         }
-      }));
-      
+      }
+
+      // Reload dashboard data
+      await loadDashboardDataFromSupabase();
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Update failed'));
       throw err;
@@ -517,9 +948,8 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const refreshDashboardData = async (): Promise<void> => {
     setIsLoading(true);
     try {
-      // Simulate refresh
-      await new Promise(resolve => setTimeout(resolve, 500));
-      console.log('Dashboard data refreshed (demo mode)');
+      await loadDashboardDataFromSupabase();
+      console.log('Dashboard data refreshed from Supabase');
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Refresh failed'));
     } finally {
@@ -527,87 +957,96 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   };
 
-  // Action Items functions using localStorage
-  const getActionItemsKey = (product: Product, quarter: Quarter) => `${product}-${quarter}`;
-
+  // Action Items functions using Supabase
   const fetchActionItems = async (product: Product, quarter: Quarter): Promise<ActionItem[]> => {
-    const key = getActionItemsKey(product, quarter);
-    const existingItems = actionItemsData[key];
-    
-    if (existingItems && existingItems.length > 0) {
-      return existingItems;
+    try {
+      const { data, error } = await supabase
+        .from('action_items')
+        .select('*')
+        .eq('product', product)
+        .eq('quarter', quarter)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return (data || []).map(item => ({
+        id: item.id,
+        product: item.product as Product,
+        quarter: item.quarter as Quarter,
+        text: item.text,
+        completed: item.completed,
+        created_at: item.created_at,
+        updated_at: item.updated_at
+      }));
+    } catch (err) {
+      console.error('Error fetching action items:', err);
+      return [];
     }
-    
-    // Generate dummy action items if none exist
-    const dummyItems = generateDummyActionItems(product, quarter);
-    setActionItemsData(prev => ({
-      ...prev,
-      [key]: dummyItems
-    }));
-    
-    return dummyItems;
   };
 
   const createActionItem = async (product: Product, quarter: Quarter, text: string): Promise<ActionItem> => {
-    const newItem: ActionItem = {
-      id: Date.now().toString(),
-      product,
-      quarter,
-      text: text.trim(),
-      completed: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
 
-    const key = getActionItemsKey(product, quarter);
-    setActionItemsData(prev => ({
-      ...prev,
-      [key]: [newItem, ...(prev[key] || [])]
-    }));
+      const { data, error } = await supabase
+        .from('action_items')
+        .insert({
+          user_id: user.id,
+          product,
+          quarter,
+          text: text.trim(),
+          completed: false
+        })
+        .select()
+        .single();
 
-    return newItem;
+      if (error) throw error;
+
+      return {
+        id: data.id,
+        product: data.product as Product,
+        quarter: data.quarter as Quarter,
+        text: data.text,
+        completed: data.completed,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+    } catch (err) {
+      console.error('Error creating action item:', err);
+      throw err;
+    }
   };
 
   const updateActionItem = async (id: string, updates: Partial<ActionItem>): Promise<void> => {
-    setActionItemsData(prev => {
-      const newData = { ...prev };
-      
-      // Find the item across all product-quarter combinations
-      for (const key in newData) {
-        const items = newData[key];
-        const itemIndex = items.findIndex(item => item.id === id);
-        
-        if (itemIndex !== -1) {
-          newData[key] = items.map(item => 
-            item.id === id 
-              ? { ...item, ...updates, updated_at: new Date().toISOString() }
-              : item
-          );
-          break;
-        }
-      }
-      
-      return newData;
-    });
+    try {
+      const { error } = await supabase
+        .from('action_items')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error updating action item:', err);
+      throw err;
+    }
   };
 
   const deleteActionItem = async (id: string): Promise<void> => {
-    setActionItemsData(prev => {
-      const newData = { ...prev };
-      
-      // Find and remove the item across all product-quarter combinations
-      for (const key in newData) {
-        const items = newData[key];
-        const filteredItems = items.filter(item => item.id !== id);
-        
-        if (filteredItems.length !== items.length) {
-          newData[key] = filteredItems;
-          break;
-        }
-      }
-      
-      return newData;
-    });
+    try {
+      const { error } = await supabase
+        .from('action_items')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error deleting action item:', err);
+      throw err;
+    }
   };
 
   const value: DataContextType = {

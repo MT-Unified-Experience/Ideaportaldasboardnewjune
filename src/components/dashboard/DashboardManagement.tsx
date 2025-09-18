@@ -309,7 +309,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
                     disabled={isLoading}
                   />
                   <button
-                    onClick={() => document.getElementById('top-features-csv-upload')?.click()}
+                      {isLoading ? 'Uploading...' : 'Upload Top Features CSV (Supabase)'}
                     disabled={isLoading}
                     className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                       isLoading 
@@ -719,7 +719,7 @@ const DashboardManagement: React.FC<DashboardManagementProps> = ({ isOpen, onClo
               >
                 <Save className="h-4 w-4 mr-2" />
                 {isLocalLoading ? 'Saving...' : 'Save Changes'}
-              </button>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Dashboard Management</h2>
             </div>
           </div>
         </div>
