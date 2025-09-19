@@ -515,17 +515,14 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         ideas_list: item.ideasList || null
       }));
 
-      // Delete existing responsiveness data for this product and insert new ones
-      await supabase
+      // Use upsert to handle existing records gracefully
+      const { error: upsertError } = await supabase
         .from('responsiveness_trends')
-        .delete()
-        .eq('product', currentProduct);
+        .upsert(supabaseResponsivenessData, {
+          onConflict: 'product,quarter'
+        });
 
-      const { error: insertError } = await supabase
-        .from('responsiveness_trends')
-        .insert(supabaseResponsivenessData);
-
-      if (insertError) throw insertError;
+      if (upsertError) throw upsertError;
 
       // Reload dashboard data
       await loadDashboardDataFromSupabase();
