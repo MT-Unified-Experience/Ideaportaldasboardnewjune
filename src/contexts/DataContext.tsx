@@ -221,11 +221,11 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     
     // Calculate roadmap alignment from commitment data
     const currentQuarterCommitment = data.commitmentData.find((c: any) => 
-      c.quarter === quarter && c.committed !== null && c.delivered !== null
+      c.quarter === quarter && c.committed !== null
     );
     
-    // Fallback to any commitment data if no quarter-specific data found
-    const fallbackCommitment = currentQuarterCommitment || data.commitmentData.find((c: any) => c.committed !== null);
+    // Use quarter-specific data if available, otherwise use default values
+    const commitmentData = currentQuarterCommitment || { committed: 0, delivered: 0 };
     
     // Transform client submissions to line chart data
     const lineChartData = data.submissionsData
@@ -304,8 +304,8 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
           ideasList: r.ideas_list || []
         })),
         roadmapAlignment: {
-          committed: fallbackCommitment?.committed || 0,
-          total: fallbackCommitment?.delivered || 0,
+          committed: commitmentData.committed || 0,
+          total: commitmentData.delivered || 0,
           commitmentTrends: data.commitmentData
             .filter((c: any) => c.committed !== null)
             .map((c: any) => ({
