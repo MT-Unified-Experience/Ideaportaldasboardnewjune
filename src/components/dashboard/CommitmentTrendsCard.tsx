@@ -55,7 +55,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
             <div className="mt-1 flex items-baseline">
               <div className="flex items-center gap-3">
                 <p className="text-2xl font-semibold text-gray-900">
-                {value.committed}/{value.total}
+                {value.total}/{value.committed}
                 </p>
                 {value.commitmentStatus && (
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -68,7 +68,7 @@ const CommitmentTrendsCard: React.FC<CommitmentTrendsCardProps> = ({
                 )}
               </div>
             </div>
-            <p className="mt-1 text-xs text-gray-500">Total Planned Ideas Planned+Delivered to Date vs Annual Commitment</p>
+            <p className="mt-1 text-xs text-gray-500">Ideas Delivered to Date vs Annual Commitment</p>
           </div>
           <div className="p-2 rounded-full bg-purple-100">
             <Briefcase className="h-5 w-5 text-purple-600" />

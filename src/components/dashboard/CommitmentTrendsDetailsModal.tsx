@@ -213,16 +213,16 @@ const CommitmentTrendsDetailsModal: React.FC<CommitmentTrendsDetailsModalProps> 
           <div className="bg-purple-50 rounded-lg p-6">
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600">{value.committed}</div>
+                <div className="text-3xl font-bold text-purple-600">{value.total}</div>
                 <div className="text-sm text-gray-600">Ideas Delivered</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-gray-600">{value.total}</div>
+                <div className="text-3xl font-bold text-gray-600">{value.committed}</div>
                 <div className="text-sm text-gray-600">Annual Commitment</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-blue-600">
-                  {Math.round((value.committed / value.total) * 100)}%
+                  {Math.round((value.total / value.committed) * 100)}%
                 </div>
                 <div className="text-sm text-gray-600">Progress</div>
               </div>
