@@ -505,8 +505,15 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       // Parse CSV data
       const responsivenessData = await parseResponsivenessTrendCSV(fileContent);
 
-      // Save to Supabase
-      const supabaseResponsivenessData = responsivenessData.map(item => ({
+      // Deduplicate data by product and quarter (keep the last occurrence)
+      const deduplicatedData = responsivenessData.reduce((acc, item) => {
+        const key = `${currentProduct}-${item.quarter}`;
+        acc[key] = item; // This will overwrite any previous entry with the same key
+        return acc;
+      }, {} as Record<string, typeof responsivenessData[0]>);
+
+      // Convert back to array and save to Supabase
+      const supabaseResponsivenessData = Object.values(deduplicatedData).map(item => ({
         product: currentProduct,
         quarter: item.quarter,
         percentage: item.percentage,
