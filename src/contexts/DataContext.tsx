@@ -352,12 +352,12 @@ const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             }))
         },
         ideaVolume: {
-          quarterly: features?.length || 0,
-          total: features?.reduce((sum, f) => sum + f.vote_count, 0) || 0
+          quarterly: data.features?.length || 0,
+          total: data.features?.reduce((sum, f) => sum + f.vote_count, 0) || 0
         }
       },
       lineChartData,
-      topFeatures: (features || []).map((f: any) => ({
+      topFeatures: (data.features || []).map((f: any) => ({
         feature_name: f.feature_name,
         vote_count: f.vote_count,
         status: f.status,
